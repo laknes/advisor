@@ -1,0 +1,627 @@
+{
+  "projectName": "Portfolio Advisor",
+  "scanDate": "2026-06-06",
+  "overallStatus": "IN_PROGRESS",
+  "completionPercentage": "65%",
+  "featureAreas": [
+    {
+      "id": 1,
+      "name": "Home/Landing Page Structure",
+      "status": "COMPLETED",
+      "completionPercent": 100,
+      "components": [
+        {
+          "name": "Hero Section",
+          "status": "✅ DONE",
+          "details": "Gradient background with headline and CTA buttons",
+          "file": "src/app/page.tsx"
+        },
+        {
+          "name": "Value Propositions",
+          "status": "✅ DONE",
+          "details": "Real-time Analysis, Portfolio Management, etc.",
+          "file": "src/app/page.tsx"
+        },
+        {
+          "name": "Call-to-Action Buttons",
+          "status": "✅ DONE",
+          "details": "Sign up and Explore Markets buttons",
+          "file": "src/app/page.tsx"
+        },
+        {
+          "name": "Navigation Header",
+          "status": "✅ DONE",
+          "details": "Header component with authentication state handling",
+          "file": "src/components/Header.tsx"
+        }
+      ],
+      "notes": "Landing page is fully functional with mock data and proper styling",
+      "nextSteps": []
+    },
+    {
+      "id": 2,
+      "name": "Market Pages",
+      "status": "PARTIALLY_COMPLETED",
+      "completionPercent": 85,
+      "components": [
+        {
+          "name": "Markets Overview Page",
+          "status": "✅ DONE",
+          "details": "Grid view of 4 markets (Iran Stocks, Forex, Gold, Currency) with pricing",
+          "file": "src/app/markets/page.tsx"
+        },
+        {
+          "name": "Iran Stocks Market Detail Page",
+          "status": "✅ DONE",
+          "details": "Dynamic market detail page with slug-based routing",
+          "file": "src/app/markets/[slug]/page.tsx"
+        },
+        {
+          "name": "Forex Market Detail Page",
+          "status": "✅ DONE",
+          "details": "Available via dynamic routing",
+          "file": "src/app/markets/[slug]/page.tsx"
+        },
+        {
+          "name": "Gold Market Detail Page",
+          "status": "✅ DONE",
+          "details": "Available via dynamic routing",
+          "file": "src/app/markets/[slug]/page.tsx"
+        },
+        {
+          "name": "Currency Market Detail Page",
+          "status": "✅ DONE",
+          "details": "Available via dynamic routing",
+          "file": "src/app/markets/[slug]/page.tsx"
+        },
+        {
+          "name": "Analysis Display",
+          "status": "✅ DONE",
+          "details": "Shows short-term and long-term analyses with filtering",
+          "file": "src/app/markets/[slug]/page.tsx"
+        },
+        {
+          "name": "Real-time Price Updates",
+          "status": "⚠️ PARTIAL",
+          "details": "Using mock data, needs API integration for real-time data",
+          "file": "src/lib/mockData.ts"
+        }
+      ],
+      "notes": "All market pages structurally complete with mock data; needs real-time data integration",
+      "nextSteps": [
+        "Integrate real-time price APIs",
+        "Add subscription-based content locking",
+        "Implement price change animations"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Pricing Page",
+      "status": "COMPLETED",
+      "completionPercent": 100,
+      "components": [
+        {
+          "name": "Pricing Plans Display",
+          "status": "✅ DONE",
+          "details": "Shows subscription plans categorized by type",
+          "file": "src/app/pricing/page.tsx"
+        },
+        {
+          "name": "Billing Period Toggle",
+          "status": "✅ DONE",
+          "details": "Switch between monthly, quarterly, yearly billing",
+          "file": "src/app/pricing/page.tsx"
+        },
+        {
+          "name": "Subscription Button",
+          "status": "✅ DONE",
+          "details": "Subscribe button with loading states and error handling",
+          "file": "src/app/pricing/page.tsx"
+        },
+        {
+          "name": "Plan Categorization",
+          "status": "✅ DONE",
+          "details": "Organized by short-term, long-term, and all-access tiers",
+          "file": "src/app/pricing/page.tsx"
+        },
+        {
+          "name": "API Integration",
+          "status": "✅ DONE",
+          "details": "Fetches plans and subscriptions from API",
+          "file": "src/app/pricing/page.tsx"
+        }
+      ],
+      "notes": "Pricing page fully functional with subscription management",
+      "nextSteps": []
+    },
+    {
+      "id": 4,
+      "name": "Admin/Management Panel",
+      "status": "PARTIALLY_COMPLETED",
+      "completionPercent": 70,
+      "components": [
+        {
+          "name": "Admin Dashboard",
+          "status": "✅ DONE",
+          "details": "Main dashboard with key statistics and recent users",
+          "file": "src/app/admin/page.tsx"
+        },
+        {
+          "name": "Admin Sidebar Navigation",
+          "status": "✅ DONE",
+          "details": "Links to Dashboard, Users, Subscriptions, Analyses, Pricing, Reports, Settings",
+          "file": "src/app/admin/page.tsx"
+        },
+        {
+          "name": "User Management Page",
+          "status": "✅ DONE",
+          "details": "List of users with search functionality",
+          "file": "src/app/admin/users/page.tsx"
+        },
+        {
+          "name": "User Creation",
+          "status": "❌ NOT STARTED",
+          "details": "Form to add new users",
+          "file": "src/app/admin/users/new/ (missing)"
+        },
+        {
+          "name": "Analyses Management Page",
+          "status": "✅ DONE",
+          "details": "List of all analyses with publish/edit options",
+          "file": "src/app/admin/analyses/page.tsx"
+        },
+        {
+          "name": "Analyses Creation",
+          "status": "❌ NOT STARTED",
+          "details": "Form to publish new analysis",
+          "file": "src/app/admin/analyses/new/ (missing)"
+        },
+        {
+          "name": "Subscriptions Management",
+          "status": "❌ NOT STARTED",
+          "details": "Manage subscription plans and user subscriptions",
+          "file": "src/app/admin/subscriptions/ (missing)"
+        },
+        {
+          "name": "Pricing Management",
+          "status": "❌ NOT STARTED",
+          "details": "Create/edit subscription plans",
+          "file": "src/app/admin/pricing/ (missing)"
+        },
+        {
+          "name": "Reports Section",
+          "status": "❌ NOT STARTED",
+          "details": "Revenue, user, and analysis reports",
+          "file": "src/app/admin/reports/ (missing)"
+        },
+        {
+          "name": "Settings Section",
+          "status": "❌ NOT STARTED",
+          "details": "Platform and admin settings",
+          "file": "src/app/admin/settings/ (missing)"
+        }
+      ],
+      "notes": "Admin dashboard structure in place, but many management features incomplete",
+      "nextSteps": [
+        "Create user creation/edit forms",
+        "Create analysis creation/edit forms",
+        "Implement subscriptions management",
+        "Implement pricing/plans management",
+        "Build reports section",
+        "Build admin settings section"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Authentication Pages",
+      "status": "COMPLETED",
+      "completionPercent": 100,
+      "components": [
+        {
+          "name": "Login Page",
+          "status": "✅ DONE",
+          "details": "Email and password fields with validation and error handling",
+          "file": "src/app/auth/login/page.tsx"
+        },
+        {
+          "name": "Signup Page",
+          "status": "✅ DONE",
+          "details": "Name, email, password, confirm password with validation",
+          "file": "src/app/auth/signup/page.tsx"
+        },
+        {
+          "name": "Form Validation",
+          "status": "✅ DONE",
+          "details": "Client-side validation for all fields",
+          "file": "src/app/auth/login/page.tsx"
+        },
+        {
+          "name": "Error Messages",
+          "status": "✅ DONE",
+          "details": "Inline error display for validation failures",
+          "file": "src/app/auth/signup/page.tsx"
+        },
+        {
+          "name": "Loading States",
+          "status": "✅ DONE",
+          "details": "Loading indicators during form submission",
+          "file": "src/app/auth/login/page.tsx"
+        },
+        {
+          "name": "Navigation Links",
+          "status": "✅ DONE",
+          "details": "Links between login and signup pages",
+          "file": "src/app/auth/login/page.tsx"
+        },
+        {
+          "name": "Backend Integration",
+          "status": "⚠️ PARTIAL",
+          "details": "Forms validate client-side but don't connect to actual auth backend",
+          "file": "src/app/auth/login/page.tsx"
+        }
+      ],
+      "notes": "Authentication UI complete, but backend API integration needed",
+      "nextSteps": [
+        "Implement backend authentication endpoints",
+        "Add password reset functionality",
+        "Implement JWT/session management",
+        "Add OAuth/social login options"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "API Routes",
+      "status": "PARTIALLY_COMPLETED",
+      "completionPercent": 40,
+      "components": [
+        {
+          "name": "GET /api/subscription-plans",
+          "status": "✅ DONE",
+          "details": "Retrieves all subscription plans from mock service",
+          "file": "src/app/api/subscription-plans/route.ts"
+        },
+        {
+          "name": "GET /api/subscriptions",
+          "status": "✅ DONE",
+          "details": "Retrieves user's subscriptions",
+          "file": "src/app/api/subscriptions/route.ts"
+        },
+        {
+          "name": "POST /api/subscriptions",
+          "status": "✅ DONE",
+          "details": "Creates new subscription or cancels existing",
+          "file": "src/app/api/subscriptions/route.ts"
+        },
+        {
+          "name": "POST /api/auth/login",
+          "status": "❌ NOT STARTED",
+          "details": "User login endpoint",
+          "file": "src/app/api/auth/ (missing)"
+        },
+        {
+          "name": "POST /api/auth/signup",
+          "status": "❌ NOT STARTED",
+          "details": "User registration endpoint",
+          "file": "src/app/api/auth/ (missing)"
+        },
+        {
+          "name": "POST /api/auth/logout",
+          "status": "❌ NOT STARTED",
+          "details": "User logout endpoint",
+          "file": "src/app/api/auth/ (missing)"
+        },
+        {
+          "name": "GET /api/analyses",
+          "status": "❌ NOT STARTED",
+          "details": "Retrieve analyses by market or timeframe",
+          "file": "src/app/api/ (missing)"
+        },
+        {
+          "name": "POST /api/analyses",
+          "status": "❌ NOT STARTED",
+          "details": "Create new analysis",
+          "file": "src/app/api/ (missing)"
+        },
+        {
+          "name": "GET /api/markets",
+          "status": "❌ NOT STARTED",
+          "details": "Retrieve all markets",
+          "file": "src/app/api/ (missing)"
+        },
+        {
+          "name": "GET /api/prices",
+          "status": "❌ NOT STARTED",
+          "details": "Get real-time market prices",
+          "file": "src/app/api/ (missing)"
+        },
+        {
+          "name": "GET /api/users/:id",
+          "status": "❌ NOT STARTED",
+          "details": "Get user profile information",
+          "file": "src/app/api/ (missing)"
+        },
+        {
+          "name": "PUT /api/users/:id",
+          "status": "❌ NOT STARTED",
+          "details": "Update user profile",
+          "file": "src/app/api/ (missing)"
+        }
+      ],
+      "notes": "Only subscription-related APIs implemented; core features lack API routes",
+      "nextSteps": [
+        "Create authentication API endpoints",
+        "Create analyses CRUD endpoints",
+        "Create markets endpoints",
+        "Create user management endpoints",
+        "Integrate with real price data providers",
+        "Implement proper error handling and validation"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Components Availability",
+      "status": "COMPLETED",
+      "completionPercent": 100,
+      "components": [
+        {
+          "name": "Button Component",
+          "status": "✅ DONE",
+          "details": "Multiple variants and sizes",
+          "file": "src/components/Button.tsx"
+        },
+        {
+          "name": "Card Component",
+          "status": "✅ DONE",
+          "details": "CardHeader, CardContent, CardFooter subcomponents",
+          "file": "src/components/Card.tsx"
+        },
+        {
+          "name": "Badge Component",
+          "status": "✅ DONE",
+          "details": "Includes PriceChange, TrendIndicator, StatBlock variants",
+          "file": "src/components/Badge.tsx"
+        },
+        {
+          "name": "Input Component",
+          "status": "✅ DONE",
+          "details": "Text inputs with icons, labels, error display",
+          "file": "src/components/Form.tsx"
+        },
+        {
+          "name": "Textarea Component",
+          "status": "✅ DONE",
+          "details": "With character counter and helper text",
+          "file": "src/components/Form.tsx"
+        },
+        {
+          "name": "Select Component",
+          "status": "✅ DONE",
+          "details": "Dropdown with label and error states",
+          "file": "src/components/Form.tsx"
+        },
+        {
+          "name": "FormGroup Component",
+          "status": "✅ DONE",
+          "details": "Container for form fields",
+          "file": "src/components/Form.tsx"
+        },
+        {
+          "name": "Header Component",
+          "status": "✅ DONE",
+          "details": "Navigation header with auth state handling",
+          "file": "src/components/Header.tsx"
+        }
+      ],
+      "notes": "All core components are implemented and exported from index.ts",
+      "nextSteps": []
+    },
+    {
+      "id": 8,
+      "name": "Database Schema (Prisma)",
+      "status": "COMPLETED",
+      "completionPercent": 100,
+      "models": [
+        {
+          "name": "User Model",
+          "status": "✅ DONE",
+          "fields": "id, email, password, name, avatar, phone, country, verified, createdAt, updatedAt",
+          "relations": "subscriptions, portfolio, watchlist, alerts, notifications, savedAnalyses"
+        },
+        {
+          "name": "Market Model",
+          "status": "✅ DONE",
+          "fields": "id, name, slug, symbol, icon, description",
+          "relations": "analyses, prices, subscriptions"
+        },
+        {
+          "name": "Analysis Model",
+          "status": "✅ DONE",
+          "fields": "id, marketId, title, summary, fullContent, timeframe, analysisType, signal, riskLevel, targetPrice, entryPrice, stopLoss, takeProfit, accuracy, publishedAt, expiresAt, isLocked, requiredSubscription",
+          "relations": "market, savedAnalyses"
+        },
+        {
+          "name": "SubscriptionPlan Model",
+          "status": "✅ DONE",
+          "fields": "id, name, slug, description, type, marketId, price, currency, billingPeriod, features, isActive",
+          "relations": "subscriptions"
+        },
+        {
+          "name": "Subscription Model",
+          "status": "✅ DONE",
+          "fields": "id, userId, planId, marketId, startDate, endDate, isActive, autoRenew, paymentId, transactionId",
+          "relations": "user, plan, market"
+        },
+        {
+          "name": "Portfolio Model",
+          "status": "✅ DONE",
+          "fields": "id, userId, totalValue, totalInvested, totalReturn, returnPercentage",
+          "relations": "user, positions"
+        },
+        {
+          "name": "Position Model",
+          "status": "✅ DONE (partial in schema)",
+          "fields": "Based on Portfolio reference, likely symbol, quantity, entryPrice, currentPrice",
+          "relations": "portfolio"
+        },
+        {
+          "name": "Watchlist Model",
+          "status": "✅ REFERENCED",
+          "fields": "Referenced in User model",
+          "relations": "user"
+        },
+        {
+          "name": "PriceAlert Model",
+          "status": "✅ REFERENCED",
+          "fields": "Referenced in User model",
+          "relations": "user"
+        },
+        {
+          "name": "Notification Model",
+          "status": "✅ REFERENCED",
+          "fields": "Referenced in User model",
+          "relations": "user"
+        },
+        {
+          "name": "SavedAnalysis Model",
+          "status": "✅ REFERENCED",
+          "fields": "Referenced in User and Analysis models",
+          "relations": "user, analysis"
+        },
+        {
+          "name": "Price Model",
+          "status": "✅ REFERENCED",
+          "fields": "Referenced in Market model",
+          "relations": "market"
+        }
+      ],
+      "notes": "Core schema is well-designed with proper relationships; some models partially defined",
+      "nextSteps": [
+        "Complete Position, Watchlist, PriceAlert, Notification, SavedAnalysis, Price model definitions",
+        "Run prisma migrate to sync with database"
+      ]
+    }
+  ],
+  "dashboard_pages": {
+    "status": "PARTIALLY_COMPLETED",
+    "completionPercent": 65,
+    "pages": [
+      {
+        "name": "Dashboard Overview",
+        "path": "/dashboard",
+        "status": "✅ DONE",
+        "file": "src/app/dashboard/page.tsx"
+      },
+      {
+        "name": "Portfolio Page",
+        "path": "/dashboard/portfolio",
+        "status": "✅ DONE",
+        "file": "src/app/dashboard/portfolio/page.tsx"
+      },
+      {
+        "name": "Subscriptions Page",
+        "path": "/dashboard/subscriptions",
+        "status": "✅ DONE",
+        "file": "src/app/dashboard/subscriptions/page.tsx"
+      },
+      {
+        "name": "Watchlist Page",
+        "path": "/dashboard/watchlist",
+        "status": "❌ NOT STARTED",
+        "file": "src/app/dashboard/watchlist/page.tsx"
+      },
+      {
+        "name": "Analyses Page",
+        "path": "/dashboard/analyses",
+        "status": "❌ NOT STARTED",
+        "file": "src/app/dashboard/analyses/page.tsx"
+      },
+      {
+        "name": "Alerts Page",
+        "path": "/dashboard/alerts",
+        "status": "❌ NOT STARTED",
+        "file": "src/app/dashboard/alerts/page.tsx"
+      },
+      {
+        "name": "Profile Settings Page",
+        "path": "/dashboard/profile",
+        "status": "❌ NOT STARTED",
+        "file": "src/app/dashboard/profile/page.tsx"
+      }
+    ]
+  },
+  "summary": {
+    "completed": {
+      "count": 25,
+      "items": [
+        "Home/Landing page with hero section",
+        "Market pages (overview and detail pages for all 4 markets)",
+        "Pricing page with plan management",
+        "Authentication pages (login/signup)",
+        "Basic admin dashboard",
+        "User management view",
+        "Analyses management view",
+        "All UI components (Button, Card, Badge, Form elements, Header)",
+        "Complete Prisma schema with all core models",
+        "Subscription API endpoints",
+        "Portfolio and subscriptions dashboard pages"
+      ]
+    },
+    "inProgress": {
+      "count": 8,
+      "items": [
+        "Real-time price data integration (using mock data)",
+        "Backend authentication integration",
+        "API endpoint expansion",
+        "Dashboard page completion",
+        "Admin panel management features"
+      ]
+    },
+    "notStarted": {
+      "count": 20,
+      "items": [
+        "Authentication API endpoints (login, signup, logout)",
+        "Analyses CRUD endpoints",
+        "Markets data endpoints",
+        "Real-time price feeds",
+        "User management endpoints",
+        "Admin forms (user creation, analysis publishing)",
+        "Dashboard sub-pages (watchlist, alerts, profile)",
+        "Reports section",
+        "Admin settings section",
+        "Price alert functionality",
+        "Notification system",
+        "Saved analyses feature",
+        "Payment integration",
+        "Email notifications",
+        "Real-time data streaming",
+        "Two-factor authentication",
+        "Password reset functionality",
+        "User preferences and settings",
+        "Analytics and tracking",
+        "Admin audit logs"
+      ]
+    }
+  },
+  "recommendations": {
+    "immediate_priority": [
+      "Implement authentication API endpoints (critical for app functionality)",
+      "Complete remaining dashboard pages (watchlist, alerts, profile)",
+      "Create admin management forms (user and analysis CRUD)",
+      "Integrate real market data providers",
+      "Connect Prisma to actual database"
+    ],
+    "next_phase": [
+      "Implement payment/subscription processing",
+      "Add email notification system",
+      "Implement real-time price updates (WebSocket or polling)",
+      "Add 2FA and enhanced security features",
+      "Build analytics dashboard"
+    ],
+    "optimization": [
+      "Add error boundaries and better error handling",
+      "Implement loading skeletons for better UX",
+      "Add caching strategies for frequently accessed data",
+      "Implement proper logging and monitoring"
+    ]
+  }
+}

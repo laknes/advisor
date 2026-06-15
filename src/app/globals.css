@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-[#160022] text-secondary-100 antialiased;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(216, 180, 254, 0.22), transparent 30rem),
+      radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.16), transparent 28rem),
+      linear-gradient(135deg, #160022 0%, #24003f 48%, #0f001b 100%);
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl font-bold tracking-tight;
+  }
+
+  h4 {
+    @apply text-xl font-semibold;
+  }
+
+  h5 {
+    @apply text-lg font-semibold;
+  }
+
+  h6 {
+    @apply text-base font-semibold;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-2.5 bg-white text-primary-900 font-bold rounded-lg hover:bg-primary-100 transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-2.5 bg-secondary-100 text-secondary-900 font-medium rounded-lg hover:bg-secondary-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-2.5 border-2 border-primary-600 text-primary-600 font-medium rounded-lg hover:bg-primary-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .card {
+    @apply rounded-lg border border-white/15 bg-white/10 shadow-sm backdrop-blur-xl transition-shadow duration-200 p-6;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-white border border-secondary-200 rounded-lg text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+  }
+
+  .badge {
+    @apply inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full;
+  }
+
+  .badge-success {
+    @apply bg-primary-100 text-primary-900;
+  }
+
+  .badge-danger {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-warning {
+    @apply bg-white text-primary-900;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-secondary-900 mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-secondary-600 mb-8;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .table-responsive {
+    @apply w-full overflow-x-auto;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply border border-white/15 bg-white/10 shadow-2xl shadow-black/20 backdrop-blur-2xl;
+  }
+
+  .glass-soft {
+    @apply border border-white/10 bg-white/[0.07] backdrop-blur-xl;
+  }
+
+  .aurora-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: linear-gradient(to bottom, black, transparent 80%);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f5f4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+body {
+  background: #160022;
+  color: #ffffff;
+  font-family: Vazirmatn, IRANSans, Tahoma, Arial, Helvetica, sans-serif;
+}

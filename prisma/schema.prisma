@@ -1,0 +1,314 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Models
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  password      String
+  name          String?
+  avatar        String?
+  phone         String?
+  country       String?
+  verified      Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  subscriptions Subscription[]
+  portfolio     Portfolio?
+  watchlist     Watchlist[]
+  alerts        PriceAlert[]
+  notifications Notification[]
+  savedAnalyses SavedAnalysis[]
+
+  @@map("users")
+}
+
+// Market Models
+model Market {
+  id        String    @id @default(cuid())
+  name      String    @unique // "Iran Stocks", "Forex", "Gold", "Currency"
+  slug      String    @unique
+  symbol    String?
+  icon      String?
+  description String?
+  
+  analyses  Analysis[]
+  prices    Price[]
+  subscriptions Subscription[]
+
+  @@map("markets")
+}
+
+// Analysis Models
+model Analysis {
+  id              String    @id @default(cuid())
+  marketId        String
+  market          Market    @relation(fields: [marketId], references: [id])
+  
+  title           String
+  summary         String    @db.Text
+  fullContent     String?   @db.Text
+  
+  timeframe       String    // "daily", "weekly", "monthly", "3month", "1year", "3year"
+  analysisType    String    // "short_term" or "long_term"
+  
+  signal          String    // "BUY", "SELL", "HOLD"
+  riskLevel       String    // "LOW", "MEDIUM", "HIGH"
+  targetPrice     Float?
+  entryPrice      Float?
+  stopLoss        Float?
+  takeProfit      Float?
+  
+  accuracy        Float?    @default(0) // Historical accuracy percentage
+  publishedAt     DateTime
+  expiresAt       DateTime?
+  
+  isLocked        Boolean   @default(true)
+  requiredSubscription String? // "daily", "weekly", null for free
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  savedAnalyses   SavedAnalysis[]
+
+  @@map("analyses")
+}
+
+// Subscription Models
+model SubscriptionPlan {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  description     String?   @db.Text
+  
+  type            String    // "timeframe" (daily/weekly/monthly), "long_term" (3month/1year/3year), "market_full", "all_markets", "vip"
+  marketId        String?   // null for all-markets or VIP
+  
+  price           Float
+  currency        String    @default("USD")
+  billingPeriod   String    // "monthly", "quarterly", "yearly"
+  
+  features        String[]
+  isActive        Boolean   @default(true)
+  
+  subscriptions   Subscription[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("subscription_plans")
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  planId          String
+  plan            SubscriptionPlan @relation(fields: [planId], references: [id])
+  
+  marketId        String?
+  market          Market?   @relation(fields: [marketId], references: [id])
+  
+  startDate       DateTime  @default(now())
+  endDate         DateTime
+  isActive        Boolean   @default(true)
+  autoRenew       Boolean   @default(true)
+  
+  paymentId       String?
+  transactionId   String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, planId, marketId])
+  @@map("subscriptions")
+}
+
+// Portfolio Models
+model Portfolio {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  totalValue      Float     @default(0)
+  totalInvested   Float     @default(0)
+  totalReturn     Float     @default(0)
+  returnPercentage Float    @default(0)
+  
+  positions       Position[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("portfolios")
+}
+
+model Position {
+  id              String    @id @default(cuid())
+  portfolioId     String
+  portfolio       Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  
+  symbol          String
+  quantity        Float
+  entryPrice      Float
+  currentPrice    Float
+  totalCost       Float
+  currentValue    Float
+  profitLoss      Float
+  profitLossPercent Float
+  
+  type            String    // "stock", "forex", "gold", "currency"
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("positions")
+}
+
+// Price Models
+model Price {
+  id              String    @id @default(cuid())
+  marketId        String
+  market          Market    @relation(fields: [marketId], references: [id])
+  
+  symbol          String
+  currentPrice    Float
+  previousClose   Float?
+  dayHigh         Float?
+  dayLow          Float?
+  volume          Float?
+  marketCap       Float?
+  
+  change          Float?
+  changePercent   Float?
+  
+  timestamp       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([marketId, symbol, timestamp])
+  @@map("prices")
+}
+
+// Watchlist Models
+model Watchlist {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  symbol          String
+  market          String    // market name/type
+  name            String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, symbol])
+  @@map("watchlists")
+}
+
+// Price Alert Models
+model PriceAlert {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  symbol          String
+  market          String
+  condition       String    // "above", "below"
+  price           Float
+  
+  isTriggered     Boolean   @default(false)
+  triggeredAt     DateTime?
+  isActive        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("price_alerts")
+}
+
+// Notification Models  
+model Notification {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type            String    // "analysis", "alert", "subscription", "news"
+  title           String
+  message         String    @db.Text
+  link            String?
+  
+  isRead          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+
+  @@map("notifications")
+}
+
+// Saved Analysis Model
+model SavedAnalysis {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  analysisId      String
+  analysis        Analysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  @@unique([userId, analysisId])
+  @@map("saved_analyses")
+}
+
+// Discount Models
+model DiscountCode {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  description     String?
+  
+  discountType    String    // "percentage", "fixed"
+  discountValue   Float
+  
+  maxUses         Int?
+  currentUses     Int       @default(0)
+  
+  validFrom       DateTime
+  validUntil      DateTime
+  isActive        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("discount_codes")
+}
+
+// Payment Transaction Model
+model Transaction {
+  id              String    @id @default(cuid())
+  userId          String
+  amount          Float
+  currency        String
+  
+  status          String    // "pending", "completed", "failed"
+  transactionType String    // "subscription", "wallet"
+  
+  planId          String?
+  discountCode    String?
+  
+  gatewayResponse String?   @db.Text
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("transactions")
+}

@@ -1,0 +1,13 @@
+import { NextRequest } from 'next/server';
+import { AdminService } from '@/server/services/AdminService';
+import { handleError, requireAdmin, successResponse } from '@/server/middleware';
+
+export async function GET(req: NextRequest) {
+  try {
+    await requireAdmin(req);
+    const stats = await AdminService.getDashboardStats();
+    return successResponse({ stats });
+  } catch (error) {
+    return handleError(error);
+  }
+}
