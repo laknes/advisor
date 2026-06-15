@@ -2,9 +2,11 @@
 
 import { Header, Card, Button, Input, FormGroup } from '@/components';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,7 +25,7 @@ export default function SignupPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -39,12 +41,30 @@ export default function SignupPage() {
       return;
     }
 
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/auth?action=register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        setErrors({ email: payload.error || 'ثبت‌نام ناموفق بود' });
+        return;
+      }
+
+      localStorage.setItem('portfolio_advisor_token', payload.data.token);
+      localStorage.setItem('portfolio_advisor_user', JSON.stringify(payload.data.user));
+      router.push('/fa/dashboard');
+    } finally {
       setIsLoading(false);
-      // Redirect to dashboard
-    }, 2000);
+    }
   };
 
   return (
@@ -64,7 +84,7 @@ export default function SignupPage() {
                 <Input
                   label="Full Name"
                   name="name"
-                  placeholder="John Doe"
+                  placeholder="نام و نام خانوادگی"
                   value={formData.name}
                   onChange={handleChange}
                   error={errors.name}

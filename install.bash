@@ -11,7 +11,10 @@ APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_USER="${SUDO_USER:-$(id -un)}"
 DOMAIN=""
 LETSENCRYPT_EMAIL=""
-ADMIN_EMAILS="admin@advisor.com"
+ADMIN_EMAIL=""
+ADMIN_NAME="مدیر سیستم"
+ADMIN_PASSWORD=""
+ADMIN_EMAILS=""
 PORT="3000"
 DB_NAME="portfolio_advisor"
 DB_USER="portfolio_advisor"
@@ -36,12 +39,15 @@ die() {
 usage() {
   cat <<'EOF'
 Usage:
-  sudo bash install.bash --domain example.com --email admin@example.com --admin-emails admin@example.com
+  sudo bash install.bash --domain example.com --email ops@example.com --admin-email admin@example.com
 
 Options:
   --domain DOMAIN             Domain for Nginx and SSL, e.g. advisor.example.com
   --email EMAIL               Let's Encrypt email address
-  --admin-emails LIST         Comma-separated admin emails for ADMIN_EMAILS
+  --admin-email EMAIL         Initial admin login email
+  --admin-password PASSWORD   Initial admin login password. Prompted securely if omitted
+  --admin-name NAME           Initial admin display name. Default: مدیر سیستم
+  --admin-emails LIST         Optional comma-separated extra admin emails; admin-email is always included
   --app-dir PATH              App directory. Defaults to directory containing install.bash
   --app-user USER             Linux user that runs the app. Defaults to SUDO_USER/current user
   --port PORT                 Local Next.js port. Default: 3000
@@ -54,7 +60,7 @@ Options:
   -h, --help                  Show this help
 
 Environment overrides:
-  DOMAIN, LETSENCRYPT_EMAIL, ADMIN_EMAILS, PORT, DB_NAME, DB_USER, DB_PASS
+  DOMAIN, LETSENCRYPT_EMAIL, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_EMAILS, PORT, DB_NAME, DB_USER, DB_PASS
 EOF
 }
 
@@ -62,6 +68,9 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --domain) DOMAIN="${2:?Missing value for --domain}"; shift 2 ;;
     --email) LETSENCRYPT_EMAIL="${2:?Missing value for --email}"; shift 2 ;;
+    --admin-email) ADMIN_EMAIL="${2:?Missing value for --admin-email}"; shift 2 ;;
+    --admin-password) ADMIN_PASSWORD="${2:?Missing value for --admin-password}"; shift 2 ;;
+    --admin-name) ADMIN_NAME="${2:?Missing value for --admin-name}"; shift 2 ;;
     --admin-emails) ADMIN_EMAILS="${2:?Missing value for --admin-emails}"; shift 2 ;;
     --app-dir) APP_DIR="${2:?Missing value for --app-dir}"; shift 2 ;;
     --app-user) APP_USER="${2:?Missing value for --app-user}"; shift 2 ;;
@@ -79,7 +88,10 @@ done
 
 DOMAIN="${DOMAIN:-${INSTALL_DOMAIN:-}}"
 LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-${INSTALL_EMAIL:-}}"
-ADMIN_EMAILS="${ADMIN_EMAILS:-${INSTALL_ADMIN_EMAILS:-admin@advisor.com}}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-${INSTALL_ADMIN_EMAIL:-}}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-${INSTALL_ADMIN_PASSWORD:-}}"
+ADMIN_NAME="${ADMIN_NAME:-${INSTALL_ADMIN_NAME:-مدیر سیستم}}"
+ADMIN_EMAILS="${ADMIN_EMAILS:-${INSTALL_ADMIN_EMAILS:-}}"
 PORT="${PORT:-${INSTALL_PORT:-3000}}"
 DB_NAME="${DB_NAME:-${INSTALL_DB_NAME:-portfolio_advisor}}"
 DB_USER="${DB_USER:-${INSTALL_DB_USER:-portfolio_advisor}}"
@@ -104,10 +116,38 @@ prompt_if_needed() {
     read -r -p "Email for Let's Encrypt SSL certificates: " LETSENCRYPT_EMAIL
   fi
 
-  if [[ "$ADMIN_EMAILS" == "admin@advisor.com" ]]; then
-    read -r -p "Admin email(s), comma-separated [admin@advisor.com]: " input_admins
-    ADMIN_EMAILS="${input_admins:-$ADMIN_EMAILS}"
+  if [[ -z "$ADMIN_EMAIL" ]]; then
+    read -r -p "Admin login email: " ADMIN_EMAIL
   fi
+
+  if [[ "$ADMIN_NAME" == "مدیر سیستم" ]]; then
+    read -r -p "Admin display name [مدیر سیستم]: " input_admin_name
+    ADMIN_NAME="${input_admin_name:-$ADMIN_NAME}"
+  fi
+
+  if [[ -z "$ADMIN_EMAILS" ]]; then
+    read -r -p "Extra admin email allowlist, comma-separated (optional): " input_admins
+    ADMIN_EMAILS="${input_admins:-}"
+  fi
+
+  while [[ -z "$ADMIN_PASSWORD" ]]; do
+    read -r -s -p "Admin login password (min 8 chars): " first_password
+    printf '\n'
+    read -r -s -p "Confirm admin password: " second_password
+    printf '\n'
+
+    if [[ "$first_password" != "$second_password" ]]; then
+      warn "Passwords do not match. Try again."
+      continue
+    fi
+
+    if [[ "${#first_password}" -lt 8 ]]; then
+      warn "Password must be at least 8 characters."
+      continue
+    fi
+
+    ADMIN_PASSWORD="$first_password"
+  done
 }
 
 validate_inputs() {
@@ -122,6 +162,14 @@ validate_inputs() {
   if [[ -n "$DOMAIN" && "$SKIP_SSL" != "true" && -z "$LETSENCRYPT_EMAIL" ]]; then
     die "--email is required when SSL is enabled."
   fi
+
+  if [[ -z "$ADMIN_EMAIL" ]]; then
+    die "Admin email is required. Use --admin-email or INSTALL_ADMIN_EMAIL."
+  fi
+
+  if [[ -z "$ADMIN_PASSWORD" || "${#ADMIN_PASSWORD}" -lt 8 ]]; then
+    die "Admin password is required and must be at least 8 characters. Use --admin-password or INSTALL_ADMIN_PASSWORD."
+  fi
 }
 
 random_secret() {
@@ -129,7 +177,11 @@ random_secret() {
 }
 
 random_db_password() {
-  openssl rand -base64 30 | tr -dc 'A-Za-z0-9_@%+=' | head -c 28
+  openssl rand -base64 30 | tr -dc 'A-Za-z0-9' | head -c 28
+}
+
+url_encode() {
+  node -e "process.stdout.write(encodeURIComponent(process.argv[1]))" "$1"
 }
 
 install_system_packages() {
@@ -204,10 +256,19 @@ write_env_files() {
     base_url="http://localhost:${PORT}"
   fi
 
-  local nextauth_secret jwt_secret database_url
+  local nextauth_secret jwt_secret database_url effective_admin_emails
   nextauth_secret="$(random_secret)"
   jwt_secret="$(random_secret)"
-  database_url="postgresql://${DB_USER}:${DB_PASS}@localhost:5432/${DB_NAME}"
+  local db_user_encoded db_pass_encoded db_name_encoded
+  db_user_encoded="$(url_encode "$DB_USER")"
+  db_pass_encoded="$(url_encode "$DB_PASS")"
+  db_name_encoded="$(url_encode "$DB_NAME")"
+  database_url="postgresql://${db_user_encoded}:${db_pass_encoded}@localhost:5432/${db_name_encoded}"
+  if [[ -n "$ADMIN_EMAILS" ]]; then
+    effective_admin_emails="${ADMIN_EMAIL},${ADMIN_EMAILS}"
+  else
+    effective_admin_emails="${ADMIN_EMAIL}"
+  fi
 
   umask 077
   cat > "${APP_DIR}/.env.production" <<EOF
@@ -216,7 +277,8 @@ NEXTAUTH_URL=${base_url}
 NEXTAUTH_SECRET=${nextauth_secret}
 JWT_SECRET=${jwt_secret}
 JWT_EXPIRY=7d
-ADMIN_EMAILS=${ADMIN_EMAILS}
+ADMIN_EMAIL=${ADMIN_EMAIL}
+ADMIN_EMAILS=${effective_admin_emails}
 NEXT_PUBLIC_API_URL=${base_url}/api
 NODE_ENV=production
 PORT=${PORT}
@@ -259,6 +321,22 @@ setup_prisma() {
     warn "No Prisma migrations found. Using prisma db push for first deployment."
     sudo -u "$APP_USER" npx prisma db push
   fi
+}
+
+seed_production_data() {
+  log "Creating production admin user and baseline database data"
+  cd "$APP_DIR"
+  set -a
+  # shellcheck disable=SC1091
+  source "$APP_DIR/.env.production"
+  set +a
+
+  sudo -u "$APP_USER" env \
+    INSTALL_ADMIN_EMAIL="$ADMIN_EMAIL" \
+    INSTALL_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+    INSTALL_ADMIN_NAME="$ADMIN_NAME" \
+    DATABASE_URL="$DATABASE_URL" \
+    node scripts/seed-production.mjs
 }
 
 build_app() {
@@ -398,8 +476,9 @@ Database:
   name: ${DB_NAME}
   user: ${DB_USER}
 
-Admin emails:
-  ${ADMIN_EMAILS}
+Admin login:
+  email: ${ADMIN_EMAIL}
+  allowlist: ${ADMIN_EMAIL}${ADMIN_EMAILS:+,${ADMIN_EMAILS}}
 
 Environment files:
   ${APP_DIR}/.env.production
@@ -423,6 +502,7 @@ main() {
   write_env_files
   install_app_dependencies
   setup_prisma
+  seed_production_data
   build_app
   create_systemd_service
   configure_nginx

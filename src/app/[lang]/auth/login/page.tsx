@@ -2,9 +2,11 @@
 
 import { Header, Card, Button, Input, FormGroup } from '@/components';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,7 +27,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -39,12 +41,29 @@ export default function LoginPage() {
       return;
     }
 
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/auth?action=login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        setErrors({ password: payload.error || 'ورود ناموفق بود' });
+        return;
+      }
+
+      localStorage.setItem('portfolio_advisor_token', payload.data.token);
+      localStorage.setItem('portfolio_advisor_user', JSON.stringify(payload.data.user));
+      router.push('/fa/dashboard');
+    } finally {
       setIsLoading(false);
-      // Redirect to dashboard
-    }, 2000);
+    }
   };
 
   return (
@@ -130,12 +149,6 @@ export default function LoginPage() {
               <Button variant="secondary" fullWidth>
                 <span className="mr-2">📘</span> Facebook
               </Button>
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-              <p className="text-sm text-blue-900">
-                <strong>Demo Account:</strong> Use email: <code className="bg-blue-100 px-2 rounded">demo@advisor.com</code> and any password
-              </p>
             </div>
           </div>
         </Card>

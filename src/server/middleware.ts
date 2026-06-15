@@ -76,7 +76,7 @@ export async function requireAuth(req: NextRequest) {
 
 export async function requireAdmin(req: NextRequest) {
   const auth = await requireAuth(req);
-  const allowlist = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || 'admin@advisor.com')
+  const allowlist = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
     .split(',')
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);

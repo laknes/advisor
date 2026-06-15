@@ -151,10 +151,9 @@ npm run dev
 6. **Open in browser**
 Visit [http://localhost:3000](http://localhost:3000)
 
-### Demo Credentials
+### Production Admin
 
-- **Email**: demo@advisor.com
-- **Password**: demo123456
+The production admin account is created by `install.bash`. During installation, enter a real admin email and password; the installer hashes the password and stores the admin user in PostgreSQL.
 
 ## 📖 Usage
 
@@ -292,11 +291,10 @@ npx prisma studio                   # Open Prisma GUI
 
 ## 🚨 Important Notes
 
-1. **Mock Data**: Currently uses mock data. Connect to real database in production
-2. **Authentication**: Authentication pages are UI templates. Implement with NextAuth.js
-3. **Payment**: Subscription system is ready for Stripe integration
-4. **Real-time Data**: Integrate with market data provider (Alpha Vantage, etc.)
-5. **Database**: Configure PostgreSQL connection in `.env.local`
+1. **Admin setup**: Use `install.bash` to create the production admin user and database.
+2. **Payment**: Subscription system is ready for Stripe integration.
+3. **Real-time Data**: Integrate with a market data provider for live quotes.
+4. **Database**: Configure PostgreSQL connection in `.env.local` or `.env.production`.
 
 ## 📝 Configuration Files
 

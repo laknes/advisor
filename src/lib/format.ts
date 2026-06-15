@@ -16,7 +16,6 @@ const faUiPhrases: Array<[RegExp, string]> = [
   [/Learn More/g, 'اطلاعات بیشتر'],
   [/Create Account/g, 'ایجاد حساب'],
   [/Login to your/g, 'ورود به'],
-  [/Demo Account/g, 'حساب آزمایشی'],
   [/Account Management/g, 'مدیریت حساب'],
   [/Delete Account/g, 'حذف حساب'],
   [/Account/g, 'حساب کاربری'],

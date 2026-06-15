@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'dev-only-secret-key');
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 
 export interface JWTPayload {
@@ -15,6 +15,10 @@ export interface JWTPayload {
  * Create JWT token
  */
 export function createToken(userId: string, email: string): string {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is required');
+  }
+
   const payload: JWTPayload = {
     userId,
     email,
@@ -31,6 +35,9 @@ export function createToken(userId: string, email: string): string {
  */
 export function verifyToken(token: string): JWTPayload | null {
   try {
+    if (!JWT_SECRET) {
+      return null;
+    }
     const decoded = jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
     });

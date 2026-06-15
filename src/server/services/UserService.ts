@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { hashPassword, comparePassword, createToken } from '@/lib/auth';
-import { ConflictError, NotFoundError } from '@/lib/errors';
+import { ConflictError, NotFoundError, UnauthorizedError } from '@/lib/errors';
 import type { RegisterInput, LoginInput, UpdateProfileInput } from '@/lib/validations';
 
 export class UserService {
@@ -75,7 +75,7 @@ export class UserService {
     const isPasswordValid = await comparePassword(password, user.password);
 
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedError('Invalid credentials');
     }
 
     // Create token
