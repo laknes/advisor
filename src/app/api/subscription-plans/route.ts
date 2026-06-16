@@ -4,9 +4,10 @@ import { CreateSubscriptionPlanSchema } from '@/lib/validations';
 import { formatZodError } from '@/lib/errors';
 import { handleError, requireAdmin, successResponse } from '@/server/middleware';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const plans = await SubscriptionService.getAllPlans();
+    const includeInactive = req.nextUrl.searchParams.get('includeInactive') === 'true';
+    const plans = await SubscriptionService.getAllPlans(!includeInactive);
     return successResponse({ plans });
   } catch (error) {
     return handleError(error);

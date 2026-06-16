@@ -1,9 +1,10 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Button, Card, CardContent, PriceChange, StatBlock, useLocale } from '@/components';
 import { useDictionary } from '@/components/useDictionary';
-import { mockMarkets, mockPrices, mockSubscriptionPlans, performanceStats, marketSummary, mockAnalyses } from '@/lib/mockData';
-import { Analysis } from '@/lib/types';
+import { apiGet } from '@/lib/apiClient';
+import { Analysis, Market, Price, SubscriptionPlan } from '@/lib/types';
 import { formatFaDate, formatFaNumber } from '@/lib/format';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -40,6 +41,56 @@ const billingLabel: Record<string, string> = {
 export default function Home() {
   const { locale } = useLocale();
   const dict = useDictionary();
+  const [markets, setMarkets] = useState<Array<Market & { prices?: Price[] }>>([]);
+  const [analyses, setAnalyses] = useState<Analysis[]>([]);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [settings, setSettings] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    let mounted = true;
+
+    Promise.all([
+      apiGet<{ markets: Array<Market & { prices?: Price[] }> }>('/api/markets'),
+      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=6'),
+      apiGet<{ plans: SubscriptionPlan[] }>('/api/subscription-plans'),
+      apiGet<{ settings: Record<string, any> }>('/api/settings'),
+    ])
+      .then(([marketData, analysisData, planData, settingsData]) => {
+        if (!mounted) return;
+        setMarkets(marketData.markets);
+        setAnalyses(analysisData.analyses);
+        setPlans(planData.plans);
+        setSettings(settingsData.settings);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setMarkets([]);
+        setAnalyses([]);
+        setPlans([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const prices = useMemo(() => markets.flatMap((market) => market.prices ?? []), [markets]);
+  const performanceStats = useMemo(() => {
+    const accuracyValues = analyses.map((analysis) => analysis.accuracy ?? 0).filter(Boolean);
+    const accuracy = accuracyValues.length
+      ? accuracyValues.reduce((sum, value) => sum + value, 0) / accuracyValues.length
+      : 0;
+
+    return {
+      accuracy,
+      totalAnalyses: analyses.length,
+      winRate: accuracy,
+      averageReturn: analyses.reduce((sum, analysis) => {
+        if (!analysis.entryPrice || !analysis.targetPrice) return sum;
+        return sum + ((analysis.targetPrice - analysis.entryPrice) / analysis.entryPrice) * 100;
+      }, 0) / Math.max(analyses.length, 1),
+    };
+  }, [analyses]);
 
   if (!dict) return null;
 
@@ -66,11 +117,11 @@ export default function Home() {
           <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
             <motion.div initial="initial" animate="animate" variants={staggerContainer} className="space-y-8 lg:order-2">
               <motion.h1 variants={fadeInUp} className="max-w-3xl text-5xl font-black leading-tight tracking-normal text-white md:text-7xl">
-                مشاوره سرمایه‌گذاری هوشمند
+                {settings.hero_title || 'مشاوره سرمایه‌گذاری هوشمند'}
                 <span className="block text-primary-100">برای بازارهای پرنوسان</span>
               </motion.h1>
               <motion.p variants={fadeInUp} className="max-w-2xl text-lg leading-9 text-slate-300 md:text-xl">
-                تحلیل‌های تخصصی، مدیریت پورتفو و دیدبان زنده بازار را در یک تجربه فارسی، سریع و شفاف دنبال کنید.
+                {settings.hero_subtitle || 'تحلیل‌های تخصصی، مدیریت پورتفو و دیدبان زنده بازار را در یک تجربه فارسی، سریع و شفاف دنبال کنید.'}
               </motion.p>
 
               <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row">
@@ -113,20 +164,23 @@ export default function Home() {
                 </div>
 
                 <CardContent className="space-y-4">
-                  {marketSummary.marketIndices.map((market, idx) => (
-                    <motion.div key={market.name} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + idx * 0.08 }} className="rounded-lg border border-white/10 bg-white/[0.06] p-4">
+                  {markets.slice(0, 4).map((market, idx) => {
+                    const price = market.prices?.[0];
+                    return (
+                    <motion.div key={market.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + idx * 0.08 }} className="rounded-lg border border-white/10 bg-white/[0.06] p-4">
                       <div className="mb-3 flex items-center justify-between gap-4">
                         <span className="font-bold text-slate-200">{market.name}</span>
-                        <PriceChange value={market.change / 100} format="percent" className="text-sm" />
+                        <PriceChange value={price?.changePercent || 0} format="percent" className="text-sm" />
                       </div>
                       <div className="flex items-end justify-between gap-4">
-                        <span className="font-mono text-2xl font-black text-white">{formatFaNumber(market.value, { maximumFractionDigits: 4 })}</span>
+                        <span className="font-mono text-2xl font-black text-white">{formatFaNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}</span>
                         <div className="h-2 w-28 overflow-hidden rounded-full bg-white/10">
                           <motion.div initial={{ width: 0 }} animate={{ width: `${58 + idx * 8}%` }} transition={{ duration: 1.2, delay: 0.4 }} className="h-full rounded-full bg-gradient-to-l from-white to-primary-200" />
                         </div>
                       </div>
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             </motion.div>
@@ -137,7 +191,7 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionTitle title="بازارهای اصلی" subtitle="چند بازار مهم را با ابزارهای حرفه‌ای، سیگنال‌های قابل پیگیری و داده‌های زنده بررسی کنید." />
             <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {mockMarkets.map((market) => (
+              {markets.map((market) => (
                 <motion.div key={market.id} variants={fadeInUp}>
                   <Link href={`/${locale}/markets/${market.slug}`}>
                     <Card hoverable className="h-full p-5">
@@ -174,7 +228,7 @@ export default function Home() {
             </div>
 
             <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {mockAnalyses.map((analysis: Analysis) => (
+              {analyses.map((analysis: Analysis) => (
                 <motion.div key={analysis.id} variants={fadeInUp}>
                   <Card hoverable className="h-full p-5">
                     <div className="space-y-5">
@@ -232,7 +286,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <motion.tbody variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }}>
-                    {mockPrices.map((price) => (
+                    {prices.map((price) => (
                       <motion.tr key={price.id} variants={fadeInUp} whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.07)' }} className="border-b border-white/10 last:border-0">
                         <td className="px-8 py-5">
                           <div className="flex flex-col">
@@ -270,7 +324,7 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionTitle title="پلن مناسب خود را انتخاب کنید" subtitle="اشتراک‌های منعطف برای معامله‌گر کوتاه‌مدت، سرمایه‌گذار فعال و مدیریت ثروت." />
             <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {mockSubscriptionPlans.slice(0, 3).map((plan, index) => (
+              {plans.slice(0, 3).map((plan, index) => (
                 <motion.div key={plan.id} variants={fadeInUp}>
                   <Card className={cn('relative flex h-full flex-col p-6', index === 1 && 'border-white/50 bg-white/10')}>
                     {index === 1 && <div className="absolute left-4 top-4 rounded-lg bg-white px-3 py-1 text-xs font-black text-primary-900">محبوب</div>}

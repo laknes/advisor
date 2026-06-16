@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, use } from 'react';
+import { useEffect } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge, PriceChange, StatBlock } from '@/components';
-import { mockMarkets, mockPrices, mockAnalyses } from '@/lib/mockData';
+import { apiGet } from '@/lib/apiClient';
+import type { Analysis, Market, Price } from '@/lib/types';
+import { useLocale } from '@/components/LocaleProvider';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -42,9 +45,11 @@ interface MarketPageProps {
 
 export default function MarketDetailPage({ params: paramsPromise }: MarketPageProps) {
   const params = use(paramsPromise);
-  const market = mockMarkets.find((m) => m.slug === params.slug);
-  const marketPrice = mockPrices.find((p) => p.symbol === (market?.symbol || ''));
-  const analyses = mockAnalyses.filter((a) => a.marketId === market?.id);
+  const { locale } = useLocale();
+  const [market, setMarket] = useState<(Market & { prices?: Price[]; analyses?: Analysis[] }) | null>(null);
+  const [notFound, setNotFound] = useState(false);
+  const marketPrice = market?.prices?.[0];
+  const analyses = market?.analyses ?? [];
 
   const [analysisType, setAnalysisType] = useState<'short_term' | 'long_term'>('short_term');
   const [timeframe, setTimeframe] = useState<string>('daily');
@@ -61,7 +66,26 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
   ];
   const frames = analysisType === 'short_term' ? shortTermFrames : longTermFrames;
 
-  if (!market) {
+  useEffect(() => {
+    let mounted = true;
+    apiGet<{ market: Market & { prices?: Price[]; analyses?: Analysis[] } }>(`/api/markets/${params.slug}`)
+      .then((data) => {
+        if (!mounted) return;
+        setMarket(data.market);
+        setNotFound(false);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setMarket(null);
+        setNotFound(true);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [params.slug]);
+
+  if (notFound) {
     return (
       <div className="min-h-screen bg-white">
         <Header isAuthenticated={false} />
@@ -69,10 +93,21 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h1 className="text-4xl font-extrabold text-secondary-900 mb-4">Market Not Found</h1>
             <p className="text-secondary-600 mb-8">The market you are looking for does not exist or has been removed.</p>
-            <Link href="/markets">
+            <Link href={`/${locale}/markets`}>
               <Button variant="primary">Back to Markets</Button>
             </Link>
           </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!market) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header isAuthenticated={false} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <h1 className="text-3xl font-extrabold text-secondary-900">Loading market data...</h1>
         </div>
       </div>
     );
@@ -329,13 +364,13 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                           </div>
                           
                           {analysis.isLocked ? (
-                            <Link href="/pricing">
+                            <Link href={`/${locale}/pricing`}>
                               <Button size="md" className="shadow-lg shadow-primary-100 font-bold px-6">
                                 Unlock Now
                               </Button>
                             </Link>
                           ) : (
-                            <Link href={`/analyses/${analysis.id}`}>
+                            <Link href={`/${locale}/dashboard/analyses`}>
                               <Button variant="ghost" size="md" className="font-bold text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-4" rightIcon={<ChevronRight className="w-4 h-4" />}>
                                 View Full
                               </Button>
@@ -379,7 +414,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
               Don't trade blindly. Get access to entry points, targets, and stop-loss levels for all markets.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href="/pricing">
+              <Link href={`/${locale}/pricing`}>
                 <Button size="lg" variant="secondary" className="h-16 px-12 text-lg shadow-2xl hover:shadow-primary-700/50">
                   View Subscription Plans
                 </Button>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { getStoredUser } from '@/lib/clientAuth';
+import { apiGet, apiPut } from '@/lib/apiClient';
 import { Input, Textarea, Select, FormGroup } from '@/components/Form';
 import Link from 'next/link';
 
@@ -24,15 +25,45 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    apiGet<{ user: { name?: string | null; email: string; phone?: string | null; country?: string | null } }>('/api/users/profile', true)
+      .then((data) => {
+        setProfile((current) => ({
+          ...current,
+          name: data.user.name || '',
+          email: data.user.email,
+          phone: data.user.phone || '',
+          country: data.user.country || '',
+        }));
+      })
+      .catch((error) => setMessage(error instanceof Error ? error.message : 'Unable to load profile.'));
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    setMessage('Profile updated successfully!');
-    setIsEditing(false);
-    setTimeout(() => setMessage(''), 3000);
+  const handleSave = async () => {
+    try {
+      const data = await apiPut<{ user: { name?: string | null; email: string; phone?: string | null; country?: string | null } }>('/api/users/profile', {
+        name: profile.name,
+        phone: profile.phone,
+        country: profile.country,
+      }, true);
+      setProfile((current) => ({
+        ...current,
+        name: data.user.name || '',
+        email: data.user.email,
+        phone: data.user.phone || '',
+        country: data.user.country || '',
+      }));
+      setMessage('Profile updated successfully!');
+      setIsEditing(false);
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to update profile.');
+    }
   };
 
   return (
@@ -81,7 +112,7 @@ export default function ProfilePage() {
                   type="email"
                   value={profile.email}
                   onChange={handleChange}
-                  disabled={!isEditing}
+                  disabled
                   placeholder="your@email.com"
                 />
               </FormGroup>
@@ -209,15 +240,9 @@ export default function ProfilePage() {
           <CardHeader title="Account Management" />
           <CardContent className="space-y-3">
             <div className="flex flex-col gap-2">
-              <Button variant="outline" fullWidth>
-                Change Password
-              </Button>
-              <Button variant="outline" fullWidth>
-                View Login History
-              </Button>
-              <Button variant="outline" fullWidth>
-                Enable Two-Factor Authentication
-              </Button>
+              <p className="rounded-lg bg-secondary-50 p-4 text-sm text-secondary-700">
+                Email, password reset, login history and two-factor authentication need provider-level integration before they can be enabled safely.
+              </p>
               <Button variant="danger" fullWidth>
                 Delete Account
               </Button>

@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Card, CardHeader, CardContent, Button, StatBlock, Badge } from '@/components';
 import { motion } from 'framer-motion';
+import { apiGet } from '@/lib/apiClient';
 import { 
   BarChart3, 
   Download, 
@@ -10,12 +12,38 @@ import {
 } from 'lucide-react';
 
 export default function AdminReportsPage() {
-  const salesStats = [
-    { label: 'Total Sales', value: '$125,430', change: 12.5, trend: 'up' },
-    { label: 'Net Profit', value: '$98,210', change: 8.2, trend: 'up' },
-    { label: 'Subscriptions', value: '1,240', change: 15.4, trend: 'up' },
-    { label: 'Refunds', value: '$1,200', change: -5.2, trend: 'down' },
-  ];
+  const [reports, setReports] = useState<{
+    summary: {
+      monthlyRevenue: number;
+      transactionCount: number;
+      completedTransactions: number;
+      failedTransactions: number;
+    };
+    transactions: Array<{
+      id: string;
+      userId: string;
+      amount: number;
+      currency: string;
+      status: 'pending' | 'completed' | 'failed';
+      transactionType: string;
+      planId?: string | null;
+      createdAt: string;
+    }>;
+  } | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    apiGet<{ reports: NonNullable<typeof reports> }>('/api/admin/reports', true)
+      .then((data) => setReports(data.reports))
+      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : 'Unable to load reports.'));
+  }, []);
+
+  const salesStats = useMemo(() => [
+    { label: 'Monthly Revenue', value: `$${(reports?.summary.monthlyRevenue || 0).toLocaleString()}`, change: 0, trend: 'up' },
+    { label: 'Transactions', value: String(reports?.summary.transactionCount || 0), change: 0, trend: 'up' },
+    { label: 'Completed', value: String(reports?.summary.completedTransactions || 0), change: 0, trend: 'up' },
+    { label: 'Failed', value: String(reports?.summary.failedTransactions || 0), change: 0, trend: 'down' },
+  ], [reports]);
 
   return (
     <div className="min-h-screen bg-secondary-50">
@@ -46,6 +74,7 @@ export default function AdminReportsPage() {
               </Card>
             ))}
           </div>
+          {error && <div className="mb-8 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">{error}</div>}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             <Card className="lg:col-span-2 border-none shadow-xl bg-white h-[400px] flex items-center justify-center">
@@ -60,9 +89,9 @@ export default function AdminReportsPage() {
               <CardHeader title="Payment Methods" icon={<CreditCard className="w-5 h-5 text-primary-400" />} />
               <CardContent className="space-y-6">
                 {[
-                  { label: 'Credit Card', value: '65%', color: 'bg-primary-500' },
-                  { label: 'PayPal', value: '25%', color: 'bg-blue-500' },
-                  { label: 'Crypto', value: '10%', color: 'bg-orange-500' }
+                  { label: 'Completed', value: `${reports?.summary.transactionCount ? Math.round(((reports?.summary.completedTransactions || 0) / reports.summary.transactionCount) * 100) : 0}%`, color: 'bg-primary-500' },
+                  { label: 'Pending', value: `${reports?.summary.transactionCount ? Math.round((((reports.transactions.length - reports.summary.completedTransactions - reports.summary.failedTransactions) || 0) / reports.summary.transactionCount) * 100) : 0}%`, color: 'bg-blue-500' },
+                  { label: 'Failed', value: `${reports?.summary.transactionCount ? Math.round(((reports?.summary.failedTransactions || 0) / reports.summary.transactionCount) * 100) : 0}%`, color: 'bg-orange-500' }
                 ].map((m, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-end mb-2">
@@ -98,22 +127,23 @@ export default function AdminReportsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-50">
-                    {[
-                      { id: 'TXN-9021', user: 'alice@example.com', plan: 'VIP Elite', amount: '$1,299', status: 'completed', date: '2026-06-08 14:20' },
-                      { id: 'TXN-9020', user: 'bob@example.com', plan: '1-Year Portfolio', amount: '$999', status: 'completed', date: '2026-06-08 12:45' },
-                      { id: 'TXN-9019', user: 'carol@example.com', plan: 'Monthly Analysis', amount: '$149', status: 'pending', date: '2026-06-08 11:10' },
-                    ].map((txn) => (
+                    {(reports?.transactions || []).map((txn) => (
                       <tr key={txn.id} className="hover:bg-secondary-50/50 transition-colors">
                         <td className="py-4 px-6 font-mono text-xs font-bold text-secondary-500">{txn.id}</td>
-                        <td className="py-4 px-6 text-sm font-bold text-secondary-900">{txn.user}</td>
-                        <td className="py-4 px-6 text-sm font-medium text-secondary-600">{txn.plan}</td>
-                        <td className="py-4 px-6 font-black text-secondary-900">{txn.amount}</td>
+                        <td className="py-4 px-6 text-sm font-bold text-secondary-900">{txn.userId}</td>
+                        <td className="py-4 px-6 text-sm font-medium text-secondary-600">{txn.transactionType}</td>
+                        <td className="py-4 px-6 font-black text-secondary-900">{txn.amount} {txn.currency}</td>
                         <td className="py-4 px-6">
                           <Badge variant={txn.status === 'completed' ? 'success' : 'warning'}>{txn.status}</Badge>
                         </td>
-                        <td className="py-4 px-6 text-right text-xs font-bold text-secondary-400">{txn.date}</td>
+                        <td className="py-4 px-6 text-right text-xs font-bold text-secondary-400">{new Date(txn.createdAt).toLocaleString()}</td>
                       </tr>
                     ))}
+                    {!reports?.transactions.length && (
+                      <tr>
+                        <td colSpan={6} className="py-8 px-6 text-center text-secondary-500">No transactions found.</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

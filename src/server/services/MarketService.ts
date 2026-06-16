@@ -8,6 +8,12 @@ export class MarketService {
   static async getAllMarkets() {
     const markets = await prisma.market.findMany({
       orderBy: { name: 'asc' },
+      include: {
+        prices: {
+          orderBy: { timestamp: 'desc' },
+          take: 1,
+        },
+      },
     });
 
     return markets;

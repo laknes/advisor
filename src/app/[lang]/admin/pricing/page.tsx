@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Header, Footer, Card, CardHeader, CardContent, Button, Badge } from '@/components';
 import { motion } from 'framer-motion';
 import { 
@@ -11,9 +12,27 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { mockSubscriptionPlans } from '@/lib/mockData';
+import { apiGet } from '@/lib/apiClient';
+import type { SubscriptionPlan } from '@/lib/types';
 
 export default function AdminPricingPage() {
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    apiGet<{ plans: SubscriptionPlan[] }>('/api/subscription-plans?includeInactive=true', true)
+      .then((data) => {
+        if (mounted) setPlans(data.plans);
+      })
+      .catch(() => {
+        if (mounted) setPlans([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-secondary-50">
       <Header isAuthenticated={true} userName="Admin" />
@@ -31,7 +50,7 @@ export default function AdminPricingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockSubscriptionPlans.map((plan) => (
+            {plans.map((plan) => (
               <Card key={plan.id} className="border-none shadow-xl bg-white overflow-hidden group">
                 <div className="p-6 border-b border-secondary-50 bg-secondary-50/50">
                   <div className="flex justify-between items-start mb-4">
@@ -68,6 +87,11 @@ export default function AdminPricingPage() {
                 </CardContent>
               </Card>
             ))}
+            {!plans.length && (
+              <Card className="border-none bg-white p-8 text-center shadow-xl md:col-span-2 lg:col-span-3">
+                <p className="font-bold text-secondary-700">No subscription plans exist in the database yet.</p>
+              </Card>
+            )}
           </div>
         </div>
       </main>

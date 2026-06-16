@@ -1,10 +1,39 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge, PriceChange } from '@/components';
-import { mockMarkets, mockPrices, mockAnalyses } from '@/lib/mockData';
+import { apiGet } from '@/lib/apiClient';
+import type { Analysis, Market, Price } from '@/lib/types';
+import { useLocale } from '@/components/LocaleProvider';
 import Link from 'next/link';
 
 export default function MarketsPage() {
+  const { locale } = useLocale();
+  const [markets, setMarkets] = useState<Array<Market & { prices?: Price[] }>>([]);
+  const [analyses, setAnalyses] = useState<Analysis[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    Promise.all([
+      apiGet<{ markets: Array<Market & { prices?: Price[] }> }>('/api/markets'),
+      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=20'),
+    ])
+      .then(([marketData, analysisData]) => {
+        if (!mounted) return;
+        setMarkets(marketData.markets);
+        setAnalyses(analysisData.analyses);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setMarkets([]);
+        setAnalyses([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header isAuthenticated={false} />
@@ -21,8 +50,8 @@ export default function MarketsPage() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
-            {mockMarkets.map((market) => {
-              const marketPrice = mockPrices[parseInt(market.id) - 1];
+            {markets.map((market) => {
+              const marketPrice = market.prices?.[0];
               return (
                 <Card key={market.id} hoverable>
                   <div className="space-y-4">
@@ -47,7 +76,7 @@ export default function MarketsPage() {
                       </div>
                     )}
 
-                    <Link href={`/markets/${market.slug}`}>
+                    <Link href={`/${locale}/markets/${market.slug}`}>
                       <Button fullWidth variant="primary">
                         View Analysis
                       </Button>
@@ -62,8 +91,8 @@ export default function MarketsPage() {
           <div>
             <h2 className="text-2xl font-bold text-secondary-900 mb-6">Latest Analyses</h2>
             <div className="space-y-4">
-              {mockAnalyses.map((analysis) => {
-                const market = mockMarkets.find((m) => m.id === analysis.marketId);
+              {analyses.map((analysis) => {
+                const market = markets.find((m) => m.id === analysis.marketId);
                 return (
                   <Card key={analysis.id} hoverable>
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
@@ -88,15 +117,17 @@ export default function MarketsPage() {
 
                       <div className="md:col-span-3">
                         {analysis.isLocked ? (
-                          <Link href="/auth/signup">
+                          <Link href={`/${locale}/auth/signup`}>
                             <Button size="sm" variant="outline" fullWidth>
                               Unlock Analysis
                             </Button>
                           </Link>
                         ) : (
-                          <Button size="sm" fullWidth>
-                            View Full Analysis
-                          </Button>
+                          <Link href={`/${locale}/dashboard/analyses`}>
+                            <Button size="sm" fullWidth>
+                              View Full Analysis
+                            </Button>
+                          </Link>
                         )}
                       </div>
                     </div>

@@ -31,6 +31,7 @@ SKIP_SSL="false"
 SKIP_NGINX="false"
 NON_INTERACTIVE="false"
 MANAGED_POSTGRES="false"
+INSTALL_MODE="${INSTALL_MODE:-install}"
 
 log() {
   printf '\033[1;35m[install]\033[0m %s\n' "$*"
@@ -49,6 +50,7 @@ usage() {
   cat <<'EOF'
 Usage:
   sudo bash install.bash --domain example.com --email ops@example.com --admin-email admin@example.com
+  sudo bash install.bash --update
 
 Options:
   --domain DOMAIN             Domain for Nginx and SSL, e.g. advisor.example.com
@@ -74,12 +76,13 @@ Options:
   --skip-ssl                  Configure Nginx without Certbot SSL
   --skip-nginx                Do not install/configure Nginx/Certbot
   --non-interactive           Never prompt; fail if required inputs are missing
+  --update                    Update an existing install: keep env/database, apply schema changes, rebuild, restart
   -h, --help                  Show this help
 
 Environment overrides:
   DOMAIN, APP_BASE_URL, LETSENCRYPT_EMAIL, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_EMAILS,
   PORT, DATABASE_URL, DB_NAME, DB_USER, DB_PASS, STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY,
-  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, INSTALL_MODE
 EOF
 }
 
@@ -108,6 +111,7 @@ while [[ $# -gt 0 ]]; do
     --skip-ssl) SKIP_SSL="true"; shift ;;
     --skip-nginx) SKIP_NGINX="true"; shift ;;
     --non-interactive) NON_INTERACTIVE="true"; shift ;;
+    --update) INSTALL_MODE="update"; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown argument: $1" ;;
   esac
@@ -131,6 +135,50 @@ SMTP_HOST="${SMTP_HOST:-${INSTALL_SMTP_HOST:-}}"
 SMTP_PORT="${SMTP_PORT:-${INSTALL_SMTP_PORT:-}}"
 SMTP_USER="${SMTP_USER:-${INSTALL_SMTP_USER:-}}"
 SMTP_PASS="${SMTP_PASS:-${INSTALL_SMTP_PASS:-}}"
+INSTALL_MODE="${INSTALL_MODE:-install}"
+
+load_existing_env_for_update() {
+  if [[ "$INSTALL_MODE" != "update" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$APP_DIR/.env.production" ]]; then
+    warn "No existing .env.production found for update mode."
+    return
+  fi
+
+  local provided_database_url provided_app_base_url provided_admin_email provided_admin_emails provided_port
+  local provided_stripe_public_key provided_stripe_secret_key provided_smtp_host provided_smtp_port provided_smtp_user provided_smtp_pass
+  provided_database_url="$DATABASE_URL"
+  provided_app_base_url="$APP_BASE_URL"
+  provided_admin_email="$ADMIN_EMAIL"
+  provided_admin_emails="$ADMIN_EMAILS"
+  provided_port="$PORT"
+  provided_stripe_public_key="$STRIPE_PUBLIC_KEY"
+  provided_stripe_secret_key="$STRIPE_SECRET_KEY"
+  provided_smtp_host="$SMTP_HOST"
+  provided_smtp_port="$SMTP_PORT"
+  provided_smtp_user="$SMTP_USER"
+  provided_smtp_pass="$SMTP_PASS"
+
+  log "Loading existing production environment for update"
+  set +u
+  # shellcheck disable=SC1091
+  source "$APP_DIR/.env.production"
+  set -u
+
+  DATABASE_URL="${provided_database_url:-${DATABASE_URL:-${INSTALL_DATABASE_URL:-}}}"
+  APP_BASE_URL="${provided_app_base_url:-${APP_BASE_URL:-${NEXTAUTH_URL:-}}}"
+  ADMIN_EMAIL="${provided_admin_email:-${ADMIN_EMAIL:-}}"
+  ADMIN_EMAILS="${provided_admin_emails:-${ADMIN_EMAILS:-}}"
+  PORT="${provided_port:-${PORT:-3000}}"
+  STRIPE_PUBLIC_KEY="${provided_stripe_public_key:-${STRIPE_PUBLIC_KEY:-}}"
+  STRIPE_SECRET_KEY="${provided_stripe_secret_key:-${STRIPE_SECRET_KEY:-}}"
+  SMTP_HOST="${provided_smtp_host:-${SMTP_HOST:-}}"
+  SMTP_PORT="${provided_smtp_port:-${SMTP_PORT:-}}"
+  SMTP_USER="${provided_smtp_user:-${SMTP_USER:-}}"
+  SMTP_PASS="${provided_smtp_pass:-${SMTP_PASS:-}}"
+}
 
 require_root() {
   if [[ "$(id -u)" -ne 0 ]]; then
@@ -139,6 +187,10 @@ require_root() {
 }
 
 prompt_if_needed() {
+  if [[ "$INSTALL_MODE" == "update" ]]; then
+    return
+  fi
+
   if [[ "$NON_INTERACTIVE" == "true" ]]; then
     return
   fi
@@ -249,9 +301,23 @@ prompt_if_needed() {
 }
 
 validate_inputs() {
+  if [[ "$INSTALL_MODE" != "install" && "$INSTALL_MODE" != "update" ]]; then
+    die "INSTALL_MODE must be either install or update."
+  fi
+
   [[ -d "$APP_DIR" ]] || die "App directory does not exist: $APP_DIR"
   [[ -f "$APP_DIR/package.json" ]] || die "package.json not found in $APP_DIR"
   [[ -f "$APP_DIR/prisma/schema.prisma" ]] || die "prisma/schema.prisma not found in $APP_DIR"
+
+  if [[ "$INSTALL_MODE" == "update" ]]; then
+    if [[ -z "$DATABASE_URL" ]]; then
+      die "Update mode needs an existing ${APP_DIR}/.env.production with DATABASE_URL, or pass --database-url."
+    fi
+    if [[ -n "$DATABASE_URL" && ! "$DATABASE_URL" =~ ^postgres(ql)?:// ]]; then
+      die "DATABASE_URL must be a PostgreSQL URL starting with postgresql:// or postgres://."
+    fi
+    return
+  fi
 
   if [[ "$NON_INTERACTIVE" == "true" && "$SKIP_NGINX" != "true" && -z "$DOMAIN" ]]; then
     die "--domain is required in --non-interactive mode unless --skip-nginx is set."
@@ -477,15 +543,21 @@ setup_prisma() {
   sudo -u "$APP_USER" npx prisma validate
   sudo -u "$APP_USER" npx prisma generate
 
-  if [[ -d "$APP_DIR/prisma/migrations" ]] && find "$APP_DIR/prisma/migrations" -mindepth 1 -maxdepth 1 -type d | grep -q .; then
-    sudo -u "$APP_USER" npx prisma migrate deploy
+  if [[ "$INSTALL_MODE" == "update" ]]; then
+    log "Update mode: existing database detected from DATABASE_URL; applying schema changes only"
+    sudo -u "$APP_USER" npx prisma db push
   else
-    warn "No Prisma migrations found. Using prisma db push for first deployment."
+    log "Install mode: synchronizing full Prisma schema"
     sudo -u "$APP_USER" npx prisma db push
   fi
 }
 
 seed_production_data() {
+  if [[ "$INSTALL_MODE" == "update" && -z "$ADMIN_PASSWORD" ]]; then
+    warn "Update mode: skipping admin seed because no admin password was provided."
+    return
+  fi
+
   log "Creating production admin user and baseline database data"
   cd "$APP_DIR"
   set -a
@@ -545,6 +617,17 @@ EOF
   systemctl daemon-reload
   systemctl enable "${APP_NAME}"
   systemctl restart "${APP_NAME}"
+}
+
+restart_existing_service() {
+  if systemctl cat "${APP_NAME}.service" >/dev/null 2>&1; then
+    log "Restarting existing systemd service"
+    systemctl daemon-reload
+    systemctl restart "${APP_NAME}"
+  else
+    warn "Systemd service ${APP_NAME}.service was not found; creating it"
+    create_systemd_service
+  fi
 }
 
 configure_nginx() {
@@ -638,7 +721,7 @@ print_summary() {
 
   cat <<EOF
 
-Installation complete.
+${INSTALL_MODE^} complete.
 
 App service:
   systemctl status ${APP_NAME}
@@ -667,8 +750,25 @@ EOF
 
 main() {
   require_root
+  load_existing_env_for_update
   prompt_if_needed
   validate_inputs
+
+  if [[ "$INSTALL_MODE" == "update" ]]; then
+    log "Starting production update"
+    log "App directory: ${APP_DIR}"
+    log "App user: ${APP_USER}"
+    log "Skipping PostgreSQL creation because update mode uses existing DATABASE_URL"
+    install_nodejs
+    install_app_dependencies
+    setup_prisma
+    seed_production_data
+    build_app
+    restart_existing_service
+    health_check
+    print_summary
+    return
+  fi
 
   log "Starting full production installation"
   log "App directory: ${APP_DIR}"

@@ -1,67 +1,44 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { getStoredUser } from '@/lib/clientAuth';
+import { apiGet } from '@/lib/apiClient';
 import Link from 'next/link';
 
 interface SubscriptionRecord {
   id: string;
-  userName: string;
-  plan: string;
+  user?: { name?: string | null; email: string } | null;
+  plan?: { name: string; price: number } | null;
   startDate: string;
   endDate: string;
-  amount: number;
-  status: 'Active' | 'Expired' | 'Cancelled';
+  isActive: boolean;
 }
 
 export default function AdminSubscriptionsPage() {
   const { locale } = useLocale();
   const currentUser = getStoredUser();
-  const subscriptions: SubscriptionRecord[] = [
-    {
-      id: '1',
-      userName: 'Alice Johnson',
-      plan: 'Daily Analysis',
-      startDate: '2026-05-15',
-      endDate: '2026-06-15',
-      amount: 49,
-      status: 'Active',
-    },
-    {
-      id: '2',
-      userName: 'Bob Smith',
-      plan: 'All Markets VIP',
-      startDate: '2026-04-20',
-      endDate: '2026-07-20',
-      amount: 599,
-      status: 'Active',
-    },
-    {
-      id: '3',
-      userName: 'Carol White',
-      plan: 'Weekly Analysis',
-      startDate: '2026-04-01',
-      endDate: '2026-05-01',
-      amount: 99,
-      status: 'Expired',
-    },
-    {
-      id: '4',
-      userName: 'David Wilson',
-      plan: 'Market Full Access',
-      startDate: '2026-03-15',
-      endDate: '2026-04-15',
-      amount: 299,
-      status: 'Cancelled',
-    },
-  ];
+  const [subscriptions, setSubscriptions] = useState<SubscriptionRecord[]>([]);
+  const [error, setError] = useState('');
 
-  const stats = {
+  useEffect(() => {
+    apiGet<{ subscriptions: SubscriptionRecord[] }>('/api/admin/subscriptions', true)
+      .then((data) => setSubscriptions(data.subscriptions))
+      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : 'Unable to load subscriptions.'));
+  }, []);
+
+  const stats = useMemo(() => ({
     totalSubscriptions: subscriptions.length,
-    activeSubscriptions: subscriptions.filter((s) => s.status === 'Active').length,
-    totalRevenue: subscriptions.reduce((sum, s) => sum + s.amount, 0),
-    avgValue: Math.round(subscriptions.reduce((sum, s) => sum + s.amount, 0) / subscriptions.length),
+    activeSubscriptions: subscriptions.filter((s) => s.isActive && new Date(s.endDate) > new Date()).length,
+    totalRevenue: subscriptions.reduce((sum, s) => sum + (s.plan?.price || 0), 0),
+    avgValue: subscriptions.length ? Math.round(subscriptions.reduce((sum, s) => sum + (s.plan?.price || 0), 0) / subscriptions.length) : 0,
+  }), [subscriptions]);
+
+  const getStatus = (sub: SubscriptionRecord) => {
+    if (!sub.isActive) return 'Cancelled';
+    if (new Date(sub.endDate) < new Date()) return 'Expired';
+    return 'Active';
   };
 
   const getStatusColor = (status: string): 'success' | 'warning' | 'danger' => {
@@ -114,6 +91,7 @@ export default function AdminSubscriptionsPage() {
         <Card>
           <CardHeader title="All Subscriptions" />
           <CardContent>
+            {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">{error}</p>}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="border-b-2 border-secondary-200">
@@ -128,21 +106,29 @@ export default function AdminSubscriptionsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {subscriptions.map((sub) => (
+                  {subscriptions.map((sub) => {
+                    const status = getStatus(sub);
+                    return (
                     <tr key={sub.id} className="border-b border-secondary-100 hover:bg-secondary-50">
-                      <td className="py-4 px-4 font-semibold text-secondary-900">{sub.userName}</td>
-                      <td className="py-4 px-4 text-secondary-600">{sub.plan}</td>
-                      <td className="py-4 px-4 text-secondary-600">{sub.startDate}</td>
-                      <td className="py-4 px-4 text-secondary-600">{sub.endDate}</td>
-                      <td className="py-4 px-4 font-semibold">${sub.amount}</td>
+                      <td className="py-4 px-4 font-semibold text-secondary-900">{sub.user?.name || sub.user?.email || 'Unknown user'}</td>
+                      <td className="py-4 px-4 text-secondary-600">{sub.plan?.name || 'Unknown plan'}</td>
+                      <td className="py-4 px-4 text-secondary-600">{new Date(sub.startDate).toLocaleDateString()}</td>
+                      <td className="py-4 px-4 text-secondary-600">{new Date(sub.endDate).toLocaleDateString()}</td>
+                      <td className="py-4 px-4 font-semibold">${sub.plan?.price || 0}</td>
                       <td className="py-4 px-4">
-                        <Badge variant={getStatusColor(sub.status)}>{sub.status}</Badge>
+                        <Badge variant={getStatusColor(status)}>{status}</Badge>
                       </td>
                       <td className="py-4 px-4">
                         <Button size="sm" variant="outline">View</Button>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
+                  {!subscriptions.length && (
+                    <tr>
+                      <td colSpan={7} className="py-6 px-4 text-center text-secondary-600">No subscriptions found.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

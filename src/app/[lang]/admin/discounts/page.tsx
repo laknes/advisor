@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Header, Footer, Card, CardHeader, CardContent, Button, Badge, Input } from '@/components';
 import { motion } from 'framer-motion';
+import { apiDelete, apiGet } from '@/lib/apiClient';
 import { 
   Percent, 
   Plus, 
@@ -13,11 +15,39 @@ import {
 } from 'lucide-react';
 
 export default function AdminDiscountsPage() {
-  const discounts = [
-    { code: 'WELCOME20', type: 'percentage', value: '20%', status: 'active', usage: '124/500', expiry: '2026-12-31' },
-    { code: 'VIPGOLD', type: 'fixed', value: '$50', status: 'active', usage: '45/100', expiry: '2026-08-15' },
-    { code: 'SUMMER26', type: 'percentage', value: '15%', status: 'expired', usage: '200/200', expiry: '2026-06-01' },
-  ];
+  const [discounts, setDiscounts] = useState<Array<{
+    id: string;
+    code: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+    maxUses?: number | null;
+    currentUses: number;
+    validUntil: string;
+    isActive: boolean;
+  }>>([]);
+  const [error, setError] = useState('');
+
+  const loadDiscounts = async () => {
+    try {
+      const data = await apiGet<{ discounts: typeof discounts }>('/api/admin/discounts', true);
+      setDiscounts(data.discounts);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load discounts.');
+    }
+  };
+
+  useEffect(() => {
+    loadDiscounts();
+  }, []);
+
+  const deleteDiscount = async (id: string) => {
+    try {
+      await apiDelete(`/api/admin/discounts/${id}`, true);
+      await loadDiscounts();
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : 'Unable to delete discount.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-secondary-50">
@@ -46,6 +76,7 @@ export default function AdminDiscountsPage() {
               }
             />
             <CardContent className="p-0">
+              {error && <p className="m-6 rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">{error}</p>}
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -59,8 +90,12 @@ export default function AdminDiscountsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-50">
-                    {discounts.map((discount, i) => (
-                      <tr key={i} className="hover:bg-secondary-50/50 transition-colors group">
+                    {discounts.map((discount) => {
+                      const isExpired = new Date(discount.validUntil) < new Date();
+                      const status = discount.isActive && !isExpired ? 'active' : 'expired';
+                      const usagePercent = discount.maxUses ? Math.min(100, Math.round((discount.currentUses / discount.maxUses) * 100)) : 0;
+                      return (
+                      <tr key={discount.id} className="hover:bg-secondary-50/50 transition-colors group">
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
                             <div className="p-2 bg-primary-50 rounded-lg">
@@ -71,36 +106,42 @@ export default function AdminDiscountsPage() {
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-secondary-900">{discount.value} Off</span>
-                            <span className="text-[10px] font-bold text-secondary-400 uppercase">{discount.type}</span>
+                            <span className="text-sm font-bold text-secondary-900">{discount.discountType === 'percentage' ? `${discount.discountValue}%` : `$${discount.discountValue}`} Off</span>
+                            <span className="text-[10px] font-bold text-secondary-400 uppercase">{discount.discountType}</span>
                           </div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
                             <div className="flex-1 h-1.5 w-24 bg-secondary-100 rounded-full overflow-hidden">
-                              <div className={`h-full bg-primary-500`} style={{ width: '40%' }} />
+                              <div className={`h-full bg-primary-500`} style={{ width: `${usagePercent}%` }} />
                             </div>
-                            <span className="text-xs font-bold text-secondary-600">{discount.usage}</span>
+                            <span className="text-xs font-bold text-secondary-600">{discount.currentUses}/{discount.maxUses || '∞'}</span>
                           </div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2 text-secondary-600">
                             <Calendar className="w-4 h-4 text-secondary-400" />
-                            <span className="text-sm font-medium">{discount.expiry}</span>
+                            <span className="text-sm font-medium">{new Date(discount.validUntil).toLocaleDateString()}</span>
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
-                          <Badge variant={discount.status === 'active' ? 'success' : 'neutral'}>
-                            {discount.status.toUpperCase()}
+                          <Badge variant={status === 'active' ? 'success' : 'neutral'}>
+                            {status.toUpperCase()}
                           </Badge>
                         </td>
                         <td className="py-4 px-6 text-right">
-                          <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-red-600">
+                          <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-red-600" onClick={() => deleteDiscount(discount.id)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
+                    {!discounts.length && (
+                      <tr>
+                        <td colSpan={6} className="py-8 px-6 text-center text-secondary-500">No discount codes found.</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

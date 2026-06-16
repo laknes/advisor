@@ -5,9 +5,9 @@ export class SubscriptionService {
   /**
    * Get all subscription plans
    */
-  static async getAllPlans() {
+  static async getAllPlans(activeOnly = true) {
     const plans = await prisma.subscriptionPlan.findMany({
-      where: { isActive: true },
+      where: activeOnly ? { isActive: true } : undefined,
       orderBy: { price: 'asc' },
     });
 
