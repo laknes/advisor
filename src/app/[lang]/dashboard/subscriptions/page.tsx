@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
-import { mockSubscriptionPlans } from '@/lib/mockData';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import type { Subscription } from '@/lib/types';
 import Link from 'next/link';
 
 export default function SubscriptionsPage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
@@ -14,10 +17,14 @@ export default function SubscriptionsPage() {
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        const response = await fetch('/api/subscriptions');
+        const response = await fetch('/api/subscriptions', { headers: getAuthHeaders() });
         const data = await response.json();
-        setSubscriptions(data as Subscription[]);
-      } catch (error) {
+        if (!response.ok) {
+          setMessage(data.error || 'Unable to load your subscriptions.');
+          return;
+        }
+        setSubscriptions(data.data?.subscriptions || []);
+      } catch {
         setMessage('Unable to load your subscriptions.');
       }
     };
@@ -30,10 +37,9 @@ export default function SubscriptionsPage() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/subscriptions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'cancel', subscriptionId }),
+      const response = await fetch(`/api/subscriptions/${subscriptionId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       const data = await response.json();
 
@@ -47,7 +53,7 @@ export default function SubscriptionsPage() {
         );
         setMessage('Subscription cancelled successfully.');
       }
-    } catch (error) {
+    } catch {
       setMessage('Unable to process cancellation right now.');
     }
 
@@ -58,7 +64,7 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="John Doe" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
@@ -66,7 +72,7 @@ export default function SubscriptionsPage() {
             <h1 className="text-4xl font-bold text-secondary-900">My Subscriptions</h1>
             {message ? <p className="text-sm text-green-700 mt-2">{message}</p> : null}
           </div>
-          <Link href="/pricing">
+          <Link href={`/${locale}/pricing`}>
             <Button>Upgrade Plan</Button>
           </Link>
         </div>
@@ -78,7 +84,7 @@ export default function SubscriptionsPage() {
               <div className="p-8 text-center text-secondary-600">You have no active subscriptions right now.</div>
             ) : (
               activeSubscriptions.map((sub) => {
-                const plan = mockSubscriptionPlans.find((planItem) => planItem.id === sub.planId);
+                const plan = sub.plan;
                 return (
                   <div key={sub.id} className="border-b border-secondary-200 pb-4 last:border-b-0 last:pb-0">
                     <div className="flex items-start justify-between mb-3">
@@ -123,7 +129,7 @@ export default function SubscriptionsPage() {
         </Card>
 
         <div className="mt-8">
-          <Link href="/dashboard">
+          <Link href={`/${locale}/dashboard`}>
             <Button variant="outline">Back to Dashboard</Button>
           </Link>
         </div>

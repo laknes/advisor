@@ -2,16 +2,20 @@
 
 import { useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getStoredUser } from '@/lib/clientAuth';
 import { Input, Textarea, Select, FormGroup } from '@/components/Form';
 import Link from 'next/link';
 
 export default function ProfilePage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [profile, setProfile] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1 (555) 123-4567',
-    country: 'United States',
-    bio: 'Experienced investor with 5+ years in portfolio management.',
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    phone: '',
+    country: '',
+    bio: '',
     riskTolerance: 'moderate',
     investmentGoal: 'long-term-growth',
     preferredNotification: 'email',
@@ -38,7 +42,7 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Profile Settings</h1>
-          <Link href="/dashboard">
+          <Link href={`/${locale}/dashboard`}>
             <Button variant="outline">Back to Dashboard</Button>
           </Link>
         </div>

@@ -1,17 +1,16 @@
 'use client';
 
 import { Header, Card, CardHeader, CardContent, Button, Input, Textarea, Select, FormGroup } from '@/components';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useLocale } from '@/components/LocaleProvider';
 import { useDictionary } from '@/components/useDictionary';
 import { 
   FilePlus, 
   Send, 
   Clock, 
-  ShieldCheck, 
   Target, 
-  AlertTriangle,
   Globe,
   Lock,
   Calendar
@@ -20,6 +19,12 @@ import {
 export default function NewAnalysisPage() {
   const { locale } = useLocale();
   const dict = useDictionary();
+  const router = useRouter();
+  const currentUser = getStoredUser();
+  const [markets, setMarkets] = useState<{ id: string; name: string }[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     marketId: '',
@@ -38,10 +43,71 @@ export default function NewAnalysisPage() {
     sendNotification: true
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchMarkets = async () => {
+      try {
+        const response = await fetch('/api/markets');
+        const result = await response.json();
+
+        if (response.ok) {
+          const nextMarkets = result.data?.markets || [];
+          setMarkets(nextMarkets);
+          setFormData((prev) => ({
+            ...prev,
+            marketId: prev.marketId || nextMarkets[0]?.id || '',
+          }));
+        }
+      } catch {
+        setError('بازارها بارگذاری نشدند.');
+      }
+    };
+
+    fetchMarkets();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Analysis submitted:', formData);
-    alert('Analysis published successfully!');
+    setError('');
+    setMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/analyses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          marketId: formData.marketId,
+          title: formData.title,
+          summary: formData.summary,
+          fullContent: formData.fullContent,
+          timeframe: formData.timeframe,
+          analysisType: formData.analysisType,
+          signal: formData.signal,
+          riskLevel: formData.riskLevel,
+          entryPrice: formData.entryPrice ? Number(formData.entryPrice) : undefined,
+          targetPrice: formData.targetPrice ? Number(formData.targetPrice) : undefined,
+          stopLoss: formData.stopLoss ? Number(formData.stopLoss) : undefined,
+          requiredSubscription: formData.accessLevel === 'free' ? undefined : formData.accessLevel,
+          isLocked: formData.accessLevel !== 'free',
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'ثبت تحلیل انجام نشد.');
+        return;
+      }
+
+      setMessage('تحلیل با موفقیت منتشر شد.');
+      setTimeout(() => router.push(`/${locale}/admin/analyses`), 700);
+    } catch {
+      setError('ثبت تحلیل انجام نشد.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -58,7 +124,7 @@ export default function NewAnalysisPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin - John Doe" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <main className="py-12 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,6 +139,16 @@ export default function NewAnalysisPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
+            {error ? (
+              <Card className="border border-red-200 bg-red-50">
+                <CardContent><p className="text-red-800">{error}</p></CardContent>
+              </Card>
+            ) : null}
+            {message ? (
+              <Card className="border border-green-200 bg-green-50">
+                <CardContent><p className="text-green-800">{message}</p></CardContent>
+              </Card>
+            ) : null}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-8">
@@ -153,12 +229,7 @@ export default function NewAnalysisPage() {
                       value={formData.marketId}
                       onChange={handleChange}
                       required
-                      options={[
-                        { value: 'iran-stocks', label: 'Tehran Stock Exchange' },
-                        { value: 'forex', label: 'Forex' },
-                        { value: 'gold', label: 'Gold & Metals' },
-                        { value: 'crypto', label: 'Cryptocurrencies' },
-                      ]}
+                      options={markets.map((market) => ({ value: market.id, label: market.name }))}
                       placeholder="Select Market"
                     />
                     <Select 
@@ -180,7 +251,6 @@ export default function NewAnalysisPage() {
                         { value: 'BUY', label: dict.common.buy },
                         { value: 'SELL', label: dict.common.sell },
                         { value: 'HOLD', label: dict.common.hold },
-                        { value: 'WATCH', label: 'WATCH' },
                       ]}
                     />
                     <Select 
@@ -245,7 +315,7 @@ export default function NewAnalysisPage() {
                   </CardContent>
                 </Card>
 
-                <Button type="submit" fullWidth size="lg" className="h-16 text-lg shadow-xl shadow-primary-200" leftIcon={<Send className="w-5 h-5" />}>
+                <Button type="submit" fullWidth size="lg" isLoading={isSubmitting} className="h-16 text-lg shadow-xl shadow-primary-200" leftIcon={<Send className="w-5 h-5" />}>
                   {dict.admin.publish_analysis}
                 </Button>
               </div>

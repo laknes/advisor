@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Header, Footer, Card, CardHeader, CardContent, Button, Badge } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import {
   FileText,
   Plus,
@@ -14,42 +15,55 @@ import {
   Unlock,
   Eye,
   Edit3,
-  Trash2,
   Clock,
-  ArrowRight
+  Trash2
 } from 'lucide-react';
 
 interface AnalysisItem {
   id: string;
   title: string;
-  market: string;
+  market?: { name: string } | null;
   timeframe: string;
   signal: string;
   publishedAt: string;
-  scheduledAt?: string;
-  accessLevel: string;
+  requiredSubscription?: string | null;
   isLocked: boolean;
-  status: 'published' | 'scheduled' | 'draft';
 }
 
 export default function AnalysesManagementPage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [analyses, setAnalyses] = useState<AnalysisItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Mock data for demonstration
-    const mockData: AnalysisItem[] = [
-      { id: '1', title: 'Gold Bullish Continuation', market: 'Gold', timeframe: 'Daily', signal: 'BUY', publishedAt: '2026-06-08', accessLevel: 'Premium', isLocked: true, status: 'published' },
-      { id: '2', title: 'USD/IRR Technical Outlook', market: 'Forex', timeframe: 'Weekly', signal: 'HOLD', publishedAt: '2026-06-07', accessLevel: 'Free', isLocked: false, status: 'published' },
-      { id: '3', title: 'Iran Stocks Monthly Strategy', market: 'Iran Stocks', timeframe: 'Monthly', signal: 'BUY', publishedAt: '2026-06-10', scheduledAt: '2026-06-10', accessLevel: 'VIP', isLocked: true, status: 'scheduled' },
-    ];
-    setAnalyses(mockData);
-    setLoading(false);
+    const fetchAnalyses = async () => {
+      try {
+        const response = await fetch('/api/analyses?limit=100', {
+          headers: getAuthHeaders(),
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+          setError(result.error || 'Unable to load analyses');
+          return;
+        }
+
+        setAnalyses(result.data?.analyses || []);
+      } catch {
+        setError('Unable to load analyses.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalyses();
   }, []);
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <main className="py-12 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,7 +72,7 @@ export default function AnalysesManagementPage() {
               <h1 className="text-4xl font-black text-secondary-900 tracking-tight">Analyses <span className="text-primary-600">Management</span></h1>
               <p className="text-lg text-secondary-500 font-medium">Create, edit, and schedule market insights</p>
             </div>
-            <Link href="/admin/analyses/new">
+            <Link href={`/${locale}/admin/analyses/new`}>
               <Button size="lg" className="shadow-lg shadow-primary-200 px-8 h-14" leftIcon={<Plus className="w-5 h-5" />}>
                 Publish New Analysis
               </Button>
@@ -81,7 +95,7 @@ export default function AnalysesManagementPage() {
               </div>
               <div>
                 <p className="text-xs font-black text-secondary-400 uppercase tracking-widest">Published</p>
-                <p className="text-xl font-black text-secondary-900">{analyses.filter(a => a.status === 'published').length}</p>
+                <p className="text-xl font-black text-secondary-900">{analyses.length}</p>
               </div>
             </Card>
             <Card className="border-none shadow-md bg-white p-4 flex items-center gap-4">
@@ -90,7 +104,7 @@ export default function AnalysesManagementPage() {
               </div>
               <div>
                 <p className="text-xs font-black text-secondary-400 uppercase tracking-widest">Scheduled</p>
-                <p className="text-xl font-black text-secondary-900">{analyses.filter(a => a.status === 'scheduled').length}</p>
+                <p className="text-xl font-black text-secondary-900">{analyses.filter(a => new Date(a.publishedAt) > new Date()).length}</p>
               </div>
             </Card>
             <Card className="border-none shadow-md bg-white p-4 flex items-center gap-4">
@@ -117,6 +131,9 @@ export default function AnalysesManagementPage() {
                 </div>
               }
             />
+            {error ? (
+              <div className="border-b border-red-100 bg-red-50 px-6 py-4 text-sm font-bold text-red-800">{error}</div>
+            ) : null}
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -132,14 +149,22 @@ export default function AnalysesManagementPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-50">
-                    {analyses.map((analysis) => (
+                    {loading ? (
+                      <tr>
+                        <td colSpan={7} className="py-10 text-center text-secondary-500">Loading analyses...</td>
+                      </tr>
+                    ) : analyses.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-10 text-center text-secondary-500">No analyses found.</td>
+                      </tr>
+                    ) : analyses.map((analysis) => (
                       <tr key={analysis.id} className="hover:bg-secondary-50/50 transition-colors group">
                         <td className="py-4 px-6">
                           <p className="font-bold text-secondary-900 group-hover:text-primary-600 transition-colors">{analysis.title}</p>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-secondary-700">{analysis.market}</span>
+                            <span className="text-sm font-bold text-secondary-700">{analysis.market?.name || 'Unknown market'}</span>
                             <span className="text-[10px] font-bold text-secondary-400 uppercase tracking-tighter">{analysis.timeframe}</span>
                           </div>
                         </td>
@@ -149,23 +174,27 @@ export default function AnalysesManagementPage() {
                           </Badge>
                         </td>
                         <td className="py-4 px-6 text-sm text-secondary-600 font-medium">
-                          {analysis.status === 'scheduled' ? analysis.scheduledAt : analysis.publishedAt}
+                          {new Date(analysis.publishedAt).toLocaleDateString()}
                         </td>
                         <td className="py-4 px-6 text-center">
                           <div className="flex justify-center">
                             {analysis.isLocked ? <Lock className="w-4 h-4 text-orange-500" /> : <Unlock className="w-4 h-4 text-green-500" />}
                           </div>
-                          <span className="text-[10px] font-bold text-secondary-400 uppercase mt-1 block">{analysis.accessLevel}</span>
+                          <span className="text-[10px] font-bold text-secondary-400 uppercase mt-1 block">{analysis.requiredSubscription || 'free'}</span>
                         </td>
                         <td className="py-4 px-6 text-center">
-                          <Badge variant={analysis.status === 'published' ? 'info' : 'warning'}>
-                            {analysis.status}
+                          <Badge variant={new Date(analysis.publishedAt) <= new Date() ? 'info' : 'warning'}>
+                            {new Date(analysis.publishedAt) <= new Date() ? 'published' : 'scheduled'}
                           </Badge>
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="flex justify-end gap-2">
-                            <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-primary-600"><Eye className="w-4 h-4" /></Button>
-                            <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-blue-600"><Edit3 className="w-4 h-4" /></Button>
+                            <Link href={`/${locale}/admin/analyses/${analysis.id}`}>
+                              <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-primary-600"><Eye className="w-4 h-4" /></Button>
+                            </Link>
+                            <Link href={`/${locale}/admin/analyses/${analysis.id}`}>
+                              <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-blue-600"><Edit3 className="w-4 h-4" /></Button>
+                            </Link>
                             <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </td>

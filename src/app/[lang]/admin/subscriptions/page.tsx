@@ -1,6 +1,8 @@
 'use client';
 
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 interface SubscriptionRecord {
@@ -14,6 +16,8 @@ interface SubscriptionRecord {
 }
 
 export default function AdminSubscriptionsPage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const subscriptions: SubscriptionRecord[] = [
     {
       id: '1',
@@ -68,12 +72,12 @@ export default function AdminSubscriptionsPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Subscription Management</h1>
-          <Link href="/admin">
+          <Link href={`/${locale}/admin`}>
             <Button variant="outline">← Back</Button>
           </Link>
         </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge, Input } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 interface AdminUser {
@@ -14,6 +16,8 @@ interface AdminUser {
 }
 
 export default function UsersManagementPage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,9 +27,7 @@ export default function UsersManagementPage() {
     const fetchUsers = async () => {
       try {
         const response = await fetch('/api/admin/users', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-          },
+          headers: getAuthHeaders(),
         });
         const result = await response.json();
 
@@ -35,7 +37,7 @@ export default function UsersManagementPage() {
         }
 
         setUsers(result.data.users || []);
-      } catch (err) {
+      } catch {
         setError('Unable to load users');
       } finally {
         setIsLoading(false);
@@ -51,12 +53,12 @@ export default function UsersManagementPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">User Management</h1>
-          <Link href="/admin/users/new">
+          <Link href={`/${locale}/admin/users/new`}>
             <Button>Add User</Button>
           </Link>
         </div>
@@ -121,7 +123,7 @@ export default function UsersManagementPage() {
                           </Badge>
                         </td>
                         <td className="text-center py-4 px-4 space-x-2">
-                          <Link href={`/admin/users/${user.id}`}>
+                          <Link href={`/${locale}/admin/users/${user.id}`}>
                             <Button size="sm" variant="outline">
                               Edit
                             </Button>

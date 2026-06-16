@@ -3,10 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header, Card, CardHeader, CardContent, Button, Input, FormGroup } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 export default function CreateAdminUserPage() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -36,7 +40,7 @@ export default function CreateAdminUserPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(form),
       });
@@ -50,8 +54,8 @@ export default function CreateAdminUserPage() {
       }
 
       setMessage('User created successfully! Redirecting...');
-      setTimeout(() => router.push('/admin/users'), 1000);
-    } catch (err) {
+      setTimeout(() => router.push(`/${locale}/admin/users`), 1000);
+    } catch {
       setError('Unable to create user. Please try again.');
     } finally {
       setLoading(false);
@@ -60,12 +64,12 @@ export default function CreateAdminUserPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Create User</h1>
-          <Link href="/admin/users">
+          <Link href={`/${locale}/admin/users`}>
             <Button variant="outline">← Back</Button>
           </Link>
         </div>
@@ -110,7 +114,7 @@ export default function CreateAdminUserPage() {
             </label>
 
             <div className="flex justify-end gap-3 pt-4">
-              <Link href="/admin/users">
+              <Link href={`/${locale}/admin/users`}>
                 <Button variant="outline">Cancel</Button>
               </Link>
               <Button onClick={handleSubmit} isLoading={loading}>

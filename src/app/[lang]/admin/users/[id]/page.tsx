@@ -3,6 +3,8 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header, Card, CardHeader, CardContent, Button, Input, FormGroup } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 interface Params {
@@ -14,6 +16,8 @@ interface Params {
 export default function EditAdminUserPage({ params: paramsPromise }: Params) {
   const params = use(paramsPromise);
   const router = useRouter();
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -29,9 +33,7 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
     const fetchUser = async () => {
       try {
         const response = await fetch(`/api/admin/users/${params.id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-          },
+          headers: getAuthHeaders(),
         });
 
         const result = await response.json();
@@ -47,7 +49,7 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
           country: result.data.user.country || '',
           verified: result.data.user.verified ?? false,
         });
-      } catch (err) {
+      } catch {
         setError('Unable to load user details.');
       } finally {
         setLoading(false);
@@ -75,7 +77,7 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(form),
       });
@@ -90,7 +92,7 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
 
       setMessage('User details saved successfully!');
       setTimeout(() => setMessage(''), 2000);
-    } catch (err) {
+    } catch {
       setError('Unable to update user. Please try again.');
     } finally {
       setSaving(false);
@@ -99,13 +101,13 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Edit User</h1>
           <div className="flex gap-3">
-            <Link href="/admin/users">
+            <Link href={`/${locale}/admin/users`}>
               <Button variant="outline">← Back</Button>
             </Link>
           </div>
@@ -156,7 +158,7 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
                 </label>
 
                 <div className="flex justify-end gap-3 pt-4">
-                  <Button variant="outline" onClick={() => router.push('/admin/users')}>
+                  <Button variant="outline" onClick={() => router.push(`/${locale}/admin/users`)}>
                     Cancel
                   </Button>
                   <Button onClick={handleSave} isLoading={saving}>

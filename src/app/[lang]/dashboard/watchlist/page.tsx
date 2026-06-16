@@ -1,9 +1,13 @@
 'use client';
 
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 export default function WatchlistPage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const watchlist = [
     { symbol: 'TEPIX', market: 'Iran Stocks', price: 1850, change: 1.63, changePercent: 0.88 },
     { symbol: 'EUR/USD', market: 'Forex', price: 1.0945, change: 0.0025, changePercent: 0.23 },
@@ -13,12 +17,12 @@ export default function WatchlistPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="John Doe" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">My Watchlist</h1>
-          <Link href="/dashboard">
+          <Link href={`/${locale}/dashboard`}>
             <Button variant="outline">Back to Dashboard</Button>
           </Link>
         </div>
@@ -51,7 +55,7 @@ export default function WatchlistPage() {
         </Card>
 
         <div className="mt-8">
-          <Link href="/markets">
+          <Link href={`/${locale}/markets`}>
             <Button>Add More Assets</Button>
           </Link>
         </div>

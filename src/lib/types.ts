@@ -60,6 +60,7 @@ export interface Subscription {
   id: string;
   userId: string;
   planId: string;
+  plan?: SubscriptionPlan;
   marketId?: string;
   startDate: Date;
   endDate: Date;

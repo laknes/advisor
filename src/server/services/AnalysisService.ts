@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { NotFoundError } from '@/lib/errors';
-import type { CreateAnalysisInput } from '@/lib/validations';
+import type { CreateAnalysisInput, UpdateAnalysisInput } from '@/lib/validations';
 
 export class AnalysisService {
   /**
@@ -14,6 +14,8 @@ export class AnalysisService {
       },
       select: {
         id: true,
+        marketId: true,
+        market: { select: { id: true, name: true, slug: true } },
         title: true,
         summary: true,
         signal: true,
@@ -32,7 +34,7 @@ export class AnalysisService {
    * Get analyses by market
    */
   static async getAnalysesByMarket(marketId: string, timeframe?: string, analysisType?: string) {
-    const where: any = { marketId };
+    const where: { marketId: string; timeframe?: string; analysisType?: string } = { marketId };
 
     if (timeframe) where.timeframe = timeframe;
     if (analysisType) where.analysisType = analysisType;
@@ -43,6 +45,8 @@ export class AnalysisService {
       take: 50,
       select: {
         id: true,
+        marketId: true,
+        market: { select: { id: true, name: true, slug: true } },
         title: true,
         summary: true,
         timeframe: true,
@@ -67,6 +71,8 @@ export class AnalysisService {
       where: { id: analysisId },
       select: {
         id: true,
+        marketId: true,
+        market: { select: { id: true, name: true, slug: true } },
         title: true,
         summary: true,
         fullContent: true,
@@ -120,6 +126,8 @@ export class AnalysisService {
       take: limit,
       select: {
         id: true,
+        marketId: true,
+        market: { select: { id: true, name: true, slug: true } },
         title: true,
         summary: true,
         signal: true,
@@ -129,6 +137,7 @@ export class AnalysisService {
         timeframe: true,
         analysisType: true,
         isLocked: true,
+        requiredSubscription: true,
         publishedAt: true,
       },
     });
@@ -138,12 +147,11 @@ export class AnalysisService {
     return { analyses, total, limit, offset };
   }
 
-  static async updateAnalysis(analysisId: string, input: any) {
+  static async updateAnalysis(analysisId: string, input: UpdateAnalysisInput) {
     const analysis = await prisma.analysis.update({
       where: { id: analysisId },
       data: {
         ...input,
-        publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
         updatedAt: new Date(),
       },
     });

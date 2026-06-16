@@ -1,6 +1,7 @@
 'use client';
 
 import { Header, Card, Button, Input, FormGroup } from '@/components';
+import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from '@/lib/clientAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -59,8 +60,8 @@ export default function SignupPage() {
         return;
       }
 
-      localStorage.setItem('portfolio_advisor_token', payload.data.token);
-      localStorage.setItem('portfolio_advisor_user', JSON.stringify(payload.data.user));
+      localStorage.setItem(AUTH_TOKEN_KEY, payload.data.token);
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(payload.data.user));
       router.push('/fa/dashboard');
     } finally {
       setIsLoading(false);

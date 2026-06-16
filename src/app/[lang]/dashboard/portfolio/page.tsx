@@ -1,9 +1,13 @@
 'use client';
 
 import { Header, Card, CardHeader, CardContent, Button } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 export default function PortfolioPage() {
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const positions = [
     { symbol: 'TEPIX', quantity: 100, entryPrice: 1500, currentPrice: 1625, profitLoss: 12500 },
     { symbol: 'EUR/USD', quantity: 50000, entryPrice: 1.08, currentPrice: 1.095, profitLoss: 750 },
@@ -16,7 +20,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="John Doe" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-4xl font-bold text-secondary-900 mb-8">My Portfolio</h1>
@@ -83,7 +87,7 @@ export default function PortfolioPage() {
         </Card>
 
         <div className="mt-8 flex gap-4">
-          <Link href="/dashboard">
+          <Link href={`/${locale}/dashboard`}>
             <Button variant="outline">Back to Dashboard</Button>
           </Link>
           <Button>Add Position</Button>

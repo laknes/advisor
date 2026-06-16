@@ -13,6 +13,8 @@ import {
   Select,
   FormGroup,
 } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
 
 interface Params {
@@ -24,6 +26,8 @@ interface Params {
 export default function EditAnalysisPage({ params: paramsPromise }: Params) {
   const params = use(paramsPromise);
   const router = useRouter();
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
   const [markets, setMarkets] = useState<{ id: string; name: string }[]>([]);
   const [analysis, setAnalysis] = useState({
     title: '',
@@ -50,9 +54,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
     const fetchAnalysis = async () => {
       try {
         const response = await fetch(`/api/analyses/${params.id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-          },
+          headers: getAuthHeaders(),
         });
 
         const result = await response.json();
@@ -79,7 +81,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
           requiredSubscription: data.requiredSubscription || '',
           isLocked: data.isLocked ?? false,
         });
-      } catch (err) {
+      } catch {
         setError('Unable to load analysis details.');
       } finally {
         setLoading(false);
@@ -96,7 +98,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
         const result = await response.json();
 
         if (response.ok && result.data?.markets) {
-          setMarkets(result.data.markets.map((market: any) => ({ id: market.id, name: market.name })));
+          setMarkets(result.data.markets.map((market: { id: string; name: string }) => ({ id: market.id, name: market.name })));
         }
       } catch {
         // ignore
@@ -125,7 +127,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({
           ...analysis,
@@ -146,7 +148,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
 
       setMessage('Analysis updated successfully!');
       setTimeout(() => setMessage(''), 2000);
-    } catch (err) {
+    } catch {
       setError('Unable to update analysis. Please try again.');
     } finally {
       setSaving(false);
@@ -161,9 +163,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
     try {
       const response = await fetch(`/api/analyses/${params.id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-        },
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {
@@ -172,21 +172,21 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
         return;
       }
 
-      router.push('/admin/analyses');
-    } catch (err) {
+      router.push(`/${locale}/admin/analyses`);
+    } catch {
       setError('Unable to delete analysis.');
     }
   };
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="Admin" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Edit Analysis</h1>
           <div className="flex gap-3">
-            <Link href="/admin/analyses">
+            <Link href={`/${locale}/admin/analyses`}>
               <Button variant="outline">← Back</Button>
             </Link>
             <Button variant="danger" onClick={handleDelete}>
@@ -337,7 +337,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6">
-                  <Button variant="outline" onClick={() => router.push('/admin/analyses')}>
+                  <Button variant="outline" onClick={() => router.push(`/${locale}/admin/analyses`)}>
                     Cancel
                   </Button>
                   <Button onClick={handleSave} isLoading={saving}>

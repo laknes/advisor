@@ -1,76 +1,76 @@
 'use client';
 
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import { formatDate, formatTime } from '@/lib/utils';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function AlertsPage() {
-  const alerts = [
-    {
-      id: '1',
-      type: 'price_target',
-      symbol: 'TEPIX',
-      market: 'Iran Stocks',
-      message: 'Price reached your target of $1,850',
-      targetPrice: 1850,
-      currentPrice: 1850,
-      triggered: true,
-      triggeredAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      status: 'active',
-    },
-    {
-      id: '2',
-      type: 'price_alert',
-      symbol: 'EUR/USD',
-      market: 'Forex',
-      message: 'Price moved beyond 1.10 threshold',
-      threshold: 1.1,
-      currentPrice: 1.0945,
-      triggered: false,
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      status: 'active',
-    },
-    {
-      id: '3',
-      type: 'volatility_alert',
-      symbol: 'GOLD',
-      market: 'Gold',
-      message: 'High volatility detected - unusual market movement',
-      volatility: 2.5,
-      currentPrice: 2454,
-      triggered: true,
-      triggeredAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
-      status: 'active',
-    },
-    {
-      id: '4',
-      type: 'analysis_published',
-      symbol: 'USD/IRR',
-      market: 'Currency',
-      message: 'New analysis published: USD/IRR Currency Trends',
-      analysis: 'USD/IRR Currency Trends',
-      triggered: true,
-      triggeredAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      status: 'read',
-    },
-  ];
+  const { locale } = useLocale();
+  const currentUser = getStoredUser();
+  const [alerts, setAlerts] = useState<Array<{
+    id: string;
+    symbol: string;
+    market: string;
+    condition: string;
+    price: number;
+    isTriggered: boolean;
+    triggeredAt?: string | null;
+    isActive: boolean;
+    createdAt: string;
+  }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleDismiss = (id: string) => {
-    console.log(`Dismissed alert: ${id}`);
+  const loadAlerts = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/alerts', { headers: getAuthHeaders() });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'هشدارها بارگذاری نشدند.');
+        return;
+      }
+
+      setAlerts(result.data?.alerts || []);
+    } catch {
+      setError('هشدارها بارگذاری نشدند.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleMarkAsRead = (id: string) => {
-    console.log(`Marked as read: ${id}`);
+  useEffect(() => {
+    loadAlerts();
+  }, []);
+
+  const handleDismiss = async (id: string) => {
+    await fetch(`/api/alerts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    setAlerts((prev) => prev.filter((alert) => alert.id !== id));
+  };
+
+  const handleDeactivate = async (id: string) => {
+    await fetch(`/api/alerts/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ isActive: false }),
+    });
+    setAlerts((prev) => prev.map((alert) => (alert.id === id ? { ...alert, isActive: false } : alert)));
   };
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={true} userName="John Doe" />
+      <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Price & Market Alerts</h1>
-          <Link href="/dashboard">
+          <Link href={`/${locale}/dashboard`}>
             <Button variant="outline">Back to Dashboard</Button>
           </Link>
         </div>
@@ -102,22 +102,28 @@ export default function AlertsPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-secondary-900 mb-4">Active Alerts</h2>
           <div className="space-y-4">
-            {alerts
-              .filter((a) => a.status === 'active')
+            {isLoading ? (
+              <Card><CardContent><p className="text-secondary-700">Loading alerts...</p></CardContent></Card>
+            ) : error ? (
+              <Card className="border border-red-200 bg-red-50"><CardContent><p className="text-red-800">{error}</p></CardContent></Card>
+            ) : alerts.filter((a) => a.isActive).length === 0 ? (
+              <Card><CardContent><p className="text-secondary-700">No active alerts.</p></CardContent></Card>
+            ) : alerts
+              .filter((a) => a.isActive)
               .map((alert) => (
                 <Card key={alert.id}>
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={alert.triggered ? 'danger' : 'warning'}>
-                            {alert.triggered ? '🔔 Triggered' : '⏳ Pending'}
+                          <Badge variant={alert.isTriggered ? 'danger' : 'warning'}>
+                            {alert.isTriggered ? '🔔 Triggered' : '⏳ Pending'}
                           </Badge>
                           <span className="text-xs text-secondary-600">
-                            {alert.triggered ? `Triggered ${formatTime(alert.triggeredAt!)}` : 'Waiting...'}
+                            {alert.isTriggered && alert.triggeredAt ? `Triggered ${formatTime(alert.triggeredAt)}` : 'Waiting...'}
                           </span>
                         </div>
-                        <h3 className="text-lg font-semibold text-secondary-900 mb-1">{alert.message}</h3>
+                        <h3 className="text-lg font-semibold text-secondary-900 mb-1">{alert.symbol} {alert.condition === 'above' ? 'above' : 'below'} {alert.price}</h3>
                         <div className="flex flex-wrap gap-4 text-sm text-secondary-600">
                           <span>
                             <strong>Symbol:</strong> {alert.symbol}
@@ -126,13 +132,13 @@ export default function AlertsPage() {
                             <strong>Market:</strong> {alert.market}
                           </span>
                           <span>
-                            <strong>Current Price:</strong> ${alert.currentPrice}
+                            <strong>Target Price:</strong> ${alert.price}
                           </span>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleMarkAsRead(alert.id)}>
-                          Mark Read
+                        <Button size="sm" variant="outline" onClick={() => handleDeactivate(alert.id)}>
+                          Deactivate
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => handleDismiss(alert.id)}>
                           Dismiss
@@ -150,7 +156,7 @@ export default function AlertsPage() {
           <h2 className="text-2xl font-bold text-secondary-900 mb-4">Recent Alerts</h2>
           <div className="space-y-4">
             {alerts
-              .filter((a) => a.status === 'read')
+              .filter((a) => !a.isActive)
               .map((alert) => (
                 <Card key={alert.id}>
                   <CardContent className="pt-6">
@@ -158,9 +164,9 @@ export default function AlertsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="neutral">✓ Read</Badge>
-                          <span className="text-xs text-secondary-600">{formatDate(alert.triggeredAt!)}</span>
+                          <span className="text-xs text-secondary-600">{formatDate(alert.triggeredAt || alert.createdAt)}</span>
                         </div>
-                        <h3 className="text-lg font-semibold text-secondary-900 mb-1">{alert.message}</h3>
+                        <h3 className="text-lg font-semibold text-secondary-900 mb-1">{alert.symbol} {alert.condition} {alert.price}</h3>
                         <div className="flex flex-wrap gap-4 text-sm text-secondary-600">
                           <span>
                             <strong>Symbol:</strong> {alert.symbol}
