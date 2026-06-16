@@ -294,6 +294,10 @@ shell_quote() {
   node -e "const s = process.argv[1] || ''; process.stdout.write(\"'\" + s.replace(/'/g, \"'\\\\''\") + \"'\");" "$1"
 }
 
+dotenv_quote() {
+  node -e "const s = process.argv[1] || ''; process.stdout.write(JSON.stringify(s));" "$1"
+}
+
 install_system_packages() {
   log "Installing system packages"
   apt-get update
@@ -365,7 +369,7 @@ SQL
 }
 
 write_env_files() {
-  log "Writing production environment files"
+  log "Writing application and Prisma environment files"
 
   local base_url
   if [[ -n "$APP_BASE_URL" ]]; then
@@ -399,9 +403,10 @@ write_env_files() {
     effective_admin_emails="${ADMIN_EMAIL}"
   fi
 
-  local database_url_q base_url_q nextauth_secret_q jwt_secret_q admin_email_q admin_emails_q api_url_q
+  local database_url_q database_url_dotenv_q base_url_q nextauth_secret_q jwt_secret_q admin_email_q admin_emails_q api_url_q
   local stripe_public_key_q stripe_secret_key_q smtp_host_q smtp_port_q smtp_user_q smtp_pass_q
   database_url_q="$(shell_quote "$database_url")"
+  database_url_dotenv_q="$(dotenv_quote "$database_url")"
   base_url_q="$(shell_quote "$base_url")"
   nextauth_secret_q="$(shell_quote "$nextauth_secret")"
   jwt_secret_q="$(shell_quote "$jwt_secret")"
@@ -437,7 +442,18 @@ SMTP_PASS=${smtp_pass_q}
 EOF
 
   cp "${APP_DIR}/.env.production" "${APP_DIR}/.env.local"
-  chown "${APP_USER}:${APP_USER}" "${APP_DIR}/.env.production" "${APP_DIR}/.env.local" || true
+
+  install -d -m 0755 "${APP_DIR}/prisma"
+  cat > "${APP_DIR}/prisma/.env" <<EOF
+# Used by Prisma CLI, Prisma VS Code extension, and generated client tooling.
+# Keep this in sync with the application DATABASE_URL.
+DATABASE_URL=${database_url_dotenv_q}
+EOF
+
+  chown "${APP_USER}:${APP_USER}" \
+    "${APP_DIR}/.env.production" \
+    "${APP_DIR}/.env.local" \
+    "${APP_DIR}/prisma/.env" || true
 }
 
 install_app_dependencies() {
@@ -451,13 +467,14 @@ install_app_dependencies() {
 }
 
 setup_prisma() {
-  log "Generating Prisma client and applying schema"
+  log "Validating Prisma schema, generating client, and applying schema"
   cd "$APP_DIR"
   set -a
   # shellcheck disable=SC1091
   source "$APP_DIR/.env.production"
   set +a
 
+  sudo -u "$APP_USER" npx prisma validate
   sudo -u "$APP_USER" npx prisma generate
 
   if [[ -d "$APP_DIR/prisma/migrations" ]] && find "$APP_DIR/prisma/migrations" -mindepth 1 -maxdepth 1 -type d | grep -q .; then
@@ -643,6 +660,7 @@ Admin login:
 Environment files:
   ${APP_DIR}/.env.production
   ${APP_DIR}/.env.local
+  ${APP_DIR}/prisma/.env
 
 EOF
 }
