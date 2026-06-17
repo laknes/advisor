@@ -16,6 +16,22 @@ interface SiteSetting {
   isPublic: boolean;
 }
 
+const groupLabels: Record<string, string> = {
+  payments: 'مدیریت درگاه‌های پرداخت ایرانی',
+  market_data: 'مدیریت API دیتای واقعی بازار',
+  billing: 'تنظیمات مالی و واحد پول',
+  content: 'محتوای سایت',
+  seo: 'سئو',
+  contact: 'راه‌های ارتباطی',
+  general: 'تنظیمات عمومی',
+  system: 'تنظیمات سیستم',
+};
+
+const groupDescriptions: Record<string, string> = {
+  payments: 'کلیدها، وضعیت فعال بودن، sandbox و callback درگاه‌هایی مثل زرین‌پال، زیبال، IDPay و Pay.ir را از همین بخش مدیریت کنید.',
+  market_data: 'URL و API key سرویس‌های قیمت بورس، فارکس، طلا، ارز و کریپتو را اینجا وارد کنید.',
+};
+
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<SiteSetting[]>([]);
   const [values, setValues] = useState<Record<string, unknown>>({});
@@ -96,7 +112,10 @@ export default function AdminSettingsPage() {
             {Object.entries(groups).map(([group, items]) => (
               <Card key={group} className="border-none bg-white p-6 shadow-xl">
                 <div className="mb-6 flex items-center justify-between border-b border-secondary-100 pb-4">
-                  <h2 className="text-2xl font-black capitalize text-secondary-900">{group}</h2>
+                  <div>
+                    <h2 className="text-2xl font-black text-secondary-900">{groupLabels[group] || group}</h2>
+                    {groupDescriptions[group] && <p className="mt-1 text-sm font-medium text-secondary-500">{groupDescriptions[group]}</p>}
+                  </div>
                   <span className="rounded-lg bg-secondary-50 px-3 py-1 text-xs font-black text-secondary-500">
                     {items.length} settings
                   </span>

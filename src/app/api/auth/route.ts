@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/server/services/UserService';
 import { RegisterSchema, LoginSchema } from '@/lib/validations';
-import { handleError, successResponse } from '@/server/middleware';
+import { handleError, isAdminEmail, successResponse } from '@/server/middleware';
 import { formatZodError } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       }
 
       const { user, token } = await UserService.register(result.data);
-      return successResponse({ user, token }, 'User registered successfully', 201);
+      return successResponse({ user: { ...user, isAdmin: isAdminEmail(user.email) }, token }, 'User registered successfully', 201);
     }
 
     if (action === 'login') {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       }
 
       const { user, token } = await UserService.login(result.data);
-      return successResponse({ user, token }, 'Logged in successfully');
+      return successResponse({ user: { ...user, isAdmin: isAdminEmail(user.email) }, token }, 'Logged in successfully');
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

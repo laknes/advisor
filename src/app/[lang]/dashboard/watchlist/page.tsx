@@ -32,7 +32,7 @@ export default function WatchlistPage() {
       await apiDelete(`/api/watchlist/${id}`, true);
       setWatchlist((current) => current.filter((item) => item.id !== id));
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to remove item.');
+      setMessage(error instanceof Error ? error.message : 'حذف نماد ممکن نشد.');
     }
   };
 
@@ -42,14 +42,14 @@ export default function WatchlistPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-secondary-900">My Watchlist</h1>
+          <h1 className="text-4xl font-bold text-secondary-900">واچ‌لیست من</h1>
           <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">بازگشت به داشبورد</Button>
           </Link>
         </div>
 
         <Card>
-          <CardHeader title="Monitored Assets" />
+          <CardHeader title="دارایی‌های تحت نظر" />
           <CardContent>
             {message && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">{message}</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -68,22 +68,22 @@ export default function WatchlistPage() {
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between pt-3 border-t border-secondary-100">
-                    <span className="text-2xl font-bold text-secondary-900">{price ? `$${price.currentPrice}` : 'No price'}</span>
+                    <span className="text-2xl font-bold text-secondary-900">{price ? `$${price.currentPrice}` : 'قیمت ثبت نشده'}</span>
                     <Button size="sm" variant="outline" onClick={() => removeItem(asset.id)}>
-                      Remove
+                      حذف
                     </Button>
                   </div>
                 </div>
                 );
               })}
-              {!watchlist.length && <p className="text-secondary-600">Your watchlist is empty.</p>}
+              {!watchlist.length && <p className="text-secondary-600">واچ‌لیست شما خالی است.</p>}
             </div>
           </CardContent>
         </Card>
 
         <div className="mt-8">
           <Link href={`/${locale}/markets`}>
-            <Button>Add More Assets</Button>
+            <Button>افزودن دارایی</Button>
           </Link>
         </div>
       </div>

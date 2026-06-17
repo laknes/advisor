@@ -1,65 +1,65 @@
 'use client';
 
 import { Header, Button } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
 import Link from 'next/link';
 
 export default function PrivacyPage() {
+  const { locale } = useLocale();
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link href="/" className="text-primary-600 hover:text-primary-700 mb-8 inline-block">
-          ← Back to Home
+        <Link href={`/${locale}`} className="text-primary-200 hover:text-white mb-8 inline-block">
+          بازگشت به خانه
         </Link>
 
-        <h1 className="text-4xl font-bold text-secondary-900 mb-8">Privacy Policy</h1>
+        <h1 className="text-4xl font-bold text-white mb-8">حریم خصوصی</h1>
 
-        <div className="prose prose-lg max-w-none space-y-6 text-secondary-700">
+        <div className="rounded-lg bg-white p-8 text-secondary-700 shadow-xl prose prose-lg max-w-none space-y-6">
           <section>
-            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">1. Introduction</h2>
+            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">۱. مقدمه</h2>
             <p>
-              Portfolio Advisor ("we", "our", or "us") operates the Portfolio Advisor website and mobile application (the "Service").
-              This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service.
+              مشاور پورتفو وب‌سایت و خدمات مرتبط با مدیریت پورتفو را ارائه می‌کند. این صفحه توضیح می‌دهد هنگام استفاده از خدمات، چه داده‌هایی جمع‌آوری می‌شود و چگونه از آن‌ها محافظت می‌کنیم.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">2. Information Collection and Use</h2>
-            <p>We collect several different types of information for various purposes to provide and improve our Service:</p>
+            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">۲. گردآوری و استفاده از اطلاعات</h2>
+            <p>برای ارائه و بهبود خدمات، این اطلاعات ممکن است ثبت شود:</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Personal Data: Name, email address, phone number, postal address</li>
-              <li>Usage Data: Browser type, pages visited, time and date of visit</li>
-              <li>Investment Data: Portfolio holdings, watchlist items, subscription preferences</li>
-              <li>Cookies and Tracking Data: Device identifiers, analytics data</li>
+              <li>اطلاعات هویتی مانند نام، ایمیل و شماره تماس</li>
+              <li>اطلاعات استفاده مانند صفحات مشاهده‌شده و زمان بازدید</li>
+              <li>اطلاعات سرمایه‌گذاری مانند دارایی‌های پورتفو و نمادهای تحت نظر</li>
+              <li>شناسه‌های فنی دستگاه و داده‌های تحلیلی</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">3. Use of Data</h2>
-            <p>Portfolio Advisor uses the collected data for various purposes:</p>
+            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">۳. کاربرد داده‌ها</h2>
+            <p>مشاور پورتفو از داده‌های ثبت‌شده برای این موارد استفاده می‌کند:</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>To provide and maintain our Service</li>
-              <li>To notify you about changes to our Service</li>
-              <li>To provide customer support</li>
-              <li>To gather analysis and valuable information to improve our Service</li>
-              <li>To monitor the usage of our Service</li>
-              <li>To send promotional communications (with your consent)</li>
+              <li>ارائه، نگهداری و بهبود خدمات</li>
+              <li>اطلاع‌رسانی درباره تغییرات مهم</li>
+              <li>پشتیبانی از کاربران</li>
+              <li>تحلیل عملکرد پلتفرم و بهبود تجربه کاربری</li>
+              <li>ارسال پیام‌های اطلاع‌رسانی با رضایت شما</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">4. Security of Data</h2>
+            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">۴. امنیت داده‌ها</h2>
             <p>
-              The security of your data is important to us but remember that no method of transmission over the Internet or method of electronic storage
-              is 100% secure. While we strive to use commercially acceptable means to protect your personal data, we cannot guarantee its absolute security.
+              امنیت اطلاعات شما برای ما مهم است، اما هیچ روش انتقال یا نگهداری الکترونیکی کاملاً بدون ریسک نیست. ما از روش‌های معقول برای محافظت از داده‌ها استفاده می‌کنیم.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">5. Contact Us</h2>
+            <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">۵. تماس با ما</h2>
             <p>
-              If you have any questions about this Privacy Policy, please contact us at{' '}
+              اگر درباره حریم خصوصی پرسشی دارید، از این نشانی با ما تماس بگیرید:{' '}
               <a href="mailto:privacy@portfolioadvisor.com" className="text-primary-600 hover:text-primary-700">
                 privacy@portfolioadvisor.com
               </a>
@@ -68,8 +68,8 @@ export default function PrivacyPage() {
         </div>
 
         <div className="mt-12">
-          <Link href="/">
-            <Button variant="outline">← Back to Home</Button>
+          <Link href={`/${locale}`}>
+            <Button variant="outline">بازگشت به خانه</Button>
           </Link>
         </div>
       </div>

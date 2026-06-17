@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
+import { Header, Card, CardHeader, CardContent, Button } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { getStoredUser } from '@/lib/clientAuth';
 import { apiGet, apiPut } from '@/lib/apiClient';
@@ -36,7 +36,7 @@ export default function ProfilePage() {
           country: data.user.country || '',
         }));
       })
-      .catch((error) => setMessage(error instanceof Error ? error.message : 'Unable to load profile.'));
+      .catch((error) => setMessage(error instanceof Error ? error.message : 'بارگذاری پروفایل ممکن نشد.'));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -58,11 +58,11 @@ export default function ProfilePage() {
         phone: data.user.phone || '',
         country: data.user.country || '',
       }));
-      setMessage('Profile updated successfully!');
+      setMessage('پروفایل با موفقیت به‌روزرسانی شد.');
       setIsEditing(false);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to update profile.');
+      setMessage(error instanceof Error ? error.message : 'به‌روزرسانی پروفایل ممکن نشد.');
     }
   };
 
@@ -72,9 +72,9 @@ export default function ProfilePage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-secondary-900">Profile Settings</h1>
+          <h1 className="text-4xl font-bold text-secondary-900">تنظیمات پروفایل</h1>
           <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">بازگشت به داشبورد</Button>
           </Link>
         </div>
 
@@ -87,65 +87,65 @@ export default function ProfilePage() {
         {/* Profile Information */}
         <Card className="mb-8">
           <CardHeader
-            title="Personal Information"
+            title="اطلاعات شخصی"
             action={
               <Button size="sm" variant={isEditing ? 'outline' : 'primary'} onClick={() => setIsEditing(!isEditing)}>
-                {isEditing ? 'Cancel' : 'Edit'}
+                {isEditing ? 'لغو' : 'ویرایش'}
               </Button>
             }
           />
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormGroup label="Full Name">
+              <FormGroup label="نام و نام خانوادگی">
                 <Input
                   name="name"
                   value={profile.name}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  placeholder="Your full name"
+                  placeholder="نام کامل شما"
                 />
               </FormGroup>
 
-              <FormGroup label="Email Address">
+              <FormGroup label="نشانی ایمیل">
                 <Input
                   name="email"
                   type="email"
                   value={profile.email}
                   onChange={handleChange}
                   disabled
-                  placeholder="your@email.com"
+                  placeholder="ایمیل شما"
                 />
               </FormGroup>
 
-              <FormGroup label="Phone Number">
+              <FormGroup label="شماره تماس">
                 <Input
                   name="phone"
                   type="tel"
                   value={profile.phone}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="شماره تماس"
                 />
               </FormGroup>
 
-              <FormGroup label="Country">
+              <FormGroup label="کشور">
                 <Input
                   name="country"
                   value={profile.country}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  placeholder="Your country"
+                  placeholder="کشور شما"
                 />
               </FormGroup>
             </div>
 
-            <FormGroup label="Bio">
+            <FormGroup label="معرفی کوتاه">
               <Textarea
                 name="bio"
                 value={profile.bio}
                 onChange={handleChange}
                 disabled={!isEditing}
-                placeholder="Tell us about yourself..."
+                placeholder="درباره خودتان بنویسید..."
                 rows={4}
               />
             </FormGroup>
@@ -153,9 +153,9 @@ export default function ProfilePage() {
             {isEditing && (
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
+                  لغو
                 </Button>
-                <Button onClick={handleSave}>Save Changes</Button>
+                <Button onClick={handleSave}>ذخیره تغییرات</Button>
               </div>
             )}
           </CardContent>
@@ -163,32 +163,32 @@ export default function ProfilePage() {
 
         {/* Investment Preferences */}
         <Card className="mb-8">
-          <CardHeader title="Investment Preferences" />
+          <CardHeader title="ترجیحات سرمایه‌گذاری" />
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormGroup label="Risk Tolerance">
+              <FormGroup label="میزان ریسک‌پذیری">
                 <Select
                   name="riskTolerance"
                   value={profile.riskTolerance}
                   onChange={handleChange}
                   options={[
-                    { label: 'Conservative', value: 'conservative' },
-                    { label: 'Moderate', value: 'moderate' },
-                    { label: 'Aggressive', value: 'aggressive' },
+                    { label: 'محافظه‌کار', value: 'conservative' },
+                    { label: 'متعادل', value: 'moderate' },
+                    { label: 'تهاجمی', value: 'aggressive' },
                   ]}
                 />
               </FormGroup>
 
-              <FormGroup label="Investment Goal">
+              <FormGroup label="هدف سرمایه‌گذاری">
                 <Select
                   name="investmentGoal"
                   value={profile.investmentGoal}
                   onChange={handleChange}
                   options={[
-                    { label: 'Capital Preservation', value: 'capital-preservation' },
-                    { label: 'Income Generation', value: 'income-generation' },
-                    { label: 'Long-term Growth', value: 'long-term-growth' },
-                    { label: 'Aggressive Growth', value: 'aggressive-growth' },
+                    { label: 'حفظ سرمایه', value: 'capital-preservation' },
+                    { label: 'کسب درآمد', value: 'income-generation' },
+                    { label: 'رشد بلندمدت', value: 'long-term-growth' },
+                    { label: 'رشد پرریسک', value: 'aggressive-growth' },
                   ]}
                 />
               </FormGroup>
@@ -198,37 +198,37 @@ export default function ProfilePage() {
 
         {/* Notification Settings */}
         <Card className="mb-8">
-          <CardHeader title="Notification Preferences" />
+          <CardHeader title="ترجیحات اعلان‌ها" />
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
-                <label className="font-medium text-secondary-900">Price Alerts</label>
+                <label className="font-medium text-secondary-900">هشدارهای قیمت</label>
                 <input type="checkbox" defaultChecked className="w-4 h-4" />
               </div>
               <div className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
-                <label className="font-medium text-secondary-900">Analysis Updates</label>
+                <label className="font-medium text-secondary-900">به‌روزرسانی تحلیل‌ها</label>
                 <input type="checkbox" defaultChecked className="w-4 h-4" />
               </div>
               <div className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
-                <label className="font-medium text-secondary-900">Market News</label>
+                <label className="font-medium text-secondary-900">اخبار بازار</label>
                 <input type="checkbox" className="w-4 h-4" />
               </div>
               <div className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
-                <label className="font-medium text-secondary-900">Subscription Updates</label>
+                <label className="font-medium text-secondary-900">به‌روزرسانی اشتراک</label>
                 <input type="checkbox" defaultChecked className="w-4 h-4" />
               </div>
             </div>
 
-            <FormGroup label="Preferred Notification Method">
+            <FormGroup label="روش دریافت اعلان">
               <Select
                 name="preferredNotification"
                 value={profile.preferredNotification}
                 onChange={handleChange}
                 options={[
-                  { label: 'Email', value: 'email' },
-                  { label: 'SMS', value: 'sms' },
-                  { label: 'In-app', value: 'in-app' },
-                  { label: 'All', value: 'all' },
+                  { label: 'ایمیل', value: 'email' },
+                  { label: 'پیامک', value: 'sms' },
+                  { label: 'درون برنامه', value: 'in-app' },
+                  { label: 'همه موارد', value: 'all' },
                 ]}
               />
             </FormGroup>
@@ -237,14 +237,14 @@ export default function ProfilePage() {
 
         {/* Account Actions */}
         <Card>
-          <CardHeader title="Account Management" />
+          <CardHeader title="مدیریت حساب" />
           <CardContent className="space-y-3">
             <div className="flex flex-col gap-2">
               <p className="rounded-lg bg-secondary-50 p-4 text-sm text-secondary-700">
-                Email, password reset, login history and two-factor authentication need provider-level integration before they can be enabled safely.
+                تغییر ایمیل، بازیابی رمز عبور، تاریخچه ورود و احراز هویت دومرحله‌ای پیش از فعال‌سازی امن به اتصال کامل ارائه‌دهنده احراز هویت نیاز دارند.
               </p>
               <Button variant="danger" fullWidth>
-                Delete Account
+                حذف حساب
               </Button>
             </div>
           </CardContent>

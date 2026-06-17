@@ -93,7 +93,7 @@ export const CreateSubscriptionPlanSchema = z.object({
   type: z.enum(['timeframe', 'long_term', 'market_full', 'all_markets', 'vip']),
   marketId: z.string().cuid().optional(),
   price: z.number().nonnegative(),
-  currency: z.string().default('USD'),
+  currency: z.enum(['IRR', 'USD']).default('IRR'),
   billingPeriod: z.enum(['monthly', 'quarterly', 'yearly']),
   features: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),

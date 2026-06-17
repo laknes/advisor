@@ -52,7 +52,7 @@ export default function PortfolioPage() {
       <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-secondary-900 mb-8">My Portfolio</h1>
+        <h1 className="text-4xl font-bold text-secondary-900 mb-8">پورتفوی من</h1>
         {message && <div className="mb-6 rounded-lg border border-secondary-200 bg-white p-4 text-secondary-700">{message}</div>}
 
         {/* Summary Cards */}
@@ -130,7 +130,7 @@ export default function PortfolioPage() {
                   ))}
                   {!positions.length && (
                     <tr>
-                      <td colSpan={7} className="py-6 px-4 text-center text-secondary-600">No positions in your portfolio yet.</td>
+                      <td colSpan={7} className="py-6 px-4 text-center text-secondary-600">هنوز موقعیتی در پورتفوی شما ثبت نشده است.</td>
                     </tr>
                   )}
                 </tbody>
@@ -141,7 +141,7 @@ export default function PortfolioPage() {
 
         <div className="mt-8 flex gap-4">
           <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">بازگشت به داشبورد</Button>
           </Link>
         </div>
       </div>

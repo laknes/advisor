@@ -76,16 +76,23 @@ export async function requireAuth(req: NextRequest) {
 
 export async function requireAdmin(req: NextRequest) {
   const auth = await requireAuth(req);
-  const allowlist = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
-    .split(',')
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
 
-  if (!allowlist.includes(auth.user.email.toLowerCase())) {
+  if (!isAdminEmail(auth.user.email)) {
     throw new ForbiddenError('Admin access required');
   }
 
   return auth;
+}
+
+export function isAdminEmail(email?: string | null) {
+  if (!email) return false;
+
+  const allowlist = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
+    .split(',')
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  return allowlist.includes(email.toLowerCase());
 }
 
 export async function handleError(error: any) {

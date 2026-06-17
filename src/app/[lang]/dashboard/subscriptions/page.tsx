@@ -69,7 +69,7 @@ export default function SubscriptionsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-secondary-900">My Subscriptions</h1>
+            <h1 className="text-4xl font-bold text-secondary-900">اشتراک‌های من</h1>
             {message ? <p className="text-sm text-green-700 mt-2">{message}</p> : null}
           </div>
           <Link href={`/${locale}/pricing`}>
@@ -130,7 +130,7 @@ export default function SubscriptionsPage() {
 
         <div className="mt-8">
           <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">بازگشت به داشبورد</Button>
           </Link>
         </div>
       </div>

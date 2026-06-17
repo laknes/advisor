@@ -1,22 +1,21 @@
 'use client';
 
 import { Header, Card, CardContent } from '@/components';
-import { motion } from 'framer-motion';
 import { AlertTriangle, Info, ShieldAlert } from 'lucide-react';
 
 export default function DisclaimerPage() {
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <main className="py-20 md:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl font-black text-secondary-900 tracking-tight mb-6">
-              Legal <span className="text-red-600">Disclaimer</span>
+            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-6">
+              سلب <span className="text-red-300">مسئولیت</span>
             </h1>
-            <p className="text-xl text-secondary-600 font-medium">
-              Please read this financial risk disclosure carefully.
+            <p className="text-xl text-slate-300 font-medium">
+              لطفاً این توضیح درباره ریسک مالی را با دقت بخوانید.
             </p>
           </div>
 
@@ -25,37 +24,37 @@ export default function DisclaimerPage() {
               <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-2xl mb-10">
                 <div className="flex items-center gap-3 mb-2">
                   <AlertTriangle className="w-6 h-6 text-red-600" />
-                  <h2 className="text-xl font-bold text-red-900 uppercase tracking-wider">High Risk Warning</h2>
+                  <h2 className="text-xl font-bold text-red-900">هشدار ریسک بالا</h2>
                 </div>
                 <p className="text-red-800 font-medium">
-                  Trading financial markets carries a high level of risk and may not be suitable for all investors. You could lose some or all of your initial investment.
+                  معامله در بازارهای مالی با ریسک بالا همراه است و برای همه سرمایه‌گذاران مناسب نیست. ممکن است بخشی یا همه سرمایه اولیه خود را از دست بدهید.
                 </p>
               </div>
 
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <Info className="w-6 h-6 text-primary-600" />
-                  <h2 className="text-2xl font-bold text-secondary-900">Not Financial Advice</h2>
+                  <h2 className="text-2xl font-bold text-secondary-900">توصیه مالی نیست</h2>
                 </div>
                 <p className="text-secondary-600 leading-relaxed text-lg">
-                  The content, analyses, and signals provided by Portfolio Advisor are for educational and informational purposes only. We are not registered financial advisors. Any investment decisions you make are solely your responsibility.
+                  محتوا، تحلیل‌ها و سیگنال‌های مشاور پورتفو فقط برای آموزش و اطلاع‌رسانی ارائه می‌شوند. تصمیم‌های سرمایه‌گذاری شما کاملاً بر عهده خودتان است.
                 </p>
               </section>
 
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <ShieldAlert className="w-6 h-6 text-primary-600" />
-                  <h2 className="text-2xl font-bold text-secondary-900">Historical Performance</h2>
+                  <h2 className="text-2xl font-bold text-secondary-900">عملکرد گذشته</h2>
                 </div>
                 <p className="text-secondary-600 leading-relaxed text-lg">
-                  Past performance is not indicative of future results. Any testimonials or performance statistics mentioned on this site do not guarantee that you will achieve similar results.
+                  عملکرد گذشته تضمینی برای نتیجه آینده نیست. هیچ آمار یا نمونه عملکردی در سایت، سود یا نتیجه مشابه را برای شما تضمین نمی‌کند.
                 </p>
               </section>
 
               <section className="bg-secondary-50 p-8 rounded-2xl border border-secondary-100">
-                <h2 className="text-xl font-bold text-secondary-900 mb-4">Accuracy of Information</h2>
+                <h2 className="text-xl font-bold text-secondary-900 mb-4">دقت اطلاعات</h2>
                 <p className="text-secondary-600 leading-relaxed italic">
-                  While we strive for accuracy, market conditions can change rapidly. Portfolio Advisor does not guarantee the completeness or accuracy of any information provided and will not be liable for any losses arising from reliance on our content.
+                  ما برای دقت اطلاعات تلاش می‌کنیم، اما شرایط بازار می‌تواند سریع تغییر کند. مشاور پورتفو کامل بودن یا دقت قطعی همه اطلاعات را تضمین نمی‌کند و مسئول زیان ناشی از اتکا به محتوا نیست.
                 </p>
               </section>
             </CardContent>

@@ -5,6 +5,7 @@ export interface StoredUser {
   id?: string;
   email?: string;
   name?: string | null;
+  isAdmin?: boolean;
 }
 
 export function getStoredToken() {
@@ -28,6 +29,13 @@ export function getStoredUser(): StoredUser | null {
   } catch {
     return null;
   }
+}
+
+export function storeAuth(token: string, user: StoredUser) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+  window.dispatchEvent(new Event('auth-changed'));
 }
 
 export function clearStoredAuth() {

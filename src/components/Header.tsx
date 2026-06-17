@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, LayoutDashboard, User, CreditCard, LogOut } from 'lucide-react';
 import { Button } from './Button';
@@ -9,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from './LocaleProvider';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useDictionary } from './useDictionary';
+import { clearStoredAuth, getStoredToken, getStoredUser, type StoredUser } from '@/lib/clientAuth';
 
 interface HeaderProps {
   isAuthenticated?: boolean;
@@ -19,6 +21,9 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userName, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [storedUser, setStoredUser] = useState<StoredUser | null>(null);
+  const [hasStoredToken, setHasStoredToken] = useState(false);
+  const router = useRouter();
   const { locale } = useLocale();
   const dict = useDictionary();
 
@@ -30,12 +35,43 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const syncAuthState = () => {
+      setStoredUser(getStoredUser());
+      setHasStoredToken(Boolean(getStoredToken()));
+    };
+
+    syncAuthState();
+    window.addEventListener('storage', syncAuthState);
+    window.addEventListener('auth-changed', syncAuthState);
+
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+      window.removeEventListener('auth-changed', syncAuthState);
+    };
+  }, []);
+
+  const authenticated = isAuthenticated || hasStoredToken;
+  const displayName = userName || storedUser?.name || storedUser?.email || 'حساب کاربری';
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      clearStoredAuth();
+      setStoredUser(null);
+      setHasStoredToken(false);
+      router.push(`/${locale}/auth/login`);
+    }
+    window.dispatchEvent(new Event('auth-changed'));
+  };
+
   if (!dict) return null;
 
   return (
     <header className={cn(
       "sticky top-0 z-50 transition-all duration-300",
-      scrolled ? "bg-[#160022]/82 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/20 py-2" : "bg-transparent border-b border-white/10 py-4"
+      scrolled ? "bg-[#160022]/92 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/20 py-2" : "bg-[#160022]/96 backdrop-blur-xl border-b border-white/10 py-4"
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -62,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             
-            {isAuthenticated ? (
+            {authenticated ? (
               <>
                 <Link href={`/${locale}/dashboard`} className="hidden sm:block">
                   <Button variant="ghost" size="sm" leftIcon={<LayoutDashboard className="w-4 h-4" />}>
@@ -71,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                 </Link>
                 <div className="relative group">
                   <Button variant="secondary" size="sm" rightIcon={<ChevronDown className="w-4 h-4" />}>
-                    {userName || 'حساب کاربری'}
+                    {displayName}
                   </Button>
                   <motion.div 
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -91,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                       </button>
                     </Link>
                     <button
-                      onClick={onLogout}
+                      onClick={handleLogout}
                       className="flex items-center gap-3 w-full text-right px-4 py-3 text-red-300 hover:bg-red-500/10 font-medium transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
@@ -136,8 +172,21 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
               <MobileNavLink href={`/${locale}/analyses`}>{dict.common.analyses}</MobileNavLink>
               <MobileNavLink href={`/${locale}/pricing`}>{dict.common.pricing}</MobileNavLink>
               <MobileNavLink href={`/${locale}/about`}>{dict.common.about}</MobileNavLink>
-              {isAuthenticated && (
-                <MobileNavLink href={`/${locale}/dashboard`}>{dict.common.dashboard}</MobileNavLink>
+              {authenticated ? (
+                <>
+                  <MobileNavLink href={`/${locale}/dashboard`}>{dict.common.dashboard}</MobileNavLink>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full rounded-lg px-4 py-2 text-right text-red-300 transition-colors duration-200 hover:bg-red-500/10"
+                  >
+                    {dict.common.logout}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <MobileNavLink href={`/${locale}/auth/login`}>{dict.common.login}</MobileNavLink>
+                  <MobileNavLink href={`/${locale}/auth/signup`}>{dict.common.signup}</MobileNavLink>
+                </>
               )}
             </motion.div>
           )}

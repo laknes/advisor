@@ -2,10 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { Header, Card, Button, Badge } from '@/components';
+import { useLocale } from '@/components/LocaleProvider';
+import { getAuthHeaders } from '@/lib/clientAuth';
 import type { Subscription, SubscriptionPlan } from '@/lib/types';
 import Link from 'next/link';
 
+const currencyLabel: Record<string, string> = {
+  IRR: 'ریال',
+  USD: 'دلار',
+};
+
+function formatPlanPrice(plan: SubscriptionPlan) {
+  return `${new Intl.NumberFormat('fa-IR').format(plan.price)} ${currencyLabel[plan.currency] || plan.currency}`;
+}
+
 export default function PricingPage() {
+  const { locale } = useLocale();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -17,12 +29,12 @@ export default function PricingPage() {
       try {
         const [plansRes, subsRes] = await Promise.all([
           fetch('/api/subscription-plans'),
-          fetch('/api/subscriptions'),
+          fetch('/api/subscriptions', { headers: getAuthHeaders() }),
         ]);
 
         const [plansData, subsData] = await Promise.all([plansRes.json(), subsRes.json()]);
-        setPlans(plansData as SubscriptionPlan[]);
-        setSubscriptions(subsData as Subscription[]);
+        setPlans(plansData.data?.plans || []);
+        setSubscriptions(subsRes.ok ? subsData.data?.subscriptions || [] : []);
       } catch (error) {
         setMessage('Unable to load plans right now. Please try again later.');
       }
@@ -44,7 +56,7 @@ export default function PricingPage() {
     try {
       const response = await fetch('/api/subscriptions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ planId }),
       });
       const data = await response.json();
@@ -54,7 +66,7 @@ export default function PricingPage() {
       } else {
         setSubscriptions((current) => [
           ...current.filter((subscription) => subscription.planId !== planId),
-          data.subscription as Subscription,
+          data.data.subscription as Subscription,
         ]);
         setMessage('Subscription activated successfully!');
       }
@@ -129,7 +141,7 @@ export default function PricingPage() {
                   <p className="text-secondary-600">{plan.description}</p>
 
                   <div className="py-4 bg-primary-50 px-4 rounded-lg">
-                    <span className="text-4xl font-bold text-primary-600">${plan.price}</span>
+                    <span className="text-4xl font-bold text-primary-600">{formatPlanPrice(plan)}</span>
                     <span className="text-secondary-600 ml-2">/{plan.billingPeriod}</span>
                   </div>
 
@@ -171,7 +183,7 @@ export default function PricingPage() {
                   <p className="text-secondary-600">{plan.description}</p>
 
                   <div className="py-4 bg-primary-50 px-4 rounded-lg">
-                    <span className="text-4xl font-bold text-primary-600">${plan.price}</span>
+                    <span className="text-4xl font-bold text-primary-600">{formatPlanPrice(plan)}</span>
                     <span className="text-secondary-600 ml-2">/{plan.billingPeriod}</span>
                   </div>
 
@@ -221,7 +233,7 @@ export default function PricingPage() {
                   <p className="text-secondary-600">{plan.description}</p>
 
                   <div className="py-4 bg-primary-50 px-4 rounded-lg">
-                    <span className="text-4xl font-bold text-primary-600">${plan.price}</span>
+                    <span className="text-4xl font-bold text-primary-600">{formatPlanPrice(plan)}</span>
                     <span className="text-secondary-600 ml-2">/{plan.billingPeriod}</span>
                   </div>
 
@@ -253,7 +265,7 @@ export default function PricingPage() {
       {/* FAQ Section */}
       <section className="py-20 bg-secondary-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-secondary-900 mb-12 text-center">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-bold text-secondary-900 mb-12 text-center">سوالات متداول</h2>
 
           <div className="space-y-6">
             {[
@@ -288,9 +300,9 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Start Your Premium Investment Experience</h2>
           <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of investors who use Portfolio Advisor to make informed decisions and grow their wealth.
+            به هزاران سرمایه‌گذار بپیوندید که با مشاور پورتفو تصمیم‌های آگاهانه‌تری می‌گیرند و دارایی خود را رشد می‌دهند.
           </p>
-          <Link href="/auth/signup">
+          <Link href={`/${locale}/auth/signup`}>
             <Button size="lg" variant="secondary">
               Get Started Now
             </Button>

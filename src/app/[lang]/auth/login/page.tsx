@@ -1,13 +1,15 @@
 'use client';
 
 import { Header, Card, Button, Input, FormGroup } from '@/components';
-import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from '@/lib/clientAuth';
+import { useLocale } from '@/components/LocaleProvider';
+import { storeAuth } from '@/lib/clientAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { locale } = useLocale();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,10 +34,10 @@ export default function LoginPage() {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.email) newErrors.email = 'وارد کردن ایمیل الزامی است';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'ایمیل وارد شده معتبر نیست';
 
-    if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.password) newErrors.password = 'وارد کردن رمز عبور الزامی است';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -59,33 +61,32 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem(AUTH_TOKEN_KEY, payload.data.token);
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(payload.data.user));
-      router.push('/fa/dashboard');
+      storeAuth(payload.data.token, payload.data.user);
+      router.push(payload.data.user?.isAdmin ? `/${locale}/admin` : `/${locale}/dashboard`);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
+    <div className="min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
-        <Card className="w-full max-w-lg">
+        <Card className="w-full max-w-lg [&_label]:!text-slate-200 [&_.text-secondary-500]:!text-slate-400">
           <div className="space-y-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-secondary-900">Welcome Back</h1>
-              <p className="text-secondary-600 mt-2">Login to your Portfolio Advisor account</p>
+              <h1 className="text-3xl font-bold text-white">خوش آمدید</h1>
+              <p className="mt-2 text-slate-300">برای ادامه وارد حساب مشاور پورتفو شوید</p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <FormGroup>
                 <Input
-                  label="Email Address"
+                  label="نشانی ایمیل"
                   type="email"
                   name="email"
-                  placeholder="your@email.com"
+                  placeholder="ایمیل شما"
                   value={formData.email}
                   onChange={handleChange}
                   error={errors.email}
@@ -93,7 +94,7 @@ export default function LoginPage() {
                 />
 
                 <Input
-                  label="Password"
+                  label="رمز عبور"
                   type="password"
                   name="password"
                   placeholder="••••••••"
@@ -112,24 +113,24 @@ export default function LoginPage() {
                       onChange={handleChange}
                       className="w-4 h-4 rounded"
                     />
-                    <span className="text-sm text-secondary-700">Remember me</span>
+                    <span className="text-sm text-slate-300">مرا به خاطر بسپار</span>
                   </label>
-                  <Link href="/auth/forgot-password" className="text-primary-600 hover:underline text-sm font-medium">
-                    Forgot password?
+                  <Link href={`/${locale}/auth/forgot-password`} className="text-primary-200 hover:underline text-sm font-medium">
+                    رمز عبور را فراموش کرده‌اید؟
                   </Link>
                 </div>
 
                 <Button fullWidth size="lg" isLoading={isLoading}>
-                  Login
+                  ورود
                 </Button>
               </FormGroup>
             </form>
 
             <div className="text-center">
-              <p className="text-secondary-600">
-                Don't have an account?{' '}
-                <Link href="/auth/signup" className="text-primary-600 hover:underline font-medium">
-                  Sign up here
+              <p className="text-slate-300">
+                حساب کاربری ندارید؟{' '}
+                <Link href={`/${locale}/auth/signup`} className="text-primary-200 hover:underline font-medium">
+                  ثبت‌نام کنید
                 </Link>
               </p>
             </div>
@@ -139,16 +140,16 @@ export default function LoginPage() {
                 <div className="w-full border-t border-secondary-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-secondary-500">Or continue with</span>
+                <span className="bg-[#160022] px-2 text-slate-400">یا ادامه با</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Button variant="secondary" fullWidth>
-                <span className="mr-2">🔵</span> Google
+                <span className="mr-2">🔵</span> گوگل
               </Button>
               <Button variant="secondary" fullWidth>
-                <span className="mr-2">📘</span> Facebook
+                <span className="mr-2">📘</span> فیسبوک
               </Button>
             </div>
           </div>

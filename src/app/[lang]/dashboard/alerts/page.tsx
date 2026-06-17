@@ -71,7 +71,7 @@ export default function AlertsPage() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Price & Market Alerts</h1>
           <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">بازگشت به داشبورد</Button>
           </Link>
         </div>
 
@@ -80,7 +80,7 @@ export default function AlertsPage() {
           <CardHeader title="Alert Preferences" />
           <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-2">Price Alerts</label>
+              <label className="block text-sm font-medium text-secondary-700 mb-2">هشدارهای قیمت</label>
               <input type="checkbox" defaultChecked className="w-4 h-4" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export default function AlertsPage() {
               <input type="checkbox" defaultChecked className="w-4 h-4" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-2">Market News</label>
+              <label className="block text-sm font-medium text-secondary-700 mb-2">اخبار بازار</label>
               <input type="checkbox" className="w-4 h-4" />
             </div>
           </CardContent>
@@ -103,11 +103,11 @@ export default function AlertsPage() {
           <h2 className="text-2xl font-bold text-secondary-900 mb-4">Active Alerts</h2>
           <div className="space-y-4">
             {isLoading ? (
-              <Card><CardContent><p className="text-secondary-700">Loading alerts...</p></CardContent></Card>
+              <Card><CardContent><p className="text-secondary-700">در حال بارگذاری هشدارها...</p></CardContent></Card>
             ) : error ? (
               <Card className="border border-red-200 bg-red-50"><CardContent><p className="text-red-800">{error}</p></CardContent></Card>
             ) : alerts.filter((a) => a.isActive).length === 0 ? (
-              <Card><CardContent><p className="text-secondary-700">No active alerts.</p></CardContent></Card>
+              <Card><CardContent><p className="text-secondary-700">هشدار فعالی وجود ندارد.</p></CardContent></Card>
             ) : alerts
               .filter((a) => a.isActive)
               .map((alert) => (

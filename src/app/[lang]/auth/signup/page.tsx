@@ -1,13 +1,15 @@
 'use client';
 
 import { Header, Card, Button, Input, FormGroup } from '@/components';
-import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from '@/lib/clientAuth';
+import { useLocale } from '@/components/LocaleProvider';
+import { storeAuth } from '@/lib/clientAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { locale } = useLocale();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,11 +32,11 @@ export default function SignupPage() {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name) newErrors.name = 'Name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.name) newErrors.name = 'وارد کردن نام الزامی است';
+    if (!formData.email) newErrors.email = 'وارد کردن ایمیل الزامی است';
+    if (!formData.password) newErrors.password = 'وارد کردن رمز عبور الزامی است';
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'تکرار رمز عبور یکسان نیست';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -60,30 +62,29 @@ export default function SignupPage() {
         return;
       }
 
-      localStorage.setItem(AUTH_TOKEN_KEY, payload.data.token);
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(payload.data.user));
-      router.push('/fa/dashboard');
+      storeAuth(payload.data.token, payload.data.user);
+      router.push(`/${locale}/dashboard`);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
+    <div className="min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
-        <Card className="w-full max-w-lg">
+        <Card className="w-full max-w-lg [&_label]:!text-slate-200 [&_.text-secondary-500]:!text-slate-400">
           <div className="space-y-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-secondary-900">Create Account</h1>
-              <p className="text-secondary-600 mt-2">Join Portfolio Advisor today</p>
+              <h1 className="text-3xl font-bold text-white">ساخت حساب کاربری</h1>
+              <p className="mt-2 text-slate-300">همین امروز به مشاور پورتفو بپیوندید</p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <FormGroup>
                 <Input
-                  label="Full Name"
+                  label="نام و نام خانوادگی"
                   name="name"
                   placeholder="نام و نام خانوادگی"
                   value={formData.name}
@@ -93,10 +94,10 @@ export default function SignupPage() {
                 />
 
                 <Input
-                  label="Email Address"
+                  label="نشانی ایمیل"
                   type="email"
                   name="email"
-                  placeholder="your@email.com"
+                  placeholder="ایمیل شما"
                   value={formData.email}
                   onChange={handleChange}
                   error={errors.email}
@@ -104,7 +105,7 @@ export default function SignupPage() {
                 />
 
                 <Input
-                  label="Password"
+                  label="رمز عبور"
                   type="password"
                   name="password"
                   placeholder="••••••••"
@@ -112,11 +113,11 @@ export default function SignupPage() {
                   onChange={handleChange}
                   error={errors.password}
                   icon="🔒"
-                  helperText="At least 8 characters"
+                  helperText="حداقل ۸ نویسه"
                 />
 
                 <Input
-                  label="Confirm Password"
+                  label="تکرار رمز عبور"
                   type="password"
                   name="confirmPassword"
                   placeholder="••••••••"
@@ -128,29 +129,30 @@ export default function SignupPage() {
 
                 <div className="flex items-center gap-2">
                   <input type="checkbox" id="terms" className="w-4 h-4 rounded" />
-                  <label htmlFor="terms" className="text-sm text-secondary-700">
-                    I agree to the{' '}
-                    <Link href="/terms" className="text-primary-600 hover:underline font-medium">
-                      Terms of Service
+                  <label htmlFor="terms" className="text-sm text-slate-300">
+                    با{' '}
+                    <Link href={`/${locale}/terms`} className="text-primary-200 hover:underline font-medium">
+                      قوانین و مقررات
                     </Link>{' '}
-                    and{' '}
-                    <Link href="/privacy" className="text-primary-600 hover:underline font-medium">
-                      Privacy Policy
+                    و{' '}
+                    <Link href={`/${locale}/privacy`} className="text-primary-200 hover:underline font-medium">
+                      حریم خصوصی
                     </Link>
+                    {' '}موافقم
                   </label>
                 </div>
 
                 <Button fullWidth size="lg" isLoading={isLoading}>
-                  Create Account
+                  ساخت حساب
                 </Button>
               </FormGroup>
             </form>
 
             <div className="text-center">
-              <p className="text-secondary-600">
-                Already have an account?{' '}
-                <Link href="/auth/login" className="text-primary-600 hover:underline font-medium">
-                  Login here
+              <p className="text-slate-300">
+                از قبل حساب دارید؟{' '}
+                <Link href={`/${locale}/auth/login`} className="text-primary-200 hover:underline font-medium">
+                  وارد شوید
                 </Link>
               </p>
             </div>
@@ -160,16 +162,16 @@ export default function SignupPage() {
                 <div className="w-full border-t border-secondary-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-secondary-500">Or continue with</span>
+                <span className="bg-[#160022] px-2 text-slate-400">یا ادامه با</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Button variant="secondary" fullWidth>
-                <span className="mr-2">🔵</span> Google
+                <span className="mr-2">🔵</span> گوگل
               </Button>
               <Button variant="secondary" fullWidth>
-                <span className="mr-2">📘</span> Facebook
+                <span className="mr-2">📘</span> فیسبوک
               </Button>
             </div>
           </div>

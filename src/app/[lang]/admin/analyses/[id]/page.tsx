@@ -320,7 +320,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
                         { label: 'Weekly', value: 'weekly' },
                         { label: 'Monthly', value: 'monthly' },
                         { label: '3-Month', value: '3month' },
-                        { label: 'VIP', value: 'vip' },
+                        { label: 'ویژه', value: 'vip' },
                       ]}
                     />
                   </FormGroup>

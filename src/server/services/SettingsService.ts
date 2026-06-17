@@ -7,7 +7,7 @@ export const defaultSiteSettings = [
   { key: 'support_phone', value: '', group: 'contact', label: 'Support phone', type: 'text', isPublic: true },
   { key: 'maintenance_mode', value: false, group: 'system', label: 'Maintenance mode', type: 'boolean', isPublic: false },
   { key: 'allow_signup', value: true, group: 'system', label: 'Allow signup', type: 'boolean', isPublic: true },
-  { key: 'default_currency', value: 'USD', group: 'billing', label: 'Default currency', type: 'text', isPublic: true },
+  { key: 'default_currency', value: 'IRR', group: 'billing', label: 'Default currency', type: 'text', isPublic: true },
   { key: 'payment_default_gateway', value: 'zarinpal', group: 'payments', label: 'Default Iranian payment gateway', description: 'Supported values: zarinpal, zibal, idpay, payir', type: 'text', isPublic: false },
   { key: 'payment_callback_url', value: '', group: 'payments', label: 'Payment callback URL', description: 'Public callback URL used after payment verification.', type: 'text', isPublic: false },
   { key: 'zarinpal_enabled', value: true, group: 'payments', label: 'Zarinpal enabled', type: 'boolean', isPublic: false },

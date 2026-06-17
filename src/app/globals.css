@@ -145,3 +145,20 @@ body {
   color: #ffffff;
   font-family: Vazirmatn, IRANSans, Tahoma, Arial, Helvetica, sans-serif;
 }
+
+.min-h-screen.bg-secondary-50,
+.min-h-screen.bg-white,
+.min-h-screen.bg-gradient-to-br {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(216, 180, 254, 0.18), transparent 30rem),
+    linear-gradient(135deg, #160022 0%, #24003f 48%, #0f001b 100%) !important;
+}
+
+.min-h-screen.bg-secondary-50 > main h1,
+.min-h-screen.bg-secondary-50 > div > h1,
+.min-h-screen.bg-white > main h1,
+.min-h-screen.bg-white > div > h1,
+.min-h-screen.bg-gradient-to-br > main h1,
+.min-h-screen.bg-gradient-to-br > div > h1 {
+  color: #ffffff !important;
+}

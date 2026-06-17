@@ -52,9 +52,9 @@ export default function AnalysesPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-secondary-900">My Analyses</h1>
+          <h1 className="text-4xl font-bold text-secondary-900">تحلیل‌های من</h1>
           <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">بازگشت به داشبورد</Button>
           </Link>
         </div>
 
@@ -80,11 +80,11 @@ export default function AnalysesPage() {
         {/* Analyses Grid */}
         <div className="space-y-4">
           {isLoading ? (
-            <Card><CardContent><p className="text-secondary-700">Loading analyses...</p></CardContent></Card>
+            <Card><CardContent><p className="text-secondary-700">در حال بارگذاری تحلیل‌ها...</p></CardContent></Card>
           ) : error ? (
             <Card className="border border-red-200 bg-red-50"><CardContent><p className="text-red-800">{error}</p></CardContent></Card>
           ) : analyses.length === 0 ? (
-            <Card><CardContent><p className="text-secondary-700">No analyses are available yet.</p></CardContent></Card>
+            <Card><CardContent><p className="text-secondary-700">هنوز تحلیلی در دسترس نیست.</p></CardContent></Card>
           ) : analyses.map((analysis) => (
             <Card key={analysis.id}>
               <CardContent className="pt-6">

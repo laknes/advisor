@@ -7,40 +7,40 @@ import { Plus, Minus, HelpCircle } from 'lucide-react';
 
 const faqs = [
   {
-    question: "How does the daily analysis work?",
-    answer: "Our team of expert analysts monitors the markets 24/7. Every morning before market open, we publish detailed reports with entry points, targets, and risk assessments for the day ahead."
+    question: "تحلیل روزانه چگونه آماده می‌شود؟",
+    answer: "تیم تحلیل‌گران ما بازارها را به‌صورت پیوسته پایش می‌کند و هر روز گزارش‌هایی شامل نقاط ورود، اهداف و ارزیابی ریسک منتشر می‌شود."
   },
   {
-    question: "What markets do you cover?",
-    answer: "We currently provide professional analysis for Tehran Stock Exchange (Iran Stocks), Forex (Major Pairs), Gold & Precious Metals, and Global Currency markets."
+    question: "چه بازارهایی پوشش داده می‌شود؟",
+    answer: "در حال حاضر بازار سهام تهران، ارز، طلا و فلزات گران‌بها و بازارهای پولی جهانی پوشش داده می‌شود."
   },
   {
-    question: "Can I cancel my subscription at any time?",
-    answer: "Yes, you can manage your subscription from your dashboard. If you cancel, you will maintain access until the end of your current billing period."
+    question: "آیا می‌توانم هر زمان اشتراک را لغو کنم؟",
+    answer: "بله، مدیریت اشتراک از داشبورد انجام می‌شود و پس از لغو، دسترسی شما تا پایان دوره فعلی باقی می‌ماند."
   },
   {
-    question: "How accurate are your trading signals?",
-    answer: "While no analysis can guarantee 100% success, our historical performance shows a win rate of approximately 68-75% across different markets. We emphasize risk management to ensure long-term profitability."
+    question: "دقت سیگنال‌های معاملاتی چقدر است؟",
+    answer: "هیچ تحلیلی موفقیت قطعی ندارد، اما عملکرد تاریخی ما در بازارهای مختلف نرخ موفقیت قابل توجهی نشان داده است. تمرکز اصلی ما مدیریت ریسک و پایداری بلندمدت است."
   },
   {
-    question: "Do you offer personalized investment advice?",
-    answer: "Personalized advisory is available through our VIP Elite and 1-Year Portfolio plans, where you get direct access to a dedicated market expert."
+    question: "آیا مشاوره اختصاصی هم ارائه می‌شود؟",
+    answer: "بله، در طرح‌های ویژه امکان ارتباط مستقیم با کارشناس بازار و دریافت راهنمایی اختصاصی وجود دارد."
   }
 ];
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <main className="py-20 md:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl font-black text-secondary-900 tracking-tight mb-6">
-              Frequently Asked <span className="text-primary-600">Questions</span>
+            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-6">
+              سوالات <span className="text-primary-200">متداول</span>
             </h1>
-            <p className="text-xl text-secondary-600 font-medium">
-              Everything you need to know about our platform and services.
+            <p className="text-xl text-slate-300 font-medium">
+              پاسخ پرسش‌های رایج درباره پلتفرم و خدمات ما.
             </p>
           </div>
 
@@ -54,11 +54,11 @@ export default function FAQPage() {
             <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <HelpCircle className="w-8 h-8 text-primary-600" />
             </div>
-            <h2 className="text-2xl font-bold text-secondary-900 mb-4">Still have questions?</h2>
+            <h2 className="text-2xl font-bold text-secondary-900 mb-4">هنوز سوال دارید؟</h2>
             <p className="text-secondary-600 mb-8 max-w-md mx-auto">
-              Can't find the answer you're looking for? Please chat to our friendly team.
+              اگر پاسخ مورد نظر را پیدا نکردید، با تیم پشتیبانی تماس بگیرید.
             </p>
-            <Button size="lg" className="px-10 h-14">Contact Support</Button>
+            <Button size="lg" className="px-10 h-14">تماس با پشتیبانی</Button>
           </div>
         </div>
       </main>
@@ -76,7 +76,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 text-left hover:bg-secondary-50 transition-colors"
+        className="w-full flex items-center justify-between p-6 text-right hover:bg-secondary-50 transition-colors"
       >
         <span className="text-lg font-bold text-secondary-900">{question}</span>
         <div className={`p-2 rounded-lg transition-colors ${isOpen ? 'bg-primary-600 text-white' : 'bg-secondary-100 text-secondary-500'}`}>

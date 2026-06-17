@@ -60,9 +60,9 @@
     "active_plan": "پلن فعال",
     "expires_on": "تاریخ انقضا",
     "monitoring_wealth": "نظارت بر دارایی و بینش‌های بازار",
-    "vip_insights": "بینش‌های VIP",
+    "vip_insights": "بینش‌های ویژه",
     "vip_description": "دسترسی به سیگنال‌های اختصاصی و مشاوره خبره.",
-    "upgrade_now": "ارتقا به VIP",
+    "upgrade_now": "ارتقا به طرح ویژه",
     "personal_watchlist": "واچ‌لیست شخصی",
     "edit_list": "ویرایش لیست",
     "add_symbol": "افزودن نماد",
@@ -119,7 +119,7 @@
     "access_scheduling": "دسترسی و زمان‌بندی",
     "access_level": "سطح دسترسی",
     "schedule_pub": "زمان‌بندی انتشار",
-    "send_notif": "ارسال اعلان (Push)",
+    "send_notif": "ارسال اعلان فوری",
     "publish_analysis": "انتشار تحلیل",
     "short_term": "کوتاه مدت",
     "long_term": "بلند مدت",
@@ -129,7 +129,7 @@
     "free_access": "رایگان (عمومی)",
     "basic_sub": "مشترکین معمولی",
     "premium_sub": "مشترکین ویژه",
-    "vip_sub": "فقط VIP Elite"
+    "vip_sub": "فقط طرح ویژه"
   },
   "footer": {
     "platform": "پلتفرم",

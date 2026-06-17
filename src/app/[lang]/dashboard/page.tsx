@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from '@/components/LocaleProvider';
 import { getStoredUser } from '@/lib/clientAuth';
 import type { Analysis, Market, Notification, Portfolio, Price, PriceAlert, Subscription } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -38,6 +39,7 @@ const dashboardLinks = [
 
 export default function DashboardPage() {
   const { locale } = useLocale();
+  const router = useRouter();
   const [userName, setUserName] = useState('کاربر');
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -47,6 +49,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const storedUser = getStoredUser();
+    if (storedUser?.isAdmin) {
+      router.replace(`/${locale}/admin`);
+      return;
+    }
     setUserName(storedUser?.name || storedUser?.email || 'کاربر');
 
     let mounted = true;
@@ -69,7 +75,7 @@ export default function DashboardPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [locale, router]);
 
   const activePlan = subscriptions.find((subscription) => subscription.isActive && new Date(subscription.endDate) > new Date())?.plan;
   const riskScore = useMemo(() => {
@@ -109,7 +115,7 @@ export default function DashboardPage() {
             </nav>
             <div className="mt-auto rounded-lg border border-white/10 bg-white/[0.06] p-4">
               <Sparkles className="mb-3 h-6 w-6 text-primary-100" />
-              <p className="font-black">بینش VIP</p>
+              <p className="font-black">بینش ویژه</p>
               <p className="mt-2 text-sm leading-6 text-slate-300">سیگنال‌های اختصاصی و بازبینی ماهانه پورتفو را فعال کنید.</p>
               <Link href={`/${locale}/pricing`}>
                 <Button className="mt-4 w-full">ارتقا پلن</Button>
