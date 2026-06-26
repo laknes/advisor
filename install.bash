@@ -32,6 +32,9 @@ SMTP_USER="${SMTP_USER:-}"
 SMTP_PASS="${SMTP_PASS:-}"
 SKIP_SSL="${SKIP_SSL:-false}"
 SKIP_NGINX="${SKIP_NGINX:-false}"
+SKIP_SWAP="${SKIP_SWAP:-false}"
+SWAP_SIZE_MB="${SWAP_SIZE_MB:-2048}"
+NODE_MAX_OLD_SPACE_SIZE="${NODE_MAX_OLD_SPACE_SIZE:-768}"
 NON_INTERACTIVE="${NON_INTERACTIVE:-false}"
 MANAGED_POSTGRES="false"
 INSTALL_MODE="${INSTALL_MODE:-install}"
@@ -82,6 +85,9 @@ Options:
   --smtp-pass PASSWORD        Optional SMTP password
   --skip-ssl                  Configure Nginx without Certbot SSL
   --skip-nginx                Do not install/configure Nginx/Certbot
+  --skip-swap                 Do not create a temporary low-memory swap file
+  --swap-size-mb MB           Swap size to create on low-memory servers. Default: 2048
+  --node-memory-mb MB         Node heap size for install/build. Default: 768
   --non-interactive           Never prompt; fail if required inputs are missing
   --update                    Update an existing install: keep env/database, apply schema changes, rebuild, restart
   -h, --help                  Show this help
@@ -89,7 +95,7 @@ Options:
 Environment overrides:
   DOMAIN, APP_BASE_URL, LETSENCRYPT_EMAIL, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_EMAILS,
   PORT, DATABASE_URL, NEXTAUTH_SECRET, JWT_SECRET, DB_NAME, DB_USER, DB_PASS, STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY,
-  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, INSTALL_MODE
+  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SKIP_SWAP, SWAP_SIZE_MB, NODE_MAX_OLD_SPACE_SIZE, INSTALL_MODE
 EOF
 }
 
@@ -119,6 +125,9 @@ while [[ $# -gt 0 ]]; do
     --smtp-pass) SMTP_PASS="${2:?Missing value for --smtp-pass}"; shift 2 ;;
     --skip-ssl) SKIP_SSL="true"; shift ;;
     --skip-nginx) SKIP_NGINX="true"; shift ;;
+    --skip-swap) SKIP_SWAP="true"; shift ;;
+    --swap-size-mb) SWAP_SIZE_MB="${2:?Missing value for --swap-size-mb}"; shift 2 ;;
+    --node-memory-mb) NODE_MAX_OLD_SPACE_SIZE="${2:?Missing value for --node-memory-mb}"; shift 2 ;;
     --non-interactive) NON_INTERACTIVE="true"; shift ;;
     --update) INSTALL_MODE="update"; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -149,6 +158,15 @@ SMTP_HOST="${SMTP_HOST:-${INSTALL_SMTP_HOST:-}}"
 SMTP_PORT="${SMTP_PORT:-${INSTALL_SMTP_PORT:-}}"
 SMTP_USER="${SMTP_USER:-${INSTALL_SMTP_USER:-}}"
 SMTP_PASS="${SMTP_PASS:-${INSTALL_SMTP_PASS:-}}"
+if [[ -n "${INSTALL_SKIP_SWAP:-}" ]]; then
+  SKIP_SWAP="$INSTALL_SKIP_SWAP"
+fi
+if [[ -n "${INSTALL_SWAP_SIZE_MB:-}" ]]; then
+  SWAP_SIZE_MB="$INSTALL_SWAP_SIZE_MB"
+fi
+if [[ -n "${INSTALL_NODE_MEMORY_MB:-}" ]]; then
+  NODE_MAX_OLD_SPACE_SIZE="$INSTALL_NODE_MEMORY_MB"
+fi
 INSTALL_MODE="${INSTALL_MODE:-install}"
 
 load_existing_env_for_update() {
@@ -330,6 +348,14 @@ validate_inputs() {
     die "INSTALL_MODE must be either install or update."
   fi
 
+  if [[ ! "$SWAP_SIZE_MB" =~ ^[0-9]+$ || "$SWAP_SIZE_MB" -lt 512 ]]; then
+    die "SWAP_SIZE_MB must be a number greater than or equal to 512."
+  fi
+
+  if [[ ! "$NODE_MAX_OLD_SPACE_SIZE" =~ ^[0-9]+$ || "$NODE_MAX_OLD_SPACE_SIZE" -lt 256 ]]; then
+    die "NODE_MAX_OLD_SPACE_SIZE must be a number greater than or equal to 256."
+  fi
+
   [[ -d "$APP_DIR" ]] || die "App directory does not exist: $APP_DIR"
   [[ -f "$APP_DIR/package.json" ]] || die "package.json not found in $APP_DIR"
   [[ -f "$APP_DIR/prisma/schema.prisma" ]] || die "prisma/schema.prisma not found in $APP_DIR"
@@ -423,6 +449,55 @@ install_nodejs() {
     > /etc/apt/sources.list.d/nodesource.list
   apt-get update
   apt-get install -y nodejs
+}
+
+memory_mb() {
+  awk '/MemTotal/ { printf "%d", $2 / 1024 }' /proc/meminfo 2>/dev/null || printf '0'
+}
+
+swap_mb() {
+  awk '/SwapTotal/ { printf "%d", $2 / 1024 }' /proc/meminfo 2>/dev/null || printf '0'
+}
+
+ensure_swap() {
+  if [[ "$SKIP_SWAP" == "true" ]]; then
+    warn "Skipping swap configuration"
+    return
+  fi
+
+  if [[ ! -r /proc/meminfo ]]; then
+    warn "Cannot inspect system memory; skipping swap configuration"
+    return
+  fi
+
+  local total_memory total_swap
+  total_memory="$(memory_mb)"
+  total_swap="$(swap_mb)"
+
+  if [[ "$total_memory" -ge 2048 || "$total_swap" -gt 0 ]]; then
+    log "Memory check: ${total_memory}MB RAM, ${total_swap}MB swap"
+    return
+  fi
+
+  if [[ -e /swapfile ]]; then
+    warn "/swapfile already exists but swap is not active; run 'swapon /swapfile' manually if appropriate."
+    return
+  fi
+
+  log "Low-memory server detected (${total_memory}MB RAM). Creating ${SWAP_SIZE_MB}MB swap file for dependency install/build"
+  if command -v fallocate >/dev/null 2>&1; then
+    fallocate -l "${SWAP_SIZE_MB}M" /swapfile || dd if=/dev/zero of=/swapfile bs=1M count="$SWAP_SIZE_MB" status=progress
+  else
+    dd if=/dev/zero of=/swapfile bs=1M count="$SWAP_SIZE_MB" status=progress
+  fi
+
+  chmod 600 /swapfile
+  mkswap /swapfile >/dev/null
+  swapon /swapfile
+
+  if ! grep -qE '^[^#[:space:]]+[[:space:]]+none[[:space:]]+swap[[:space:]]+' /etc/fstab; then
+    printf '/swapfile none swap sw 0 0\n' >> /etc/fstab
+  fi
 }
 
 setup_postgres() {
@@ -552,10 +627,30 @@ EOF
 install_app_dependencies() {
   log "Installing Node dependencies"
   cd "$APP_DIR"
+
+  local npm_status
+  local npm_env=(
+    "NODE_OPTIONS=--max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}"
+    "npm_config_jobs=1"
+    "npm_config_audit=false"
+    "npm_config_fund=false"
+    "npm_config_progress=false"
+  )
+
+  set +e
   if [[ -f package-lock.json ]]; then
-    sudo -u "$APP_USER" npm ci
+    sudo -u "$APP_USER" env "${npm_env[@]}" npm ci --no-audit --no-fund --progress=false
+    npm_status=$?
   else
-    sudo -u "$APP_USER" npm install
+    sudo -u "$APP_USER" env "${npm_env[@]}" npm install --no-audit --no-fund --progress=false
+    npm_status=$?
+  fi
+  set -e
+
+  if [[ "$npm_status" -eq 137 ]]; then
+    die "npm was killed by the OS, usually because the server ran out of RAM. Re-run with --swap-size-mb 4096 or use a server with more memory."
+  elif [[ "$npm_status" -ne 0 ]]; then
+    die "npm dependency installation failed with exit code ${npm_status}."
   fi
 }
 
@@ -623,7 +718,7 @@ build_app() {
   # shellcheck disable=SC1091
   source "$APP_DIR/.env.production"
   set +a
-  sudo -u "$APP_USER" npm run build
+  sudo -u "$APP_USER" env "NODE_OPTIONS=--max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}" npm run build
 }
 
 create_systemd_service() {
@@ -804,6 +899,7 @@ main() {
     log "Skipping PostgreSQL creation because update mode uses existing DATABASE_URL"
     install_nodejs
     write_env_files
+    ensure_swap
     install_app_dependencies
     setup_prisma
     seed_production_data
@@ -822,6 +918,7 @@ main() {
   install_nodejs
   setup_postgres
   write_env_files
+  ensure_swap
   install_app_dependencies
   setup_prisma
   seed_production_data
