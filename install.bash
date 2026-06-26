@@ -810,11 +810,28 @@ configure_ssl() {
     return
   fi
 
+  if [[ -z "$LETSENCRYPT_EMAIL" ]]; then
+    die "Let's Encrypt email is required for SSL. Pass --email ops@example.com or use --skip-ssl."
+  fi
+
+  command -v certbot >/dev/null 2>&1 || die "certbot is not installed. Re-run the installer without --skip-nginx."
+
+  log "Checking Nginx configuration before SSL"
+  nginx -t
+  systemctl enable --now nginx
+  systemctl reload nginx
+
   log "Requesting Let's Encrypt certificate for ${DOMAIN}"
-  certbot --nginx --non-interactive --agree-tos \
+  if certbot --nginx --non-interactive --agree-tos \
     --email "$LETSENCRYPT_EMAIL" \
     -d "$DOMAIN" \
-    --redirect
+    --redirect; then
+    log "SSL certificate installed for ${DOMAIN}"
+  else
+    warn "Let's Encrypt failed. Common causes: domain DNS does not point to this server, ports 80/443 are blocked, or Nginx cannot serve the ACME challenge."
+    warn "Useful checks: dig +short ${DOMAIN}; curl -I http://${DOMAIN}; journalctl -u nginx -n 80 --no-pager"
+    return 1
+  fi
 }
 
 configure_firewall() {
@@ -832,10 +849,21 @@ configure_firewall() {
 health_check() {
   log "Running local health check"
   sleep 5
-  if curl -fsS "http://127.0.0.1:${PORT}/fa" >/dev/null; then
+  if curl -fsS --max-time 15 "http://127.0.0.1:${PORT}/fa" >/dev/null; then
     log "Local app health check passed"
   else
     warn "Local app health check failed. Inspect logs with: journalctl -u ${APP_NAME} -f"
+    systemctl --no-pager --full status "${APP_NAME}" || true
+    journalctl -u "${APP_NAME}" -n 80 --no-pager || true
+  fi
+
+  local db_status
+  db_status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "http://127.0.0.1:${PORT}/api/health/database" || true)"
+  if [[ "$db_status" == "200" ]]; then
+    log "Database health check passed"
+  else
+    warn "Database health check returned HTTP ${db_status:-000}. Check DATABASE_URL and outbound access to the database host."
+    warn "Manual test: printf 'SELECT 1;\\n' | npx prisma db execute --stdin --schema prisma/schema.prisma"
   fi
 }
 
@@ -905,6 +933,11 @@ main() {
     seed_production_data
     build_app
     restart_existing_service
+    if [[ -n "$DOMAIN" && "$SKIP_NGINX" != "true" ]]; then
+      configure_nginx
+      configure_firewall
+      configure_ssl
+    fi
     health_check
     print_summary
     return
@@ -925,8 +958,8 @@ main() {
   build_app
   create_systemd_service
   configure_nginx
-  configure_ssl
   configure_firewall
+  configure_ssl
   health_check
   print_summary
 }
