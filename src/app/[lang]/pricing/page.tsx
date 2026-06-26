@@ -41,7 +41,7 @@ const copy = {
     subscribeError: 'Unable to complete the subscription.',
     serviceError: 'Subscription service is currently unavailable. Please try again later.',
     success: 'Subscription activated successfully.',
-    eyebrow: 'Portfolio Advisor plans',
+    eyebrow: 'mousavi invest plans',
     title: 'Simple, Transparent Pricing',
     subtitle: 'Choose the plan that matches your trading horizon, market coverage, and advisory needs.',
     shortTitle: 'Short-term Analysis',
@@ -58,7 +58,7 @@ const copy = {
     periodPrefix: 'per',
     faqTitle: 'Frequently Asked Questions',
     ctaTitle: 'Start Your Premium Investment Experience',
-    ctaText: 'Join investors who use Portfolio Advisor to read the market with more clarity.',
+    ctaText: 'Join investors who use mousavi invest to read the market with more clarity.',
     ctaButton: 'Create Account',
     faqs: [
       {
@@ -80,7 +80,7 @@ const copy = {
     subscribeError: 'امکان تکمیل اشتراک وجود ندارد.',
     serviceError: 'سرویس اشتراک در حال حاضر در دسترس نیست. لطفاً کمی بعد دوباره تلاش کنید.',
     success: 'اشتراک شما با موفقیت فعال شد.',
-    eyebrow: 'پلن‌های مشاور پورتفو',
+    eyebrow: 'پلن‌های سرمایه گذاری موسوی',
     title: 'قیمت‌گذاری شفاف و قابل انتخاب',
     subtitle: 'پلنی را انتخاب کنید که با افق سرمایه‌گذاری، بازار هدف و سطح مشاوره مورد نیاز شما هماهنگ است.',
     shortTitle: 'تحلیل‌های کوتاه‌مدت',
@@ -97,7 +97,7 @@ const copy = {
     periodPrefix: 'پرداخت',
     faqTitle: 'سوالات متداول',
     ctaTitle: 'تجربه سرمایه‌گذاری حرفه‌ای را شروع کنید',
-    ctaText: 'به سرمایه‌گذارانی بپیوندید که با مشاور پورتفو بازار را شفاف‌تر می‌بینند و تصمیم‌های آگاهانه‌تری می‌گیرند.',
+    ctaText: 'به سرمایه‌گذارانی بپیوندید که با سرمایه گذاری موسوی بازار را شفاف‌تر می‌بینند و تصمیم‌های آگاهانه‌تری می‌گیرند.',
     ctaButton: 'ایجاد حساب کاربری',
     faqs: [
       {

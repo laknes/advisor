@@ -164,7 +164,7 @@ export default function AdminDashboard() {
         <main className="min-w-0 flex-1">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
             <div>
-              <h1 className="text-4xl font-black leading-tight md:text-5xl">پنل مدیریتی مشاور پورتفو</h1>
+              <h1 className="text-4xl font-black leading-tight md:text-5xl">پنل مدیریتی سرمایه گذاری موسوی</h1>
               <p className="mt-3 max-w-3xl text-slate-300">کنترل کاربران، پلن‌ها، تحلیل‌ها، تخفیف‌ها و گزارش‌های درآمدی در یک سطح مدیریتی یکپارچه.</p>
             </div>
             <div className="flex flex-wrap gap-3">

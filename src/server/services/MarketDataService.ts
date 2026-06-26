@@ -26,6 +26,14 @@ const providers = [
   { key: 'crypto', label: 'کریپتو', marketSlug: 'crypto' },
 ];
 
+const freeMarketDataProviders = [
+  { key: 'alpha_vantage', label: 'Alpha Vantage', docsKey: 'alpha_vantage_docs_url' },
+  { key: 'finnhub', label: 'Finnhub', docsKey: 'finnhub_docs_url' },
+  { key: 'twelve_data', label: 'Twelve Data', docsKey: 'twelve_data_docs_url' },
+  { key: 'polygon', label: 'Polygon / Massive', docsKey: 'polygon_docs_url' },
+  { key: 'coingecko', label: 'CoinGecko Demo API', docsKey: 'coingecko_docs_url' },
+];
+
 function toNumber(value: unknown) {
   if (value === undefined || value === null || value === '') return undefined;
   const normalized = typeof value === 'string' ? value.replace(/,/g, '') : value;
@@ -67,6 +75,17 @@ export class MarketDataService {
       configured: Boolean(settingsMap[`${provider.key}_prices_url`]),
     }));
 
+    const freeProviders = freeMarketDataProviders.map((provider) => ({
+      key: provider.key,
+      label: provider.label,
+      enabled: Boolean(settingsMap[`${provider.key}_enabled`]),
+      configured: provider.key === 'coingecko'
+        ? Boolean(settingsMap[`${provider.key}_base_url`])
+        : Boolean(settingsMap[`${provider.key}_api_key`]),
+      baseUrl: settingsMap[`${provider.key}_base_url`] || '',
+      docsUrl: settingsMap[provider.docsKey] || '',
+    }));
+
     return {
       payments: {
         defaultGateway: settingsMap.payment_default_gateway || 'zarinpal',
@@ -76,6 +95,8 @@ export class MarketDataService {
       marketData: {
         enabled: Boolean(settingsMap.market_data_enabled),
         refreshSeconds: Number(settingsMap.market_data_refresh_seconds || 300),
+        defaultFreeProvider: settingsMap.market_data_default_free_provider || 'alpha_vantage',
+        freeProviders,
         providers: marketProviders,
         priceCount,
         latestPrice,

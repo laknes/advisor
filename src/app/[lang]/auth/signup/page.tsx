@@ -1,8 +1,9 @@
 'use client';
 
-import { Header, Card, Button, Input, FormGroup } from '@/components';
+import { AuthExperience, Button, Input, FormGroup, SocialAuthButtons } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { storeAuth } from '@/lib/clientAuth';
+import { LockKeyhole, Mail, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -70,113 +71,99 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
-      <Header isAuthenticated={false} />
+    <AuthExperience title="ساخت حساب کاربری" subtitle="حساب خود را بسازید و اولین نمای سه‌بعدی از ریسک، فرصت و مسیر رشد پورتفویتان را ببینید.">
+      <div className="space-y-6 [&_label]:!text-slate-200 [&_.text-secondary-500]:!text-slate-400">
+        <form onSubmit={handleSubmit}>
+          <FormGroup className="space-y-4">
+            <Input
+              label="نام و نام خانوادگی"
+              name="name"
+              placeholder="نام و نام خانوادگی"
+              value={formData.name}
+              onChange={handleChange}
+              error={errors.name}
+              icon={<UserRound className="h-4 w-4" />}
+              className="border-white/10 bg-white/95"
+            />
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
-        <Card className="w-full max-w-lg [&_label]:!text-slate-200 [&_.text-secondary-500]:!text-slate-400">
-          <div className="space-y-6">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-white">ساخت حساب کاربری</h1>
-              <p className="mt-2 text-slate-300">همین امروز به مشاور پورتفو بپیوندید</p>
-            </div>
+            <Input
+              label="نشانی ایمیل"
+              type="email"
+              name="email"
+              placeholder="ایمیل شما"
+              value={formData.email}
+              onChange={handleChange}
+              error={errors.email}
+              icon={<Mail className="h-4 w-4" />}
+              className="border-white/10 bg-white/95"
+            />
 
-            <form onSubmit={handleSubmit}>
-              <FormGroup>
-                <Input
-                  label="نام و نام خانوادگی"
-                  name="name"
-                  placeholder="نام و نام خانوادگی"
-                  value={formData.name}
-                  onChange={handleChange}
-                  error={errors.name}
-                  icon="👤"
-                />
+            <Input
+              label="رمز عبور"
+              type="password"
+              name="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              icon={<LockKeyhole className="h-4 w-4" />}
+              helperText="حداقل ۸ نویسه"
+              className="border-white/10 bg-white/95"
+            />
 
-                <Input
-                  label="نشانی ایمیل"
-                  type="email"
-                  name="email"
-                  placeholder="ایمیل شما"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                  icon="📧"
-                />
+            <Input
+              label="تکرار رمز عبور"
+              type="password"
+              name="confirmPassword"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              icon={<LockKeyhole className="h-4 w-4" />}
+              className="border-white/10 bg-white/95"
+            />
 
-                <Input
-                  label="رمز عبور"
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  icon="🔒"
-                  helperText="حداقل ۸ نویسه"
-                />
-
-                <Input
-                  label="تکرار رمز عبور"
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  error={errors.confirmPassword}
-                  icon="🔒"
-                />
-
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" id="terms" className="w-4 h-4 rounded" />
-                  <label htmlFor="terms" className="text-sm text-slate-300">
-                    با{' '}
-                    <Link href={`/${locale}/terms`} className="text-primary-200 hover:underline font-medium">
-                      قوانین و مقررات
-                    </Link>{' '}
-                    و{' '}
-                    <Link href={`/${locale}/privacy`} className="text-primary-200 hover:underline font-medium">
-                      حریم خصوصی
-                    </Link>
-                    {' '}موافقم
-                  </label>
-                </div>
-
-                <Button fullWidth size="lg" isLoading={isLoading}>
-                  ساخت حساب
-                </Button>
-              </FormGroup>
-            </form>
-
-            <div className="text-center">
-              <p className="text-slate-300">
-                از قبل حساب دارید؟{' '}
-                <Link href={`/${locale}/auth/login`} className="text-primary-200 hover:underline font-medium">
-                  وارد شوید
+            <div className="flex items-start gap-2">
+              <input type="checkbox" id="terms" className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10" />
+              <label htmlFor="terms" className="text-sm leading-7 text-slate-300">
+                با{' '}
+                <Link href={`/${locale}/terms`} className="font-medium text-cyan-200 hover:text-white">
+                  قوانین و مقررات
+                </Link>{' '}
+                و{' '}
+                <Link href={`/${locale}/privacy`} className="font-medium text-cyan-200 hover:text-white">
+                  حریم خصوصی
                 </Link>
-              </p>
+                {' '}موافقم
+              </label>
             </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-secondary-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-[#160022] px-2 text-slate-400">یا ادامه با</span>
-              </div>
-            </div>
+            <Button fullWidth size="lg" isLoading={isLoading} className="h-[3.25rem] bg-cyan-50 text-slate-950 hover:bg-white">
+              ساخت حساب
+            </Button>
+          </FormGroup>
+        </form>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="secondary" fullWidth>
-                <span className="mr-2">🔵</span> گوگل
-              </Button>
-              <Button variant="secondary" fullWidth>
-                <span className="mr-2">📘</span> فیسبوک
-              </Button>
-            </div>
+        <div className="text-center">
+          <p className="text-slate-300">
+            از قبل حساب دارید؟{' '}
+            <Link href={`/${locale}/auth/login`} className="font-medium text-cyan-200 hover:text-white">
+              وارد شوید
+            </Link>
+          </p>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/12"></div>
           </div>
-        </Card>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-[#201f35] px-3 text-slate-400">یا ادامه با</span>
+          </div>
+        </div>
+
+        <SocialAuthButtons />
       </div>
-    </div>
+    </AuthExperience>
   );
 }

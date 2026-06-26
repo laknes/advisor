@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 interface SubscriptionRecord {
   id: string;
-  user?: { name?: string | null; email: string } | null;
+  user?: { id: string; name?: string | null; email: string } | null;
   plan?: { name: string; price: number } | null;
   startDate: string;
   endDate: string;
@@ -119,7 +119,13 @@ export default function AdminSubscriptionsPage() {
                         <Badge variant={getStatusColor(status)}>{status}</Badge>
                       </td>
                       <td className="py-4 px-4">
-                        <Button size="sm" variant="outline">View</Button>
+                        {sub.user?.id ? (
+                          <Link href={`/${locale}/admin/users/${sub.user.id}`}>
+                            <Button size="sm" variant="outline">View</Button>
+                          </Link>
+                        ) : (
+                          <span className="text-secondary-400">—</span>
+                        )}
                       </td>
                     </tr>
                     );

@@ -18,6 +18,7 @@ interface SiteSetting {
 
 const groupLabels: Record<string, string> = {
   payments: 'مدیریت درگاه‌های پرداخت ایرانی',
+  market_data_free: 'APIهای رایگان دیتای واقعی بازار',
   market_data: 'مدیریت API دیتای واقعی بازار',
   billing: 'تنظیمات مالی و واحد پول',
   content: 'محتوای سایت',
@@ -30,6 +31,7 @@ const groupLabels: Record<string, string> = {
 const groupDescriptions: Record<string, string> = {
   payments: 'کلیدها، وضعیت فعال بودن، sandbox و callback درگاه‌هایی مثل زرین‌پال، زیبال، IDPay و Pay.ir را از همین بخش مدیریت کنید.',
   market_data: 'URL و API key سرویس‌های قیمت بورس، فارکس، طلا، ارز و کریپتو را اینجا وارد کنید.',
+  market_data_free: 'Providerهای رایگان یا دارای free tier مثل Alpha Vantage، Finnhub، Twelve Data، Polygon/Massive و CoinGecko را برای دریافت دیتای واقعی بازار پیکربندی کنید.',
 };
 
 export default function AdminSettingsPage() {
@@ -152,11 +154,21 @@ export default function AdminSettingsPage() {
                         />
                       ) : (
                         <input
-                          type={setting.type === 'email' ? 'email' : setting.type === 'password' ? 'password' : setting.type === 'number' ? 'number' : 'text'}
+                          type={setting.type === 'email' ? 'email' : setting.type === 'password' ? 'password' : setting.type === 'number' ? 'number' : setting.type === 'url' ? 'url' : 'text'}
                           value={String(values[setting.key] ?? '')}
                           onChange={(event) => setValues((current) => ({ ...current, [setting.key]: event.target.value }))}
                           className="w-full rounded-lg border border-secondary-200 bg-white px-4 py-3 font-medium text-secondary-900 outline-none focus:border-primary-500"
                         />
+                      )}
+
+                      {['site_logo_url', 'site_favicon_url'].includes(setting.key) && String(values[setting.key] || '') && (
+                        <div className="mt-3 flex items-center gap-3 rounded-lg border border-secondary-100 bg-secondary-50 p-3">
+                          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-white shadow-sm">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={String(values[setting.key])} alt={setting.label} className="h-full w-full object-contain p-1" />
+                          </div>
+                          <span className="text-xs font-bold text-secondary-500">پیش‌نمایش تصویر فعلی</span>
+                        </div>
                       )}
 
                       {setting.description && <p className="mt-2 text-xs font-medium text-secondary-400">{setting.description}</p>}

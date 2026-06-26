@@ -1,0 +1,10 @@
+⨯ Error: Module 62591 was instantiated because it was required from module 5672, but the module factory is not available.
+    at instantiateModule (E:\advisor\.next\server\chunks\ssr\[turbopack]_runtime.js:845:15)
+    at getOrInstantiateModuleFromParent (E:\advisor\.next\server\chunks\ssr\[turbopack]_runtime.js:877:12)
+    at Context.esmImport [as i] (E:\advisor\.next\server\chunks\ssr\[turbopack]_runtime.js:281:20)
+    at module evaluation (E:\advisor\.next\server\chunks\ssr\_0en8k90._.js:1:10304)
+    at instantiateModule (E:\advisor\.next\server\chunks\ssr\[turbopack]_runtime.js:853:9)
+    at getOrInstantiateModuleFromParent (E:\advisor\.next\server\chunks\ssr\[turbopack]_runtime.js:877:12)
+    at Context.commonJsRequire [as r] (E:\advisor\.next\server\chunks\ssr\[turbopack]_runtime.js:302:12) {
+  digest: '3360341833'
+}

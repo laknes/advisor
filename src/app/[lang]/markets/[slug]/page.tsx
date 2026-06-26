@@ -332,7 +332,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                               </div>
                               <div>
                                 <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Stop Loss</p>
-                                <p className="text-xl font-black text-red-500 font-mono">{analysis.stopLoss || 'N/A'}</p>
+                                <p className="text-xl font-black text-red-500 font-mono">{analysis.stopLoss || 'ثبت نشده'}</p>
                               </div>
                             </div>
                           ) : (
@@ -340,11 +340,11 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                               <div className="bg-secondary-50 p-6 rounded-2xl grid grid-cols-2 gap-6 border border-secondary-100 blur-sm select-none">
                                 <div>
                                   <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Target Price</p>
-                                  <p className="text-xl font-black text-primary-600 font-mono">XXXX.XX</p>
+                                  <p className="text-base font-black text-primary-600">مخصوص اعضا</p>
                                 </div>
                                 <div>
                                   <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Stop Loss</p>
-                                  <p className="text-xl font-black text-red-500 font-mono">XXXX.XX</p>
+                                  <p className="text-base font-black text-red-500">مخصوص اعضا</p>
                                 </div>
                               </div>
                               <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[2px] rounded-2xl transition-all group-hover/lock:backdrop-blur-none">

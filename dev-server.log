@@ -1,69 +1,10 @@
-▲ Next.js 16.2.7 (webpack)
+
+> portfolio-advisor@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
 - Local:         http://localhost:3000
 - Network:       http://172.29.80.1:3000
 - Environments: .env.local
-✓ Ready in 2.2s
-
-
-<--- Last few GCs --->
-
-[12000:000002EE1F925000]    14089 ms: Scavenge 79.7 (85.5) -> 78.1 (85.5) MB, pooled: 0 MB, 1.63 / 0.00 ms  (average mu = 0.839, current mu = 0.335) allocation failure; 
-[12000:000002EE1F925000]    14146 ms: Scavenge 80.0 (85.5) -> 78.3 (85.5) MB, pooled: 0 MB, 1.75 / 0.00 ms  (average mu = 0.839, current mu = 0.335) allocation failure; 
-[12000:000002EE1F925000]    14175 ms: Scavenge 80.2 (85.5) -> 78.7 (85.8) MB, pooled: 2 MB, 1.50 / 0.00 ms  (average mu = 0.839, current mu = 0.335) allocation failure; 
-
-FATAL ERROR: Zone Allocation failed - process out of memory
------ Native stack trace -----
-
-
-<--- Last few GCs --->
-
-[12000:000002EE1F925000]    14089 ms: Scavenge 79.7 (85.5) -> 78.1 (85.5) MB, pooled: 0 MB, 1.63 / 0.00 ms  (average mu = 0.839, current mu = 0.335) allocation failure; 
-[12000:000002EE1F925000]    14146 ms: Scavenge 80.0 (85.5) -> 78.3 (85.5) MB, pooled: 0 MB, 1.75 / 0.00 ms  (average mu = 0.839, current mu = 0.335) allocation failure; 
-[12000:000002EE1F925000]    14175 ms: Scavenge 80.2 (85.5) -> 78.7 (85.8) MB, pooled: 2 MB, 1.50 / 0.00 ms  (average mu = 0.839, current mu = 0.335) allocation failure; 
-
-FATAL ERROR: Zone Allocation failed - process out of memory
------ Native stack trace -----
-
- 1: 00007FF639B6AA39 
- 2: 00007FF63A7ACD07 
- 3: 00007FF63A127CC6 
- 4: 00007FF639F519A8 
- 5: 00007FF639F4BE84 
- 6: 00007FF639F53F3E 
- 7: 00007FF639F53CB3 
- 8: 00007FF639FB6CD8 
- 9: 00007FF639FB5930 
-10: 00007FF639FB3BA0 
-11: 00007FF639F88C1B 
-12: 00007FF639F887F2 
-13: 00007FF639F8A7A5 
-14: 00007FF639F89C4E 
-15: 00007FF639F9D1B1 
-16: 00007FF639F72015 
-17: 00007FF639F8D742 
-18: 00007FF639F9EE06 
-19: 00007FF639F9FC07 
-20: 00007FF639FB3FDA 
-21: 00007FF639F88C1B 
-22: 00007FF639F887F2 
-23: 00007FF639F8A7A5 
-24: 00007FF639F89C4E 
-25: 00007FF639F9D1B1 
-26: 00007FF639F72015 
-27: 00007FF639F8D742 
-28: 00007FF639F9EE06 
-29: 00007FF639F9FC07 
-30: 00007FF639FB3FDA 
-31: 00007FF639F88C1B 
-32: 00007FF63A000D86 
-33: 00007FF639FFFAA0 
-34: 00007FF639FFD89A 
-35: 00007FF63A72098F 
-36: 00007FF639FFF37B 
-37: 00007FF63AF7C29F 
-38: 00007FF639ABEB4E 
-39: 00007FF63A802056 
-40: 00007FF63BA40373 
-41: 00007FFDAE3F257D 
-42: 00007FFDAF78AF08 
-[?25h
+✓ Ready in 4.4s
+Creating turbopack project { dir: 'E:\\advisor', testMode: true }

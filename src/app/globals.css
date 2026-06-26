@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Lalezar&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,6 +12,7 @@
   body {
     @apply bg-[#160022] text-secondary-100 antialiased;
     min-height: 100vh;
+    font-family: "Vazirmatn", "IBM Plex Sans Arabic", Tahoma, Arial, Helvetica, sans-serif;
     background:
       radial-gradient(circle at 12% 10%, rgba(216, 180, 254, 0.22), transparent 30rem),
       radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.16), transparent 28rem),
@@ -17,27 +20,47 @@
   }
 
   h1 {
-    @apply text-4xl font-bold tracking-tight;
+    @apply text-4xl font-bold;
+    font-family: "Lalezar", "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
   }
 
   h2 {
-    @apply text-3xl font-bold tracking-tight;
+    @apply text-3xl font-bold;
+    font-family: "Lalezar", "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
   }
 
   h3 {
-    @apply text-2xl font-bold tracking-tight;
+    @apply text-2xl font-bold;
+    font-family: "IBM Plex Sans Arabic", "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
   }
 
   h4 {
     @apply text-xl font-semibold;
+    font-family: "IBM Plex Sans Arabic", "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
   }
 
   h5 {
     @apply text-lg font-semibold;
+    font-family: "IBM Plex Sans Arabic", "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
   }
 
   h6 {
     @apply text-base font-semibold;
+    font-family: "IBM Plex Sans Arabic", "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    letter-spacing: 0;
   }
 }
 
@@ -112,12 +135,36 @@
     @apply border border-white/10 bg-white/[0.07] backdrop-blur-xl;
   }
 
+  .card-light [data-card-title] {
+    color: #1c1917 !important;
+  }
+
+  .card-light [data-card-subtitle] {
+    color: #57534e !important;
+  }
+
+  .card-light [data-card-header] {
+    border-color: #e7e5e4 !important;
+  }
+
+  .admin-input {
+    @apply h-12 w-full rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-primary-200;
+  }
+
   .aurora-grid {
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 56px 56px;
     mask-image: linear-gradient(to bottom, black, transparent 80%);
+  }
+
+  .auth-data-grid {
+    background-image:
+      linear-gradient(rgba(125, 211, 252, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(125, 211, 252, 0.08) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at 45% 35%, black 0%, transparent 72%);
   }
 }
 
@@ -143,7 +190,7 @@
 body {
   background: #160022;
   color: #ffffff;
-  font-family: Vazirmatn, IRANSans, Tahoma, Arial, Helvetica, sans-serif;
+  font-family: "Vazirmatn", "IBM Plex Sans Arabic", Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .min-h-screen.bg-secondary-50,

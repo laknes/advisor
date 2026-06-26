@@ -56,7 +56,7 @@ const values = [
   {
     icon: LockKeyhole,
     title: 'حفظ استقلال کاربر',
-    text: 'مشاور پورتفو ابزار تصمیم‌سازی است، نه وعده سود قطعی. ما ریسک‌ها را روشن می‌کنیم تا انتخاب نهایی آگاهانه‌تر باشد.',
+    text: 'سرمایه گذاری موسوی ابزار تصمیم‌سازی است، نه وعده سود قطعی. ما ریسک‌ها را روشن می‌کنیم تا انتخاب نهایی آگاهانه‌تر باشد.',
   },
 ];
 
@@ -114,11 +114,11 @@ export default function AboutPage() {
           <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8">
             <motion.div initial="initial" animate="animate" variants={stagger} className="space-y-8 lg:order-2">
               <motion.h1 variants={fadeInUp} className="max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-                درباره مشاور پورتفو
+                درباره سرمایه گذاری موسوی
                 <span className="block text-primary-100">تحلیل بازار، تبدیل‌شده به تصمیم قابل اجرا</span>
               </motion.h1>
               <motion.p variants={fadeInUp} className="max-w-3xl text-lg leading-9 text-slate-300">
-                مشاور پورتفو برای سرمایه‌گذارانی ساخته شده که می‌خواهند بین داده‌های پراکنده بازار، گزارش‌های طولانی و هیجان لحظه‌ای، یک مسیر روشن‌تر برای تصمیم‌گیری داشته باشند. ما تحلیل، مدیریت ریسک و ابزارهای پیگیری بازار را در یک تجربه فارسی و منظم کنار هم قرار می‌دهیم.
+                سرمایه گذاری موسوی برای سرمایه‌گذارانی ساخته شده که می‌خواهند بین داده‌های پراکنده بازار، گزارش‌های طولانی و هیجان لحظه‌ای، یک مسیر روشن‌تر برای تصمیم‌گیری داشته باشند. ما تحلیل، مدیریت ریسک و ابزارهای پیگیری بازار را در یک تجربه فارسی و منظم کنار هم قرار می‌دهیم.
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row">
                 <Link href={`/${locale}/pricing`}>
@@ -184,7 +184,7 @@ export default function AboutPage() {
               <SectionIntro
                 title="ماموریت ما"
                 subtitle="کمک به تصمیم‌گیری آگاهانه در بازارهای پرنوسان"
-                text="ما باور داریم سرمایه‌گذاری خوب فقط پیدا کردن یک سیگنال نیست؛ ترکیبی از فهم روند، شناخت ریسک، زمان‌بندی مناسب و پایبندی به برنامه است. مشاور پورتفو تلاش می‌کند این اجزا را ساده، شفاف و قابل پیگیری کند."
+                text="ما باور داریم سرمایه‌گذاری خوب فقط پیدا کردن یک سیگنال نیست؛ ترکیبی از فهم روند، شناخت ریسک، زمان‌بندی مناسب و پایبندی به برنامه است. سرمایه گذاری موسوی تلاش می‌کند این اجزا را ساده، شفاف و قابل پیگیری کند."
               />
               <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                 {values.map((item) => (
@@ -234,14 +234,14 @@ export default function AboutPage() {
               </div>
             </Card>
 
-            <Card className="border-primary-100/30 bg-white text-secondary-950 p-6 md:p-8">
+            <Card className="border-primary-100/30 !bg-white p-6 !text-secondary-900 shadow-xl shadow-primary-900/10 md:p-8">
               <ShieldCheck className="mb-6 h-9 w-9 text-primary-700" />
               <h2 className="text-3xl font-black leading-tight md:text-4xl">چرا به ما اعتماد می‌کنید؟</h2>
               <div className="mt-7 space-y-4">
                 {trustItems.map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary-700" />
-                    <p className="text-sm font-bold leading-7 text-secondary-800">{item}</p>
+                    <p className="text-sm font-bold leading-7 text-secondary-800 md:text-base">{item}</p>
                   </div>
                 ))}
               </div>

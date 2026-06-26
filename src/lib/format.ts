@@ -1,7 +1,7 @@
 const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
 
 const faUiPhrases: Array<[RegExp, string]> = [
-  [/Portfolio Advisor/g, 'مشاور پورتفو'],
+  [/Portfolio Advisor/g, 'سرمایه گذاری موسوی'],
   [/Main Markets/g, 'بازارهای اصلی'],
   [/Market Watch/g, 'دیدبان بازار'],
   [/Choose Your Plan/g, 'پلن مناسب خود را انتخاب کنید'],

@@ -8,3 +8,7 @@ export { Input, Textarea, Select, FormGroup } from './Form';
 export { PageTransition } from './PageTransition';
 export { LocaleProvider, useLocale } from './LocaleProvider';
 export { LanguageSwitcher } from './LanguageSwitcher';
+export { DocumentLocale } from './DocumentLocale';
+export { SocialAuthButtons } from './SocialAuthButtons';
+export { AuthExperience } from './AuthExperience';
+export { MarketOrbitScene } from './MarketOrbitScene';

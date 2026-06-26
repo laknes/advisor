@@ -39,7 +39,9 @@ const config: Config = {
         info: '#3b82f6',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Vazirmatn', 'IBM Plex Sans Arabic', 'Tahoma', 'Arial', 'sans-serif'],
+        display: ['Lalezar', 'Vazirmatn', 'Tahoma', 'sans-serif'],
+        ui: ['IBM Plex Sans Arabic', 'Vazirmatn', 'Tahoma', 'sans-serif'],
       },
       spacing: {
         '128': '32rem',

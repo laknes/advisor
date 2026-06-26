@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Header, Footer, Card, CardHeader, CardContent, Button, Badge } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
@@ -37,29 +37,52 @@ export default function AnalysesManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchAnalyses = async () => {
-      try {
-        const response = await fetch('/api/analyses?limit=100', {
-          headers: getAuthHeaders(),
-        });
-        const result = await response.json();
+  const fetchAnalyses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/analyses?limit=100', {
+        headers: getAuthHeaders(),
+      });
+      const result = await response.json();
 
-        if (!response.ok) {
-          setError(result.error || 'Unable to load analyses');
-          return;
-        }
-
-        setAnalyses(result.data?.analyses || []);
-      } catch {
-        setError('Unable to load analyses.');
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        setError(result.error || 'Unable to load analyses');
+        return;
       }
-    };
 
-    fetchAnalyses();
+      setAnalyses(result.data?.analyses || []);
+      setError('');
+    } catch {
+      setError('Unable to load analyses.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAnalyses();
+  }, [fetchAnalyses]);
+
+  const deleteAnalysis = async (id: string) => {
+    if (!window.confirm('Delete this analysis?')) return;
+
+    try {
+      const response = await fetch(`/api/analyses/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        setError(result.error || 'Unable to delete analysis');
+        return;
+      }
+
+      setAnalyses((current) => current.filter((analysis) => analysis.id !== id));
+    } catch {
+      setError('Unable to delete analysis.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-secondary-50">
@@ -195,7 +218,9 @@ export default function AnalysesManagementPage() {
                             <Link href={`/${locale}/admin/analyses/${analysis.id}`}>
                               <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-blue-600"><Edit3 className="w-4 h-4" /></Button>
                             </Link>
-                            <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></Button>
+                            <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-red-600" onClick={() => deleteAnalysis(analysis.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </td>
                       </tr>

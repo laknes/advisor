@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { 
   Globe, 
   ShieldCheck, 
@@ -16,11 +15,15 @@ import {
 
 import { useLocale } from './LocaleProvider';
 import { useDictionary } from './useDictionary';
+import { getBrandLogoUrl, getBrandName, usePublicSettings } from './usePublicSettings';
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { locale } = useLocale();
   const dict = useDictionary();
+  const publicSettings = usePublicSettings();
+  const brandName = getBrandName(publicSettings, locale);
+  const logoUrl = getBrandLogoUrl(publicSettings);
 
   if (!dict) return null;
 
@@ -31,10 +34,15 @@ export const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <Link href={`/${locale}`} className="flex items-center gap-2 mb-6 group">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
-                <span className="text-primary-900 font-black text-lg">مپ</span>
+              <div className="w-10 h-10 overflow-hidden bg-white rounded-lg flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logoUrl} alt={brandName} className="h-full w-full object-contain p-1" />
+                ) : (
+                  <span className="text-primary-900 font-black text-lg">{locale === 'en' ? 'MI' : 'سم'}</span>
+                )}
               </div>
-              <span className="text-xl font-black text-white">مشاور پورتفو</span>
+              <span className="text-xl font-black text-white">{brandName}</span>
             </Link>
             <p className="text-slate-300 mb-6 leading-relaxed">
               {dict.footer.description}
@@ -86,7 +94,7 @@ export const Footer = () => {
 
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-slate-400 text-sm">
-            © {currentYear} مشاور پورتفو. {dict.footer.all_rights_reserved}
+            © {currentYear} {brandName}. {dict.footer.all_rights_reserved}
           </p>
           <div className="flex gap-8">
             <Link href={`/${locale}/terms`} className="text-slate-400 hover:text-white text-sm transition-colors">{dict.common.terms}</Link>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Card, CardHeader, CardContent, Button, StatBlock, Badge } from '@/components';
 import { motion } from 'framer-motion';
 import { apiGet } from '@/lib/apiClient';
@@ -9,7 +9,6 @@ import { useLocale } from '@/components/LocaleProvider';
 import { 
   BarChart3, 
   Download, 
-  Filter,
   CreditCard
 } from 'lucide-react';
 
@@ -23,6 +22,9 @@ const labels = {
     subtitle: 'Detailed financial analytics and transaction history',
     filterPeriod: 'Filter Period',
     exportPdf: 'Export PDF',
+    allTime: 'All time',
+    last30Days: 'Last 30 days',
+    last90Days: 'Last 90 days',
     monthlyRevenue: 'Monthly Revenue',
     transactions: 'Transactions',
     completed: 'Completed',
@@ -56,6 +58,9 @@ const labels = {
     subtitle: 'تحلیل مالی دقیق و تاریخچه تراکنش‌های پلتفرم',
     filterPeriod: 'فیلتر بازه زمانی',
     exportPdf: 'خروجی PDF',
+    allTime: 'همه زمان‌ها',
+    last30Days: '۳۰ روز اخیر',
+    last90Days: '۹۰ روز اخیر',
     monthlyRevenue: 'درآمد ماهانه',
     transactions: 'تراکنش‌ها',
     completed: 'تکمیل‌شده',
@@ -117,6 +122,7 @@ export default function AdminReportsPage() {
       createdAt: string;
     }>;
   } | null>(null);
+  const [period, setPeriod] = useState<'all' | '30' | '90'>('all');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -129,12 +135,33 @@ export default function AdminReportsPage() {
   const formatMoney = (value: number) => (isFa ? `${formatFaNumber(value)} دلار` : `$${value.toLocaleString()}`);
   const formatDateTime = (value: string) => (isFa ? formatFaDate(value) : new Date(value).toLocaleString());
   const formatTransactionType = (type: string) => transactionTypeLabels[locale][type] || type || t.unknownPlan;
+  const visibleTransactions = useMemo(() => {
+    if (!reports) return [];
+    if (period === 'all') return reports.transactions;
+
+    const since = new Date();
+    since.setDate(since.getDate() - Number(period));
+    return reports.transactions.filter((txn) => new Date(txn.createdAt) >= since);
+  }, [period, reports]);
+
+  const visibleSummary = useMemo(() => {
+    if (!reports || period === 'all') return reports?.summary;
+
+    return {
+      monthlyRevenue: visibleTransactions
+        .filter((txn) => txn.status === 'completed')
+        .reduce((sum, txn) => sum + txn.amount, 0),
+      transactionCount: visibleTransactions.length,
+      completedTransactions: visibleTransactions.filter((txn) => txn.status === 'completed').length,
+      failedTransactions: visibleTransactions.filter((txn) => txn.status === 'failed').length,
+    };
+  }, [period, reports, visibleTransactions]);
 
   const salesStats = [
-    { label: t.monthlyRevenue, value: formatMoney(reports?.summary.monthlyRevenue || 0), change: 0, trend: 'up' },
-    { label: t.transactions, value: formatNumber(reports?.summary.transactionCount || 0), change: 0, trend: 'up' },
-    { label: t.completed, value: formatNumber(reports?.summary.completedTransactions || 0), change: 0, trend: 'up' },
-    { label: t.failed, value: formatNumber(reports?.summary.failedTransactions || 0), change: 0, trend: 'down' },
+    { label: t.monthlyRevenue, value: formatMoney(visibleSummary?.monthlyRevenue || 0), change: 0, trend: 'up' },
+    { label: t.transactions, value: formatNumber(visibleSummary?.transactionCount || 0), change: 0, trend: 'up' },
+    { label: t.completed, value: formatNumber(visibleSummary?.completedTransactions || 0), change: 0, trend: 'up' },
+    { label: t.failed, value: formatNumber(visibleSummary?.failedTransactions || 0), change: 0, trend: 'down' },
   ];
 
   return (
@@ -151,8 +178,17 @@ export default function AdminReportsPage() {
               <p className="text-lg text-secondary-500 font-medium">{t.subtitle}</p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" size="lg" leftIcon={<Filter className="w-5 h-5" />}>{t.filterPeriod}</Button>
-              <Button size="lg" className="shadow-lg shadow-primary-200" leftIcon={<Download className="w-5 h-5" />}>{t.exportPdf}</Button>
+              <select
+                value={period}
+                onChange={(event) => setPeriod(event.target.value as 'all' | '30' | '90')}
+                aria-label={t.filterPeriod}
+                className="h-14 rounded-lg border border-secondary-200 bg-white px-4 text-sm font-bold text-secondary-900 outline-none focus:border-primary-500"
+              >
+                <option value="all">{t.allTime}</option>
+                <option value="30">{t.last30Days}</option>
+                <option value="90">{t.last90Days}</option>
+              </select>
+              <Button size="lg" className="shadow-lg shadow-primary-200" leftIcon={<Download className="w-5 h-5" />} onClick={() => window.print()}>{t.exportPdf}</Button>
             </div>
           </div>
 
@@ -183,9 +219,9 @@ export default function AdminReportsPage() {
               <CardHeader title={t.paymentMethods} icon={<CreditCard className="w-5 h-5 text-primary-400" />} />
               <CardContent className="space-y-6">
                 {[
-                  { label: t.completed, value: `${reports?.summary.transactionCount ? Math.round(((reports?.summary.completedTransactions || 0) / reports.summary.transactionCount) * 100) : 0}%`, color: 'bg-primary-500' },
-                  { label: t.pending, value: `${reports?.summary.transactionCount ? Math.round((((reports.transactions.length - reports.summary.completedTransactions - reports.summary.failedTransactions) || 0) / reports.summary.transactionCount) * 100) : 0}%`, color: 'bg-blue-500' },
-                  { label: t.failed, value: `${reports?.summary.transactionCount ? Math.round(((reports?.summary.failedTransactions || 0) / reports.summary.transactionCount) * 100) : 0}%`, color: 'bg-orange-500' }
+                  { label: t.completed, value: `${visibleSummary?.transactionCount ? Math.round(((visibleSummary.completedTransactions || 0) / visibleSummary.transactionCount) * 100) : 0}%`, color: 'bg-primary-500' },
+                  { label: t.pending, value: `${visibleSummary?.transactionCount ? Math.round(((visibleTransactions.length - visibleSummary.completedTransactions - visibleSummary.failedTransactions) / visibleSummary.transactionCount) * 100) : 0}%`, color: 'bg-blue-500' },
+                  { label: t.failed, value: `${visibleSummary?.transactionCount ? Math.round(((visibleSummary.failedTransactions || 0) / visibleSummary.transactionCount) * 100) : 0}%`, color: 'bg-orange-500' }
                 ].map((m, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-end mb-2">
@@ -221,7 +257,7 @@ export default function AdminReportsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-50">
-                    {(reports?.transactions || []).map((txn) => (
+                    {visibleTransactions.map((txn) => (
                       <tr key={txn.id} className="hover:bg-secondary-50/50 transition-colors">
                         <td className="py-4 px-6 font-mono text-xs font-bold text-secondary-500">{txn.id}</td>
                         <td className="py-4 px-6 text-sm font-bold text-secondary-900">{txn.userId}</td>
@@ -233,7 +269,7 @@ export default function AdminReportsPage() {
                         <td className="py-4 px-6 text-end text-xs font-bold text-secondary-400">{formatDateTime(txn.createdAt)}</td>
                       </tr>
                     ))}
-                    {!reports?.transactions.length && (
+                    {!visibleTransactions.length && (
                       <tr>
                         <td colSpan={6} className="py-8 px-6 text-center text-secondary-500">{t.empty}</td>
                       </tr>

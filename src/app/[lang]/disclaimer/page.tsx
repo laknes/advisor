@@ -37,7 +37,7 @@ export default function DisclaimerPage() {
                   <h2 className="text-2xl font-bold text-secondary-900">توصیه مالی نیست</h2>
                 </div>
                 <p className="text-secondary-600 leading-relaxed text-lg">
-                  محتوا، تحلیل‌ها و سیگنال‌های مشاور پورتفو فقط برای آموزش و اطلاع‌رسانی ارائه می‌شوند. تصمیم‌های سرمایه‌گذاری شما کاملاً بر عهده خودتان است.
+                  محتوا، تحلیل‌ها و سیگنال‌های سرمایه گذاری موسوی فقط برای آموزش و اطلاع‌رسانی ارائه می‌شوند. تصمیم‌های سرمایه‌گذاری شما کاملاً بر عهده خودتان است.
                 </p>
               </section>
 
@@ -54,7 +54,7 @@ export default function DisclaimerPage() {
               <section className="bg-secondary-50 p-8 rounded-2xl border border-secondary-100">
                 <h2 className="text-xl font-bold text-secondary-900 mb-4">دقت اطلاعات</h2>
                 <p className="text-secondary-600 leading-relaxed italic">
-                  ما برای دقت اطلاعات تلاش می‌کنیم، اما شرایط بازار می‌تواند سریع تغییر کند. مشاور پورتفو کامل بودن یا دقت قطعی همه اطلاعات را تضمین نمی‌کند و مسئول زیان ناشی از اتکا به محتوا نیست.
+                  ما برای دقت اطلاعات تلاش می‌کنیم، اما شرایط بازار می‌تواند سریع تغییر کند. سرمایه گذاری موسوی کامل بودن یا دقت قطعی همه اطلاعات را تضمین نمی‌کند و مسئول زیان ناشی از اتکا به محتوا نیست.
                 </p>
               </section>
             </CardContent>

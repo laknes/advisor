@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from './LocaleProvider';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useDictionary } from './useDictionary';
+import { getBrandLogoUrl, getBrandName, usePublicSettings } from './usePublicSettings';
 import { clearStoredAuth, getStoredToken, getStoredUser, type StoredUser } from '@/lib/clientAuth';
 
 interface HeaderProps {
@@ -26,6 +27,9 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
   const router = useRouter();
   const { locale } = useLocale();
   const dict = useDictionary();
+  const publicSettings = usePublicSettings();
+  const brandName = getBrandName(publicSettings, locale);
+  const logoUrl = getBrandLogoUrl(publicSettings);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,11 +83,16 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
           <Link href={`/${locale}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity group">
             <motion.div 
               whileHover={{ rotate: 10, scale: 1.1 }}
-              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg shadow-primary-900/30"
+              className="w-10 h-10 overflow-hidden bg-white rounded-lg flex items-center justify-center shadow-lg shadow-primary-900/30"
             >
-              <span className="text-primary-900 font-black text-lg">مپ</span>
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logoUrl} alt={brandName} className="h-full w-full object-contain p-1" />
+              ) : (
+                <span className="text-primary-900 font-black text-lg">{locale === 'en' ? 'MI' : 'سم'}</span>
+              )}
             </motion.div>
-            <span className="hidden md:block text-xl font-black text-white">مشاور پورتفو</span>
+            <span className="hidden md:block text-xl font-black text-white">{brandName}</span>
           </Link>
 
           {/* Navigation - Desktop */}

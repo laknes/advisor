@@ -27,7 +27,7 @@ export default function TermsPage() {
                   <h2 className="text-2xl font-bold text-secondary-900">۱. پذیرش قوانین</h2>
                 </div>
                 <p className="text-secondary-600 leading-relaxed text-lg">
-                  با دسترسی و استفاده از مشاور پورتفو، شما این قوانین را می‌پذیرید. اگر با هر بخش از این شرایط موافق نیستید، لطفاً از خدمات ما استفاده نکنید.
+                  با دسترسی و استفاده از سرمایه گذاری موسوی، شما این قوانین را می‌پذیرید. اگر با هر بخش از این شرایط موافق نیستید، لطفاً از خدمات ما استفاده نکنید.
                 </p>
               </section>
 
@@ -54,7 +54,7 @@ export default function TermsPage() {
               <section className="bg-secondary-50 p-8 rounded-2xl border border-secondary-100">
                 <h2 className="text-xl font-bold text-secondary-900 mb-4">۴. مالکیت فکری</h2>
                 <p className="text-secondary-600 leading-relaxed italic">
-                  همه محتواها، تحلیل‌ها و سیگنال‌های ارائه‌شده در مشاور پورتفو متعلق به پلتفرم هستند و بدون اجازه کتبی صریح نباید بازنشر، فروش یا در اختیار دیگران قرار داده شوند.
+                  همه محتواها، تحلیل‌ها و سیگنال‌های ارائه‌شده در سرمایه گذاری موسوی متعلق به پلتفرم هستند و بدون اجازه کتبی صریح نباید بازنشر، فروش یا در اختیار دیگران قرار داده شوند.
                 </p>
               </section>
             </CardContent>

@@ -9,27 +9,30 @@ set -Eeuo pipefail
 APP_NAME="portfolio-advisor"
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_USER="${SUDO_USER:-$(id -un)}"
-DOMAIN=""
-APP_BASE_URL=""
-LETSENCRYPT_EMAIL=""
-ADMIN_EMAIL=""
-ADMIN_NAME="مدیر سیستم"
-ADMIN_PASSWORD=""
-ADMIN_EMAILS=""
-PORT="3000"
-DATABASE_URL=""
-DB_NAME="portfolio_advisor"
-DB_USER="portfolio_advisor"
-DB_PASS=""
-STRIPE_PUBLIC_KEY=""
-STRIPE_SECRET_KEY=""
-SMTP_HOST=""
-SMTP_PORT=""
-SMTP_USER=""
-SMTP_PASS=""
-SKIP_SSL="false"
-SKIP_NGINX="false"
-NON_INTERACTIVE="false"
+DOMAIN="${DOMAIN:-}"
+APP_BASE_URL="${APP_BASE_URL:-}"
+LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-}"
+ADMIN_NAME="${ADMIN_NAME:-مدیر سیستم}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"
+ADMIN_EMAILS="${ADMIN_EMAILS:-}"
+PORT="${PORT:-3000}"
+PORT_PROVIDED="false"
+DATABASE_URL="${DATABASE_URL:-}"
+NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-}"
+JWT_SECRET="${JWT_SECRET:-}"
+DB_NAME="${DB_NAME:-portfolio_advisor}"
+DB_USER="${DB_USER:-portfolio_advisor}"
+DB_PASS="${DB_PASS:-}"
+STRIPE_PUBLIC_KEY="${STRIPE_PUBLIC_KEY:-}"
+STRIPE_SECRET_KEY="${STRIPE_SECRET_KEY:-}"
+SMTP_HOST="${SMTP_HOST:-}"
+SMTP_PORT="${SMTP_PORT:-}"
+SMTP_USER="${SMTP_USER:-}"
+SMTP_PASS="${SMTP_PASS:-}"
+SKIP_SSL="${SKIP_SSL:-false}"
+SKIP_NGINX="${SKIP_NGINX:-false}"
+NON_INTERACTIVE="${NON_INTERACTIVE:-false}"
 MANAGED_POSTGRES="false"
 INSTALL_MODE="${INSTALL_MODE:-install}"
 
@@ -51,6 +54,7 @@ usage() {
 Usage:
   sudo bash install.bash --domain example.com --email ops@example.com --admin-email admin@example.com
   sudo bash install.bash --update
+  sudo bash install.bash --update --database-url "postgresql://user:pass@host/db?sslmode=require"
 
 Options:
   --domain DOMAIN             Domain for Nginx and SSL, e.g. advisor.example.com
@@ -64,6 +68,9 @@ Options:
   --app-user USER             Linux user that runs the app. Defaults to SUDO_USER/current user
   --port PORT                 Local Next.js port. Default: 3000
   --database-url URL          Existing PostgreSQL DATABASE_URL. If omitted, installer creates local PostgreSQL
+                             In --update mode, this replaces the configured production database URL
+  --nextauth-secret SECRET    Optional existing NextAuth secret. Auto-generated if omitted
+  --jwt-secret SECRET         Optional existing JWT secret. Auto-generated if omitted
   --db-name NAME              PostgreSQL database name. Default: portfolio_advisor
   --db-user USER              PostgreSQL app user. Default: portfolio_advisor
   --db-pass PASSWORD          PostgreSQL password. Auto-generated if omitted
@@ -81,7 +88,7 @@ Options:
 
 Environment overrides:
   DOMAIN, APP_BASE_URL, LETSENCRYPT_EMAIL, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_EMAILS,
-  PORT, DATABASE_URL, DB_NAME, DB_USER, DB_PASS, STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY,
+  PORT, DATABASE_URL, NEXTAUTH_SECRET, JWT_SECRET, DB_NAME, DB_USER, DB_PASS, STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY,
   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, INSTALL_MODE
 EOF
 }
@@ -97,8 +104,10 @@ while [[ $# -gt 0 ]]; do
     --admin-emails) ADMIN_EMAILS="${2:?Missing value for --admin-emails}"; shift 2 ;;
     --app-dir) APP_DIR="${2:?Missing value for --app-dir}"; shift 2 ;;
     --app-user) APP_USER="${2:?Missing value for --app-user}"; shift 2 ;;
-    --port) PORT="${2:?Missing value for --port}"; shift 2 ;;
+    --port) PORT="${2:?Missing value for --port}"; PORT_PROVIDED="true"; shift 2 ;;
     --database-url) DATABASE_URL="${2:?Missing value for --database-url}"; shift 2 ;;
+    --nextauth-secret) NEXTAUTH_SECRET="${2:?Missing value for --nextauth-secret}"; shift 2 ;;
+    --jwt-secret) JWT_SECRET="${2:?Missing value for --jwt-secret}"; shift 2 ;;
     --db-name) DB_NAME="${2:?Missing value for --db-name}"; shift 2 ;;
     --db-user) DB_USER="${2:?Missing value for --db-user}"; shift 2 ;;
     --db-pass) DB_PASS="${2:?Missing value for --db-pass}"; shift 2 ;;
@@ -124,8 +133,13 @@ ADMIN_EMAIL="${ADMIN_EMAIL:-${INSTALL_ADMIN_EMAIL:-}}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-${INSTALL_ADMIN_PASSWORD:-}}"
 ADMIN_NAME="${ADMIN_NAME:-${INSTALL_ADMIN_NAME:-مدیر سیستم}}"
 ADMIN_EMAILS="${ADMIN_EMAILS:-${INSTALL_ADMIN_EMAILS:-}}"
-PORT="${PORT:-${INSTALL_PORT:-3000}}"
+if [[ "$PORT_PROVIDED" != "true" && -n "${INSTALL_PORT:-}" ]]; then
+  PORT="$INSTALL_PORT"
+  PORT_PROVIDED="true"
+fi
 DATABASE_URL="${DATABASE_URL:-${INSTALL_DATABASE_URL:-}}"
+NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-${INSTALL_NEXTAUTH_SECRET:-}}"
+JWT_SECRET="${JWT_SECRET:-${INSTALL_JWT_SECRET:-}}"
 DB_NAME="${DB_NAME:-${INSTALL_DB_NAME:-portfolio_advisor}}"
 DB_USER="${DB_USER:-${INSTALL_DB_USER:-portfolio_advisor}}"
 DB_PASS="${DB_PASS:-${INSTALL_DB_PASS:-}}"
@@ -147,10 +161,12 @@ load_existing_env_for_update() {
     return
   fi
 
-  local provided_database_url provided_app_base_url provided_admin_email provided_admin_emails provided_port
+  local provided_database_url provided_app_base_url provided_nextauth_secret provided_jwt_secret provided_admin_email provided_admin_emails provided_port
   local provided_stripe_public_key provided_stripe_secret_key provided_smtp_host provided_smtp_port provided_smtp_user provided_smtp_pass
   provided_database_url="$DATABASE_URL"
   provided_app_base_url="$APP_BASE_URL"
+  provided_nextauth_secret="$NEXTAUTH_SECRET"
+  provided_jwt_secret="$JWT_SECRET"
   provided_admin_email="$ADMIN_EMAIL"
   provided_admin_emails="$ADMIN_EMAILS"
   provided_port="$PORT"
@@ -167,11 +183,20 @@ load_existing_env_for_update() {
   source "$APP_DIR/.env.production"
   set -u
 
+  local existing_port
+  existing_port="${PORT:-}"
+
   DATABASE_URL="${provided_database_url:-${DATABASE_URL:-${INSTALL_DATABASE_URL:-}}}"
   APP_BASE_URL="${provided_app_base_url:-${APP_BASE_URL:-${NEXTAUTH_URL:-}}}"
+  NEXTAUTH_SECRET="${provided_nextauth_secret:-${NEXTAUTH_SECRET:-}}"
+  JWT_SECRET="${provided_jwt_secret:-${JWT_SECRET:-}}"
   ADMIN_EMAIL="${provided_admin_email:-${ADMIN_EMAIL:-}}"
   ADMIN_EMAILS="${provided_admin_emails:-${ADMIN_EMAILS:-}}"
-  PORT="${provided_port:-${PORT:-3000}}"
+  if [[ "$PORT_PROVIDED" == "true" ]]; then
+    PORT="${provided_port:-3000}"
+  else
+    PORT="${existing_port:-${provided_port:-3000}}"
+  fi
   STRIPE_PUBLIC_KEY="${provided_stripe_public_key:-${STRIPE_PUBLIC_KEY:-}}"
   STRIPE_SECRET_KEY="${provided_stripe_secret_key:-${STRIPE_SECRET_KEY:-}}"
   SMTP_HOST="${provided_smtp_host:-${SMTP_HOST:-}}"
@@ -451,8 +476,10 @@ write_env_files() {
   fi
 
   local nextauth_secret jwt_secret database_url effective_admin_emails
-  nextauth_secret="$(random_secret)"
-  jwt_secret="$(random_secret)"
+  nextauth_secret="${NEXTAUTH_SECRET:-$(random_secret)}"
+  jwt_secret="${JWT_SECRET:-$(random_secret)}"
+  NEXTAUTH_SECRET="$nextauth_secret"
+  JWT_SECRET="$jwt_secret"
   if [[ -n "$DATABASE_URL" ]]; then
     database_url="$DATABASE_URL"
   else
@@ -532,6 +559,21 @@ install_app_dependencies() {
   fi
 }
 
+test_database_connection() {
+  log "Testing PostgreSQL connection from Prisma"
+  cd "$APP_DIR"
+  set -a
+  # shellcheck disable=SC1091
+  source "$APP_DIR/.env.production"
+  set +a
+
+  if printf 'SELECT 1;\n' | sudo -u "$APP_USER" npx prisma db execute --stdin --schema prisma/schema.prisma >/dev/null; then
+    log "Database connection verified"
+  else
+    die "Database connection failed. Check DATABASE_URL, SSL parameters, network access, and database credentials."
+  fi
+}
+
 setup_prisma() {
   log "Validating Prisma schema, generating client, and applying schema"
   cd "$APP_DIR"
@@ -542,6 +584,7 @@ setup_prisma() {
 
   sudo -u "$APP_USER" npx prisma validate
   sudo -u "$APP_USER" npx prisma generate
+  test_database_connection
 
   if [[ "$INSTALL_MODE" == "update" ]]; then
     log "Update mode: existing database detected from DATABASE_URL; applying schema changes only"
@@ -760,6 +803,7 @@ main() {
     log "App user: ${APP_USER}"
     log "Skipping PostgreSQL creation because update mode uses existing DATABASE_URL"
     install_nodejs
+    write_env_files
     install_app_dependencies
     setup_prisma
     seed_production_data
