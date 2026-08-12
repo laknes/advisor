@@ -692,11 +692,22 @@ setup_prisma() {
 
 seed_production_data() {
   if [[ "$INSTALL_MODE" == "update" && -z "$ADMIN_PASSWORD" ]]; then
-    warn "Update mode: skipping admin seed because no admin password was provided."
+    warn "Update mode: no admin password provided; seeding baseline data and contact settings without changing admin users."
+    log "Seeding baseline markets, plans, and contact/support settings"
+    cd "$APP_DIR"
+    set -a
+    # shellcheck disable=SC1091
+    source "$APP_DIR/.env.production"
+    set +a
+
+    sudo -u "$APP_USER" env \
+      INSTALL_SKIP_ADMIN_SEED="true" \
+      DATABASE_URL="$DATABASE_URL" \
+      node scripts/seed-production.mjs
     return
   fi
 
-  log "Creating production admin user and baseline database data"
+  log "Creating production admin user, baseline database data, and contact/support settings"
   cd "$APP_DIR"
   set -a
   # shellcheck disable=SC1091
@@ -865,6 +876,21 @@ health_check() {
     warn "Database health check returned HTTP ${db_status:-000}. Check DATABASE_URL and outbound access to the database host."
     warn "Manual test: printf 'SELECT 1;\\n' | npx prisma db execute --stdin --schema prisma/schema.prisma"
   fi
+
+  local support_status settings_status
+  support_status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "http://127.0.0.1:${PORT}/fa/support" || true)"
+  if [[ "$support_status" == "200" ]]; then
+    log "Support/contact page health check passed"
+  else
+    warn "Support/contact page returned HTTP ${support_status:-000}. Check contact settings and application logs."
+  fi
+
+  settings_status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "http://127.0.0.1:${PORT}/api/settings" || true)"
+  if [[ "$settings_status" == "200" ]]; then
+    log "Public settings health check passed"
+  else
+    warn "Public settings endpoint returned HTTP ${settings_status:-000}. Contact menu settings may not load."
+  fi
 }
 
 print_summary() {
@@ -895,8 +921,10 @@ App service:
 
 Application:
   ${public_url}/fa
+  ${public_url}/fa/support
   ${public_url}/fa/dashboard
   ${public_url}/fa/admin
+  ${public_url}/fa/admin/support
   ${public_url}/api/markets
 
 Database:

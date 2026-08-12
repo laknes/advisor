@@ -7,9 +7,10 @@ import { Header, Card, Button, Badge } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { getAuthHeaders } from '@/lib/clientAuth';
 import { formatFaNumber } from '@/lib/format';
-import type { Subscription, SubscriptionPlan } from '@/lib/types';
+import type { Market, Subscription, SubscriptionPlan } from '@/lib/types';
 
 type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
+type PlanTier = SubscriptionPlan['tier'];
 
 const currencyLabel: Record<'en' | 'fa', Record<string, string>> = {
   en: {
@@ -44,18 +45,20 @@ const copy = {
     eyebrow: 'mousavi invest plans',
     title: 'Simple, Transparent Pricing',
     subtitle: 'Choose the plan that matches your trading horizon, market coverage, and advisory needs.',
-    shortTitle: 'Short-term Analysis',
-    shortSubtitle: 'Daily, weekly, and monthly market insights for active decisions.',
-    longTitle: 'Long-term Strategy',
-    longSubtitle: 'Quarterly and annual advisory for portfolio planning.',
-    premiumTitle: 'Premium Access',
-    premiumSubtitle: 'Full-market access and dedicated advisory options.',
+    basicTitle: 'Basic',
+    basicSubtitle: 'Essential market access for getting started.',
+    plusTitle: 'Plus',
+    plusSubtitle: 'More markets and more analysis capacity for active investors.',
+    proTitle: 'Pro',
+    proSubtitle: 'Maximum market coverage and professional analysis access.',
     empty: 'No active plan is available for this billing period.',
     popular: 'Popular',
     vip: 'VIP',
     subscribed: 'Subscribed',
     subscribe: 'Subscribe Now',
     periodPrefix: 'per',
+    analysisCount: 'analyses',
+    noMarketAccess: 'Market access is configured by the advisor team.',
     faqTitle: 'Frequently Asked Questions',
     ctaTitle: 'Start Your Premium Investment Experience',
     ctaText: 'Join investors who use mousavi invest to read the market with more clarity.',
@@ -71,7 +74,7 @@ const copy = {
       },
       {
         q: 'Which plan should I choose?',
-        a: 'Short-term plans fit active trading, while premium plans fit broader market coverage and advisory access.',
+        a: 'Basic, Plus, and Pro differ by market coverage and the number of analyses available in each market.',
       },
     ],
   },
@@ -83,18 +86,20 @@ const copy = {
     eyebrow: 'پلن‌های سرمایه گذاری موسوی',
     title: 'قیمت‌گذاری شفاف و قابل انتخاب',
     subtitle: 'پلنی را انتخاب کنید که با افق سرمایه‌گذاری، بازار هدف و سطح مشاوره مورد نیاز شما هماهنگ است.',
-    shortTitle: 'تحلیل‌های کوتاه‌مدت',
-    shortSubtitle: 'تحلیل روزانه، هفتگی و ماهانه برای تصمیم‌های سریع و دقیق‌تر.',
-    longTitle: 'استراتژی‌های بلندمدت',
-    longSubtitle: 'برنامه‌ریزی فصلی و سالانه برای مدیریت پورتفو و کنترل ریسک.',
-    premiumTitle: 'دسترسی حرفه‌ای',
-    premiumSubtitle: 'دسترسی کامل به بازارها، سیگنال‌ها و مشاوره اختصاصی.',
+    basicTitle: 'Basic',
+    basicSubtitle: 'شروع دسترسی به بازارهای منتخب با تعداد تحلیل محدود.',
+    plusTitle: 'Plus',
+    plusSubtitle: 'پوشش بازار و تعداد تحلیل بیشتر برای سرمایه‌گذاران فعال.',
+    proTitle: 'Pro',
+    proSubtitle: 'بیشترین سطح دسترسی به بازارها و تحلیل‌های حرفه‌ای.',
     empty: 'برای این بازه پرداخت، پلن فعالی وجود ندارد.',
     popular: 'محبوب',
     vip: 'ویژه',
     subscribed: 'فعال شده',
     subscribe: 'شروع اشتراک',
     periodPrefix: 'پرداخت',
+    analysisCount: 'تحلیل',
+    noMarketAccess: 'دسترسی بازارها توسط تیم مشاور تنظیم می‌شود.',
     faqTitle: 'سوالات متداول',
     ctaTitle: 'تجربه سرمایه‌گذاری حرفه‌ای را شروع کنید',
     ctaText: 'به سرمایه‌گذارانی بپیوندید که با سرمایه گذاری موسوی بازار را شفاف‌تر می‌بینند و تصمیم‌های آگاهانه‌تری می‌گیرند.',
@@ -110,7 +115,7 @@ const copy = {
       },
       {
         q: 'کدام پلن برای من مناسب‌تر است؟',
-        a: 'برای معاملات فعال، پلن‌های کوتاه‌مدت مناسب‌ترند. برای پوشش کامل بازار و مشاوره جدی‌تر، پلن‌های حرفه‌ای انتخاب بهتری هستند.',
+        a: 'تفاوت Basic، Plus و Pro در تعداد بازارهای قابل دسترسی و تعداد تحلیل قابل مشاهده برای هر بازار است.',
       },
     ],
   },
@@ -197,10 +202,33 @@ function getPlanDisplay(plan: SubscriptionPlan, locale: 'en' | 'fa') {
   };
 }
 
+function getPlanTier(plan: SubscriptionPlan): PlanTier {
+  if (plan.tier) return plan.tier;
+  if (plan.type === 'all_markets' || plan.type === 'vip') return 'pro';
+  if (plan.type === 'long_term' || plan.type === 'market_full') return 'plus';
+  return 'basic';
+}
+
+function getAccessSummary(plan: SubscriptionPlan, markets: Market[], locale: 'en' | 'fa') {
+  const t = copy[locale];
+  if (!plan.accessRules?.length) {
+    return [t.noMarketAccess];
+  }
+
+  return plan.accessRules.map((rule) => {
+    const market = markets.find((item) => item.id === rule.marketId);
+    const count = locale === 'fa' ? formatFaNumber(rule.analysisLimit) : new Intl.NumberFormat('en-US').format(rule.analysisLimit);
+    return locale === 'fa'
+      ? `${market?.name || 'بازار'}: ${count} ${t.analysisCount}`
+      : `${market?.name || 'Market'}: ${count} ${t.analysisCount}`;
+  });
+}
+
 function PlanSection({
   title,
   subtitle,
   plans,
+  markets,
   locale,
   subscriptions,
   loadingPlanId,
@@ -209,6 +237,7 @@ function PlanSection({
   title: string;
   subtitle: string;
   plans: SubscriptionPlan[];
+  markets: Market[];
   locale: 'en' | 'fa';
   subscriptions: Subscription[];
   loadingPlanId: string | null;
@@ -234,7 +263,8 @@ function PlanSection({
         {plans.map((plan) => {
           const displayPlan = getPlanDisplay(plan, locale);
           const subscribed = subscriptions.some((subscription) => subscription.planId === plan.id && subscription.isActive);
-          const highlighted = plan.type === 'all_markets' || plan.type === 'vip';
+          const highlighted = getPlanTier(plan) === 'pro';
+          const accessSummary = getAccessSummary(plan, markets, locale);
 
           return (
             <Card
@@ -255,8 +285,8 @@ function PlanSection({
                       {displayPlan.name}
                     </h3>
                   </div>
-                  {plan.type === 'all_markets' && <Badge variant="success">{t.popular}</Badge>}
-                  {plan.type === 'vip' && <Badge variant="info">{t.vip}</Badge>}
+                  {getPlanTier(plan) === 'plus' && <Badge variant="success">{t.popular}</Badge>}
+                  {getPlanTier(plan) === 'pro' && <Badge variant="info">{t.vip}</Badge>}
                 </div>
 
                 <p className={`min-h-[56px] text-sm leading-7 ${highlighted ? 'text-secondary-700' : 'text-slate-300'}`}>
@@ -273,6 +303,14 @@ function PlanSection({
                 </div>
 
                 <ul className="mb-6 space-y-3">
+                  {accessSummary.map((item, index) => (
+                    <li key={`${plan.id}-access-${index}`} className="flex items-start gap-3">
+                      <span className={`mt-0.5 rounded-full p-1 ${highlighted ? 'bg-secondary-950 text-white' : 'bg-emerald-300/15 text-emerald-100'}`}>
+                        <TrendingUp className="h-3.5 w-3.5" />
+                      </span>
+                      <span className={`text-sm leading-7 ${highlighted ? 'text-secondary-800' : 'text-slate-200'}`}>{item}</span>
+                    </li>
+                  ))}
                   {displayPlan.features.map((feature, index) => (
                     <li key={`${plan.id}-${index}`} className="flex items-start gap-3">
                       <span className={`mt-0.5 rounded-full p-1 ${highlighted ? 'bg-primary-100 text-primary-800' : 'bg-primary-300/15 text-primary-100'}`}>
@@ -307,6 +345,7 @@ export default function PricingPage() {
   const t = copy[locale];
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [markets, setMarkets] = useState<Market[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
@@ -319,10 +358,12 @@ export default function PricingPage() {
           fetch('/api/subscription-plans'),
           fetch('/api/subscriptions', { headers: getAuthHeaders() }),
         ]);
+        const marketsRes = await fetch('/api/markets');
 
-        const [plansData, subsData] = await Promise.all([plansRes.json(), subsRes.json()]);
+        const [plansData, subsData, marketsData] = await Promise.all([plansRes.json(), subsRes.json(), marketsRes.json()]);
         setPlans(plansData.data?.plans || []);
         setSubscriptions(subsRes.ok ? subsData.data?.subscriptions || [] : []);
+        setMarkets(marketsData.data?.markets || []);
       } catch {
         setMessageType('error');
         setMessage(t.loadError);
@@ -333,10 +374,10 @@ export default function PricingPage() {
   }, [t.loadError]);
 
   const activePlans = plans.filter((plan) => plan.isActive !== false && plan.billingPeriod === billingPeriod);
-  const shortTermPlans = activePlans.filter((plan) => plan.type === 'timeframe');
-  const longTermPlans = activePlans.filter((plan) => plan.type === 'long_term');
-  const premiumPlans = activePlans.filter((plan) => plan.type === 'market_full' || plan.type === 'all_markets' || plan.type === 'vip');
-  const hasVisiblePlans = shortTermPlans.length || longTermPlans.length || premiumPlans.length;
+  const basicPlans = activePlans.filter((plan) => getPlanTier(plan) === 'basic');
+  const plusPlans = activePlans.filter((plan) => getPlanTier(plan) === 'plus');
+  const proPlans = activePlans.filter((plan) => getPlanTier(plan) === 'pro');
+  const hasVisiblePlans = basicPlans.length || plusPlans.length || proPlans.length;
 
   const handleSubscribe = async (planId: string) => {
     setLoadingPlanId(planId);
@@ -352,7 +393,7 @@ export default function PricingPage() {
 
       if (!response.ok) {
         setMessageType('error');
-        setMessage(locale === 'fa' ? t.subscribeError : data.error || t.subscribeError);
+        setMessage(data.error || t.subscribeError);
       } else {
         setSubscriptions((current) => [
           ...current.filter((subscription) => subscription.planId !== planId),
@@ -418,27 +459,30 @@ export default function PricingPage() {
           )}
 
           <PlanSection
-            title={t.shortTitle}
-            subtitle={t.shortSubtitle}
-            plans={shortTermPlans}
+            title={t.basicTitle}
+            subtitle={t.basicSubtitle}
+            plans={basicPlans}
+            markets={markets}
             locale={locale}
             subscriptions={subscriptions}
             loadingPlanId={loadingPlanId}
             onSubscribe={handleSubscribe}
           />
           <PlanSection
-            title={t.longTitle}
-            subtitle={t.longSubtitle}
-            plans={longTermPlans}
+            title={t.plusTitle}
+            subtitle={t.plusSubtitle}
+            plans={plusPlans}
+            markets={markets}
             locale={locale}
             subscriptions={subscriptions}
             loadingPlanId={loadingPlanId}
             onSubscribe={handleSubscribe}
           />
           <PlanSection
-            title={t.premiumTitle}
-            subtitle={t.premiumSubtitle}
-            plans={premiumPlans}
+            title={t.proTitle}
+            subtitle={t.proSubtitle}
+            plans={proPlans}
+            markets={markets}
             locale={locale}
             subscriptions={subscriptions}
             loadingPlanId={loadingPlanId}

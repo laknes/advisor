@@ -5,6 +5,8 @@ export interface StoredUser {
   id?: string;
   email?: string;
   name?: string | null;
+  phone?: string | null;
+  phoneVerified?: boolean;
   isAdmin?: boolean;
 }
 

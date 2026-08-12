@@ -26,21 +26,29 @@ import { formatFaNumber } from '@/lib/format';
 import type { Market, SubscriptionPlan } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
+type AccessRuleForm = {
+  marketId: string;
+  analysisLimit: string;
+};
+
 type PlanForm = {
   id?: string;
   name: string;
   slug: string;
   description: string;
   type: SubscriptionPlan['type'];
+  tier: SubscriptionPlan['tier'];
   marketId: string;
   price: string;
   currency: string;
   billingPeriod: SubscriptionPlan['billingPeriod'];
   features: string[];
+  accessRules: AccessRuleForm[];
   isActive: boolean;
 };
 
 type PlanTypeFilter = 'all' | SubscriptionPlan['type'];
+type TierFilter = 'all' | SubscriptionPlan['tier'];
 type StatusFilter = 'all' | 'active' | 'inactive';
 
 const emptyForm: PlanForm = {
@@ -48,11 +56,13 @@ const emptyForm: PlanForm = {
   slug: '',
   description: '',
   type: 'timeframe',
+  tier: 'basic',
   marketId: '',
   price: '',
   currency: 'IRR',
   billingPeriod: 'monthly',
   features: [''],
+  accessRules: [{ marketId: '', analysisLimit: '1' }],
   isActive: true,
 };
 
@@ -68,6 +78,12 @@ const billingOptions: Array<{ value: SubscriptionPlan['billingPeriod']; label: s
   { value: 'monthly', label: 'ماهانه' },
   { value: 'quarterly', label: 'فصلی' },
   { value: 'yearly', label: 'سالانه' },
+];
+
+const tierOptions: Array<{ value: SubscriptionPlan['tier']; label: string; description: string }> = [
+  { value: 'basic', label: 'Basic', description: 'شروع دسترسی با تعداد محدود بازار و تحلیل' },
+  { value: 'plus', label: 'Plus', description: 'دسترسی گسترده‌تر برای کاربران فعال' },
+  { value: 'pro', label: 'Pro', description: 'بیشترین پوشش بازارها و تحلیل‌ها' },
 ];
 
 const currencyLabel: Record<string, string> = {
@@ -89,8 +105,23 @@ const typeLabel: Record<SubscriptionPlan['type'], string> = {
   vip: 'VIP',
 };
 
+const tierLabel: Record<SubscriptionPlan['tier'], string> = {
+  basic: 'Basic',
+  plus: 'Plus',
+  pro: 'Pro',
+};
+
 function formatPlanPrice(plan: Pick<SubscriptionPlan, 'price' | 'currency'>) {
   return `${formatFaNumber(plan.price)} ${currencyLabel[plan.currency] || plan.currency}`;
+}
+
+function normalizeAccessRules(rules: AccessRuleForm[]) {
+  return rules
+    .map((rule) => ({
+      marketId: rule.marketId,
+      analysisLimit: Number(rule.analysisLimit),
+    }))
+    .filter((rule) => rule.marketId && Number.isFinite(rule.analysisLimit) && rule.analysisLimit >= 0);
 }
 
 function planToForm(plan: SubscriptionPlan): PlanForm {
@@ -100,11 +131,18 @@ function planToForm(plan: SubscriptionPlan): PlanForm {
     slug: plan.slug,
     description: plan.description || '',
     type: plan.type,
+    tier: plan.tier || 'basic',
     marketId: plan.marketId || '',
     price: String(plan.price),
     currency: plan.currency || 'IRR',
     billingPeriod: plan.billingPeriod,
     features: plan.features.length ? plan.features : [''],
+    accessRules: plan.accessRules?.length
+      ? plan.accessRules.map((rule) => ({
+        marketId: rule.marketId,
+        analysisLimit: String(rule.analysisLimit),
+      }))
+      : [{ marketId: '', analysisLimit: '1' }],
     isActive: plan.isActive,
   };
 }
@@ -130,6 +168,7 @@ export default function AdminPricingPage() {
   const [form, setForm] = useState<PlanForm>(emptyForm);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<PlanTypeFilter>('all');
+  const [tierFilter, setTierFilter] = useState<TierFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [status, setStatus] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -166,11 +205,12 @@ export default function AdminPricingPage() {
         || plan.slug.toLowerCase().includes(normalizedQuery)
         || (plan.description || '').toLowerCase().includes(normalizedQuery);
       const matchesType = typeFilter === 'all' || plan.type === typeFilter;
+      const matchesTier = tierFilter === 'all' || (plan.tier || 'basic') === tierFilter;
       const matchesStatus = statusFilter === 'all'
         || (statusFilter === 'active' ? plan.isActive : !plan.isActive);
-      return matchesQuery && matchesType && matchesStatus;
+      return matchesQuery && matchesType && matchesTier && matchesStatus;
     });
-  }, [plans, query, statusFilter, typeFilter]);
+  }, [plans, query, statusFilter, tierFilter, typeFilter]);
 
   const stats = useMemo(() => {
     const activePlans = plans.filter((plan) => plan.isActive);
@@ -219,11 +259,25 @@ export default function AdminPricingPage() {
     updateForm('features', nextFeatures.length ? nextFeatures : ['']);
   };
 
+  const updateAccessRule = (index: number, key: keyof AccessRuleForm, value: string) => {
+    updateForm('accessRules', form.accessRules.map((rule, ruleIndex) => (ruleIndex === index ? { ...rule, [key]: value } : rule)));
+  };
+
+  const addAccessRule = () => {
+    updateForm('accessRules', [...form.accessRules, { marketId: '', analysisLimit: '1' }]);
+  };
+
+  const removeAccessRule = (index: number) => {
+    const nextRules = form.accessRules.filter((_, ruleIndex) => ruleIndex !== index);
+    updateForm('accessRules', nextRules.length ? nextRules : [{ marketId: '', analysisLimit: '1' }]);
+  };
+
   const savePlan = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     setStatus('');
 
     const features = normalizeFeatures(form.features);
+    const accessRules = normalizeAccessRules(form.accessRules);
     const price = Number(form.price);
 
     if (!form.name.trim() || !form.slug.trim() || !Number.isFinite(price)) {
@@ -236,11 +290,13 @@ export default function AdminPricingPage() {
       slug: form.slug.trim(),
       description: form.description.trim() || undefined,
       type: form.type,
+      tier: form.tier,
       marketId: form.marketId || undefined,
       price,
       currency: form.currency,
       billingPeriod: form.billingPeriod,
       features,
+      accessRules,
       isActive: form.isActive,
     };
 
@@ -320,7 +376,7 @@ export default function AdminPricingPage() {
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
             <section className="space-y-5">
               <Card className="p-4">
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_10rem_auto]">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_10rem_12rem_10rem_auto]">
                   <label className="relative">
                     <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input
@@ -337,6 +393,16 @@ export default function AdminPricingPage() {
                   >
                     <option value="all">همه نوع‌ها</option>
                     {planTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={tierFilter}
+                    onChange={(event) => setTierFilter(event.target.value as TierFilter)}
+                    className="h-12 rounded-lg border border-white/10 bg-[#241033] px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
+                  >
+                    <option value="all">همه سطح‌ها</option>
+                    {tierOptions.map((option) => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
                   </select>
@@ -369,6 +435,7 @@ export default function AdminPricingPage() {
                       plan={plan}
                       selected={form.id === plan.id}
                       marketName={markets.find((market) => market.id === plan.marketId)?.name}
+                      markets={markets}
                       onEdit={() => setForm(planToForm(plan))}
                       onDuplicate={() => duplicatePlan(plan)}
                       onDeactivate={() => deactivatePlan(plan)}
@@ -445,6 +512,13 @@ export default function AdminPricingPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
+                    <FormField label="سطح">
+                      <select value={form.tier} onChange={(event) => updateForm('tier', event.target.value as SubscriptionPlan['tier'])} className="admin-input">
+                        {tierOptions.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </FormField>
                     <FormField label="نوع">
                       <select value={form.type} onChange={(event) => updateForm('type', event.target.value as SubscriptionPlan['type'])} className="admin-input">
                         {planTypeOptions.map((option) => (
@@ -469,6 +543,50 @@ export default function AdminPricingPage() {
                       ))}
                     </select>
                   </FormField>
+
+                  <div>
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <span className="text-sm font-black text-slate-300">دسترسی بازار و تعداد تحلیل</span>
+                      <button type="button" onClick={addAccessRule} className="text-xs font-black text-primary-100 hover:text-white">
+                        افزودن بازار
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {form.accessRules.map((rule, index) => (
+                        <div key={index} className="grid grid-cols-[minmax(0,1fr)_5rem_3rem] gap-2">
+                          <select
+                            value={rule.marketId}
+                            onChange={(event) => updateAccessRule(index, 'marketId', event.target.value)}
+                            className="admin-input"
+                          >
+                            <option value="">انتخاب بازار</option>
+                            {markets.map((market) => (
+                              <option key={market.id} value={market.id}>{market.name}</option>
+                            ))}
+                          </select>
+                          <input
+                            type="number"
+                            min="0"
+                            value={rule.analysisLimit}
+                            onChange={(event) => updateAccessRule(index, 'analysisLimit', event.target.value)}
+                            className="admin-input"
+                            aria-label="تعداد تحلیل"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeAccessRule(index)}
+                            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:bg-red-500/10 hover:text-red-200"
+                            aria-label="حذف بازار"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-xs leading-6 text-slate-500">
+                      عدد صفر یعنی بازار در این پلن نمایش داده می‌شود اما دسترسی تحلیل ندارد؛ برای دسترسی کامل بازارهای قدیمی می‌توانید نوع «همه بازارها» یا «VIP» را نگه دارید.
+                    </p>
+                  </div>
 
                   <FormField label="توضیح کوتاه">
                     <textarea
@@ -577,6 +695,7 @@ function PlanCard({
   plan,
   selected,
   marketName,
+  markets,
   onEdit,
   onDuplicate,
   onDeactivate,
@@ -584,6 +703,7 @@ function PlanCard({
   plan: SubscriptionPlan;
   selected: boolean;
   marketName?: string;
+  markets: Market[];
   onEdit: () => void;
   onDuplicate: () => void;
   onDeactivate: () => void;
@@ -594,6 +714,7 @@ function PlanCard({
         <div>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <Badge variant={plan.isActive ? 'success' : 'neutral'}>{plan.isActive ? 'فعال' : 'غیرفعال'}</Badge>
+            <span className="rounded-lg bg-primary-200/15 px-2 py-1 text-xs font-black text-primary-100">{tierLabel[plan.tier || 'basic']}</span>
             <span className="rounded-lg bg-white/[0.07] px-2 py-1 text-xs font-black text-slate-300">{typeLabel[plan.type]}</span>
             {marketName && <span className="rounded-lg bg-white/[0.07] px-2 py-1 text-xs font-black text-primary-100">{marketName}</span>}
           </div>
@@ -618,6 +739,22 @@ function PlanCard({
           <span className="text-sm font-black text-primary-100">/{billingLabel[plan.billingPeriod]}</span>
         </div>
       </div>
+
+      {plan.accessRules?.length ? (
+        <div className="mb-5 rounded-lg border border-white/10 bg-white/[0.04] p-3">
+          <p className="mb-2 text-xs font-black text-slate-400">دسترسی بازارها</p>
+          <div className="flex flex-wrap gap-2">
+            {plan.accessRules.map((rule) => {
+              const market = markets.find((item) => item.id === rule.marketId);
+              return (
+                <span key={`${plan.id}-${rule.marketId}`} className="rounded-lg bg-white/[0.07] px-2 py-1 text-xs font-bold text-slate-200">
+                  {market?.name || 'بازار'}: {formatFaNumber(rule.analysisLimit)} تحلیل
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
 
       <ul className="space-y-2">
         {plan.features.slice(0, 5).map((feature) => (

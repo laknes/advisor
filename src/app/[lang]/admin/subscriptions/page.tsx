@@ -5,12 +5,13 @@ import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/componen
 import { useLocale } from '@/components/LocaleProvider';
 import { getStoredUser } from '@/lib/clientAuth';
 import { apiGet } from '@/lib/apiClient';
+import { formatMoney } from '@/lib/format';
 import Link from 'next/link';
 
 interface SubscriptionRecord {
   id: string;
   user?: { id: string; name?: string | null; email: string } | null;
-  plan?: { name: string; price: number } | null;
+  plan?: { name: string; price: number; currency?: string | null } | null;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -34,6 +35,7 @@ export default function AdminSubscriptionsPage() {
     totalRevenue: subscriptions.reduce((sum, s) => sum + (s.plan?.price || 0), 0),
     avgValue: subscriptions.length ? Math.round(subscriptions.reduce((sum, s) => sum + (s.plan?.price || 0), 0) / subscriptions.length) : 0,
   }), [subscriptions]);
+  const primaryCurrency = subscriptions.find((subscription) => subscription.plan?.currency)?.plan?.currency || 'IRR';
 
   const getStatus = (sub: SubscriptionRecord) => {
     if (!sub.isActive) return 'Cancelled';
@@ -76,13 +78,13 @@ export default function AdminSubscriptionsPage() {
           <Card>
             <div className="space-y-2">
               <p className="text-sm text-secondary-600">Total Revenue</p>
-              <p className="text-3xl font-bold text-secondary-900">${stats.totalRevenue}</p>
+              <p className="text-3xl font-bold text-secondary-900">{formatMoney(stats.totalRevenue, primaryCurrency, locale)}</p>
             </div>
           </Card>
           <Card>
             <div className="space-y-2">
               <p className="text-sm text-secondary-600">Average Value</p>
-              <p className="text-3xl font-bold text-secondary-900">${stats.avgValue}</p>
+              <p className="text-3xl font-bold text-secondary-900">{formatMoney(stats.avgValue, primaryCurrency, locale)}</p>
             </div>
           </Card>
         </div>
@@ -114,7 +116,7 @@ export default function AdminSubscriptionsPage() {
                       <td className="py-4 px-4 text-secondary-600">{sub.plan?.name || 'Unknown plan'}</td>
                       <td className="py-4 px-4 text-secondary-600">{new Date(sub.startDate).toLocaleDateString()}</td>
                       <td className="py-4 px-4 text-secondary-600">{new Date(sub.endDate).toLocaleDateString()}</td>
-                      <td className="py-4 px-4 font-semibold">${sub.plan?.price || 0}</td>
+                      <td className="py-4 px-4 font-semibold">{formatMoney(sub.plan?.price || 0, sub.plan?.currency || primaryCurrency, locale)}</td>
                       <td className="py-4 px-4">
                         <Badge variant={getStatusColor(status)}>{status}</Badge>
                       </td>

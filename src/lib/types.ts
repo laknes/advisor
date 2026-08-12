@@ -6,8 +6,13 @@ export interface User {
   name?: string;
   avatar?: string;
   phone?: string;
+  phoneVerified?: boolean;
   country?: string;
   verified: boolean;
+  nationalId?: string;
+  birthDate?: Date | string;
+  address?: string;
+  identityStatus?: 'incomplete' | 'pending' | 'verified' | 'rejected';
   createdAt: Date;
 }
 
@@ -48,12 +53,19 @@ export interface SubscriptionPlan {
   slug: string;
   description?: string;
   type: 'timeframe' | 'long_term' | 'market_full' | 'all_markets' | 'vip';
+  tier: 'basic' | 'plus' | 'pro';
   marketId?: string;
   price: number;
   currency: string;
   billingPeriod: 'monthly' | 'quarterly' | 'yearly';
   features: string[];
+  accessRules: SubscriptionPlanAccessRule[];
   isActive: boolean;
+}
+
+export interface SubscriptionPlanAccessRule {
+  marketId: string;
+  analysisLimit: number;
 }
 
 export interface Subscription {
@@ -124,6 +136,22 @@ export interface PriceAlert {
   isTriggered: boolean;
   triggeredAt?: Date;
   isActive: boolean;
+}
+
+export interface SupportTicket {
+  id: string;
+  userId?: string;
+  user?: Pick<User, 'id' | 'email' | 'name'>;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  status: 'open' | 'pending' | 'closed';
+  priority: 'low' | 'normal' | 'high';
+  adminNote?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Notification {

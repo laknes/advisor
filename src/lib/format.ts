@@ -74,6 +74,30 @@ export function formatFaNumber(
   return new Intl.NumberFormat('fa-IR', options).format(value);
 }
 
+const currencyLabels: Record<'fa' | 'en', Record<string, string>> = {
+  fa: {
+    IRR: 'ریال',
+    USD: 'دلار',
+  },
+  en: {
+    IRR: 'IRR',
+    USD: 'USD',
+  },
+};
+
+export function formatMoney(
+  value: number,
+  currency = 'IRR',
+  locale: 'fa' | 'en' = 'fa',
+) {
+  const normalizedCurrency = currency || 'IRR';
+  const amount = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US', {
+    maximumFractionDigits: normalizedCurrency === 'IRR' ? 0 : 2,
+  }).format(value);
+
+  return `${amount} ${currencyLabels[locale][normalizedCurrency] || normalizedCurrency}`;
+}
+
 export function formatFaDate(value: Date | string | number) {
   return new Intl.DateTimeFormat('fa-IR', {
     year: 'numeric',

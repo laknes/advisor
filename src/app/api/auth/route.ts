@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService } from '@/server/services/UserService';
-import { RegisterSchema, LoginSchema } from '@/lib/validations';
-import { handleError, isAdminEmail, successResponse } from '@/server/middleware';
+import { RegisterSchema, LoginSchema, RequestOtpSchema, VerifyOtpSchema } from '@/lib/validations';
+import { getAuthPayload, handleError, isAdminEmail, successResponse } from '@/server/middleware';
 import { formatZodError } from '@/lib/errors';
 
 export async function POST(req: NextRequest) {
@@ -35,6 +35,48 @@ export async function POST(req: NextRequest) {
 
       const { user, token } = await UserService.login(result.data);
       return successResponse({ user: { ...user, isAdmin: isAdminEmail(user.email) }, token }, 'Logged in successfully');
+    }
+
+    if (action === 'request-otp') {
+      const result = RequestOtpSchema.safeParse(body);
+      if (!result.success) {
+        const errors = formatZodError(result.error);
+        return NextResponse.json(
+          { error: 'Validation failed', errors },
+          { status: 400 }
+        );
+      }
+
+      let userId: string | undefined;
+      try {
+        userId = getAuthPayload(req).userId;
+      } catch {
+        userId = undefined;
+      }
+
+      const otp = await UserService.requestOtp(result.data, userId);
+      return successResponse({ otp }, 'OTP code sent');
+    }
+
+    if (action === 'verify-otp') {
+      const result = VerifyOtpSchema.safeParse(body);
+      if (!result.success) {
+        const errors = formatZodError(result.error);
+        return NextResponse.json(
+          { error: 'Validation failed', errors },
+          { status: 400 }
+        );
+      }
+
+      let userId: string | undefined;
+      try {
+        userId = getAuthPayload(req).userId;
+      } catch {
+        userId = undefined;
+      }
+
+      const { user, token } = await UserService.verifyOtp(result.data, userId);
+      return successResponse({ user: { ...user, isAdmin: isAdminEmail(user.email) }, token }, 'OTP verified');
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

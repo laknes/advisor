@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -11,7 +11,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, icon, helperText, id, ...props }, ref) => {
+  ({ className, label, error, icon, helperText, id, type, ...props }, ref) => {
+    const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+    const hasPasswordToggle = type === 'password';
+    const inputType = hasPasswordToggle && isPasswordVisible ? 'text' : type;
+
     return (
       <div className="w-full group">
         {label && (
@@ -28,16 +32,29 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={id}
+            type={inputType}
             className={cn(
               'w-full px-4 py-3 bg-white border-2 border-secondary-100 rounded-xl text-secondary-900 placeholder-secondary-400',
               'focus:outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-500',
               'transition-all duration-200 shadow-sm',
               icon && 'pl-11',
+              hasPasswordToggle && 'pr-12',
               error && 'border-red-200 focus:ring-red-50 focus:border-red-500',
               className,
             )}
             {...props}
           />
+          {hasPasswordToggle && (
+            <button
+              type="button"
+              onClick={() => setIsPasswordVisible((value) => !value)}
+              className="absolute right-3.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-secondary-400 transition hover:bg-secondary-100 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300"
+              aria-label={isPasswordVisible ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
+              aria-pressed={isPasswordVisible}
+            >
+              {isPasswordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          )}
         </div>
         <AnimatePresence>
           {error && (

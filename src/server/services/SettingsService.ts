@@ -6,10 +6,28 @@ export const defaultSiteSettings = [
   { key: 'site_tagline', value: 'پلتفرم حرفه‌ای مشاوره سرمایه‌گذاری', group: 'general', label: 'Tagline', type: 'text', isPublic: true },
   { key: 'site_logo_url', value: '', group: 'general', label: 'Site logo URL', description: 'آدرس لوگوی سایت را وارد کنید. می‌تواند مسیر public مثل /logo.png یا لینک کامل تصویر باشد.', type: 'url', isPublic: true },
   { key: 'site_favicon_url', value: '/favicon.ico', group: 'general', label: 'Favicon URL', description: 'آدرس favicon سایت را وارد کنید. می‌تواند مسیر public مثل /favicon.ico یا لینک کامل تصویر باشد.', type: 'url', isPublic: true },
+  { key: 'contact_menu_enabled', value: true, group: 'contact', label: 'Contact menu enabled', description: 'نمایش یا عدم نمایش منوی تماس با ما در هدر سایت.', type: 'boolean', isPublic: true },
   { key: 'support_email', value: 'support@example.com', group: 'contact', label: 'Support email', type: 'email', isPublic: true },
   { key: 'support_phone', value: '', group: 'contact', label: 'Support phone', type: 'text', isPublic: true },
+  { key: 'online_chat_url', value: '', group: 'contact', label: 'Online chat URL', description: 'لینک چت آنلاین، واتساپ، Crisp، Tawk یا هر سرویس چت دیگر.', type: 'url', isPublic: true },
+  { key: 'online_chat_label', value: 'چت آنلاین', group: 'contact', label: 'Online chat label', type: 'text', isPublic: true },
+  { key: 'support_ticket_enabled', value: true, group: 'contact', label: 'Ticket submission enabled', type: 'boolean', isPublic: true },
+  { key: 'telegram_url', value: '', group: 'contact', label: 'Telegram URL', type: 'url', isPublic: true },
+  { key: 'instagram_url', value: '', group: 'contact', label: 'Instagram URL', type: 'url', isPublic: true },
+  { key: 'whatsapp_url', value: '', group: 'contact', label: 'WhatsApp URL', type: 'url', isPublic: true },
+  { key: 'linkedin_url', value: '', group: 'contact', label: 'LinkedIn URL', type: 'url', isPublic: true },
+  { key: 'contact_note', value: 'برای دریافت سریع‌ترین پاسخ، تیکت ثبت کنید یا از چت آنلاین استفاده کنید.', group: 'contact', label: 'Contact menu note', type: 'textarea', isPublic: true },
   { key: 'maintenance_mode', value: false, group: 'system', label: 'Maintenance mode', type: 'boolean', isPublic: false },
   { key: 'allow_signup', value: true, group: 'system', label: 'Allow signup', type: 'boolean', isPublic: true },
+  { key: 'otp_enabled', value: true, group: 'otp', label: 'OTP login enabled', description: 'فعال بودن ورود و تایید شماره موبایل با کد یکبار مصرف.', type: 'boolean', isPublic: true },
+  { key: 'otp_code_length', value: 6, group: 'otp', label: 'OTP code length', description: 'تعداد ارقام کد یکبار مصرف.', type: 'number', isPublic: false },
+  { key: 'otp_ttl_minutes', value: 5, group: 'otp', label: 'OTP expiry minutes', description: 'مدت اعتبار کد یکبار مصرف به دقیقه.', type: 'number', isPublic: false },
+  { key: 'otp_resend_seconds', value: 60, group: 'otp', label: 'OTP resend delay seconds', description: 'حداقل فاصله بین دو درخواست کد برای یک شماره.', type: 'number', isPublic: false },
+  { key: 'otp_max_attempts', value: 5, group: 'otp', label: 'OTP max attempts', description: 'حداکثر دفعات تلاش برای وارد کردن هر کد.', type: 'number', isPublic: false },
+  { key: 'otp_dev_show_code', value: true, group: 'otp', label: 'Show OTP code in development', description: 'برای تست بدون سرویس پیامک، کد را در پاسخ API و لاگ سرور نشان می‌دهد.', type: 'boolean', isPublic: false },
+  { key: 'otp_sms_provider', value: 'manual', group: 'otp', label: 'SMS provider', description: 'نام سرویس پیامک. فعلا حالت manual برای تست و اتصال بعدی استفاده می‌شود.', type: 'text', isPublic: false },
+  { key: 'otp_sms_api_key', value: '', group: 'otp', label: 'SMS API key', type: 'password', isPublic: false },
+  { key: 'otp_sms_sender', value: '', group: 'otp', label: 'SMS sender number', type: 'text', isPublic: false },
   { key: 'default_currency', value: 'IRR', group: 'billing', label: 'Default currency', type: 'text', isPublic: true },
   { key: 'payment_default_gateway', value: 'zarinpal', group: 'payments', label: 'Default Iranian payment gateway', description: 'Supported values: zarinpal, zibal, idpay, payir', type: 'text', isPublic: false },
   { key: 'payment_callback_url', value: '', group: 'payments', label: 'Payment callback URL', description: 'Public callback URL used after payment verification.', type: 'text', isPublic: false },
@@ -148,6 +166,11 @@ export class SettingsService {
 
   static async getPublicSettingsMap() {
     const settings = await this.getSettings(true);
+    return Object.fromEntries(settings.map((setting) => [setting.key, setting.value]));
+  }
+
+  static async getSettingsMap(publicOnly = false) {
+    const settings = await this.getSettings(publicOnly);
     return Object.fromEntries(settings.map((setting) => [setting.key, setting.value]));
   }
 

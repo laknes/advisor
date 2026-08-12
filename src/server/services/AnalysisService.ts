@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { NotFoundError } from '@/lib/errors';
 import type { CreateAnalysisInput, UpdateAnalysisInput } from '@/lib/validations';
+import { SubscriptionService } from './SubscriptionService';
 
 export class AnalysisService {
   /**
@@ -96,19 +97,14 @@ export class AnalysisService {
       throw new NotFoundError('Analysis');
     }
 
-    // Check if user has access
-    if (analysis.isLocked && userId) {
-      const hasSubscription = await prisma.subscription.findFirst({
-        where: {
-          userId,
-          isActive: true,
-          endDate: { gt: new Date() },
-        },
-      });
+    if (analysis.isLocked) {
+      const hasAccess = userId
+        ? await SubscriptionService.hasAccessToMarketAnalysis(userId, analysis.marketId, analysis.requiredSubscription)
+        : false;
 
-      if (!hasSubscription) {
-        // Return analysis without full content
-        const { fullContent, ...publicAnalysis } = analysis;
+      if (!hasAccess) {
+        const publicAnalysis: Partial<typeof analysis> = { ...analysis };
+        delete publicAnalysis.fullContent;
         return publicAnalysis;
       }
     }

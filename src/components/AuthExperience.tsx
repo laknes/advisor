@@ -20,8 +20,8 @@ interface AuthExperienceProps {
 
 export function AuthExperience({ title, subtitle, children }: AuthExperienceProps) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#070814] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.28),transparent_28rem),radial-gradient(circle_at_82%_14%,rgba(168,85,247,0.24),transparent_24rem),linear-gradient(135deg,#070814_0%,#11102a_44%,#050711_100%)]" />
+    <div className="auth-experience-root relative min-h-screen overflow-hidden bg-[#070814] text-white">
+      <div className="auth-experience-bg absolute inset-0" />
       <div className="absolute inset-0 auth-data-grid opacity-70" />
       <Header isAuthenticated={false} />
 

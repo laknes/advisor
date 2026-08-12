@@ -16,6 +16,7 @@ import {
   FileText,
   Gauge,
   LayoutDashboard,
+  LifeBuoy,
   Percent,
   Plus,
   Settings,
@@ -32,6 +33,7 @@ const adminLinks = [
   { href: '/analyses', label: 'تحلیل‌ها', icon: FileText },
   { href: '/pricing', label: 'پلن‌ها', icon: WalletCards },
   { href: '/discounts', label: 'تخفیف‌ها', icon: Percent },
+  { href: '/support', label: 'پشتیبانی', icon: LifeBuoy },
   { href: '/reports', label: 'گزارش‌ها', icon: BarChart3 },
   { href: '/settings', label: 'تنظیمات', icon: Settings },
 ];

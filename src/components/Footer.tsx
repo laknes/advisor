@@ -10,7 +10,8 @@ import {
   Phone,
   MessageSquare,
   Share2,
-  ExternalLink
+  ExternalLink,
+  LifeBuoy,
 } from 'lucide-react';
 
 import { useLocale } from './LocaleProvider';
@@ -24,6 +25,8 @@ export const Footer = () => {
   const publicSettings = usePublicSettings();
   const brandName = getBrandName(publicSettings, locale);
   const logoUrl = getBrandLogoUrl(publicSettings);
+  const supportEmail = String(publicSettings.support_email || 'support@advisor.com');
+  const supportPhone = String(publicSettings.support_phone || '');
 
   if (!dict) return null;
 
@@ -80,14 +83,19 @@ export const Footer = () => {
           <div>
             <h3 className="text-sm font-black text-white mb-6">{dict.footer.contact_us}</h3>
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-slate-300">
-                <Mail className="w-5 h-5 text-white" />
-                <span>support@advisor.com</span>
-              </li>
-              <li className="flex items-center gap-3 text-slate-300">
-                <Phone className="w-5 h-5 text-white" />
-                <span>+۱ (۵۵۵) ۱۲۳-۴۵۶۷</span>
-              </li>
+              <FooterLink href={`/${locale}/contact`} icon={<LifeBuoy className="w-4 h-4" />}>{dict.footer.contact_us}</FooterLink>
+              {supportEmail && (
+                <li className="flex items-center gap-3 text-slate-300">
+                  <Mail className="w-5 h-5 text-white" />
+                  <span className="break-all">{supportEmail}</span>
+                </li>
+              )}
+              {supportPhone && (
+                <li className="flex items-center gap-3 text-slate-300">
+                  <Phone className="w-5 h-5 text-white" />
+                  <span>{supportPhone}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>

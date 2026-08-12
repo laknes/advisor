@@ -13,10 +13,38 @@ export const LoginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+export const RequestOtpSchema = z.object({
+  phone: z.string().min(6, 'Phone number is required'),
+  purpose: z.enum(['login', 'verify_phone']).default('login'),
+});
+
+export const VerifyOtpSchema = z.object({
+  phone: z.string().min(6, 'Phone number is required'),
+  code: z.string().min(4, 'OTP code is required').max(10, 'OTP code is too long'),
+  purpose: z.enum(['login', 'verify_phone']).default('login'),
+});
+
+export const RequestPasswordResetSchema = z.object({
+  email: z.string().email('ایمیل نامعتبر است'),
+});
+
+export const ResetPasswordSchema = z.object({
+  email: z.string().email('ایمیل نامعتبر است'),
+  token: z.string().min(1, 'کد بازیابی الزامی است'),
+  password: z.string().min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد'),
+  confirmPassword: z.string().min(8, 'تکرار رمز عبور باید حداقل ۸ کاراکتر باشد'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'تکرار رمز عبور با رمز عبور یکسان نیست',
+  path: ['confirmPassword'],
+});
+
 export const UpdateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   phone: z.string().optional(),
   country: z.string().optional(),
+  nationalId: z.string().optional(),
+  birthDate: z.preprocess((value) => value === '' ? undefined : value, z.coerce.date().optional()),
+  address: z.string().optional(),
   avatar: z.string().url('Invalid URL').optional(),
 });
 
@@ -70,6 +98,21 @@ export const CreatePriceAlertSchema = z.object({
 
 export const UpdatePriceAlertSchema = CreatePriceAlertSchema.partial();
 
+// Support Schemas
+export const CreateSupportTicketSchema = z.object({
+  name: z.string().min(2, 'Name is required'),
+  email: z.string().email('Invalid email format'),
+  phone: z.string().optional(),
+  subject: z.string().min(3, 'Subject is required'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
+});
+
+export const UpdateSupportTicketSchema = z.object({
+  status: z.enum(['open', 'pending', 'closed']).optional(),
+  priority: z.enum(['low', 'normal', 'high']).optional(),
+  adminNote: z.string().optional(),
+});
+
 // Subscription Schemas
 export const CreateSubscriptionSchema = z.object({
   planId: z.string().cuid('Invalid plan ID'),
@@ -86,16 +129,23 @@ export const CreateMarketSchema = z.object({
 
 export const UpdateMarketSchema = CreateMarketSchema.partial();
 
+const SubscriptionPlanAccessRuleSchema = z.object({
+  marketId: z.string().cuid('Invalid market ID'),
+  analysisLimit: z.number().int().min(0),
+});
+
 export const CreateSubscriptionPlanSchema = z.object({
   name: z.string().min(2),
   slug: z.string().min(2).regex(/^[a-z0-9-]+$/),
   description: z.string().optional(),
   type: z.enum(['timeframe', 'long_term', 'market_full', 'all_markets', 'vip']),
+  tier: z.enum(['basic', 'plus', 'pro']).default('basic'),
   marketId: z.string().cuid().optional(),
   price: z.number().nonnegative(),
   currency: z.enum(['IRR', 'USD']).default('IRR'),
   billingPeriod: z.enum(['monthly', 'quarterly', 'yearly']),
   features: z.array(z.string()).default([]),
+  accessRules: z.array(SubscriptionPlanAccessRuleSchema).default([]),
   isActive: z.boolean().default(true),
 });
 
@@ -125,8 +175,14 @@ export const CreateAdminUserSchema = z.object({
 export const UpdateAdminUserSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   email: z.string().email('Invalid email format').optional(),
+  phone: z.string().optional(),
   country: z.string().optional(),
   verified: z.boolean().optional(),
+  phoneVerified: z.boolean().optional(),
+  nationalId: z.string().optional(),
+  birthDate: z.preprocess((value) => value === '' ? undefined : value, z.coerce.date().optional()),
+  address: z.string().optional(),
+  identityStatus: z.enum(['incomplete', 'pending', 'verified', 'rejected']).optional(),
 });
 
 export const UpdateAnalysisSchema = CreateAnalysisSchema.partial().extend({
@@ -136,6 +192,10 @@ export const UpdateAnalysisSchema = CreateAnalysisSchema.partial().extend({
 // Type exports
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
+export type RequestOtpInput = z.infer<typeof RequestOtpSchema>;
+export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>;
+export type RequestPasswordResetInput = z.infer<typeof RequestPasswordResetSchema>;
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
 export type CreateAnalysisInput = z.infer<typeof CreateAnalysisSchema>;
 export type UpdateAnalysisInput = z.infer<typeof UpdateAnalysisSchema>;
@@ -144,6 +204,8 @@ export type UpdatePositionInput = z.infer<typeof UpdatePositionSchema>;
 export type AddToWatchlistInput = z.infer<typeof AddToWatchlistSchema>;
 export type CreatePriceAlertInput = z.infer<typeof CreatePriceAlertSchema>;
 export type UpdatePriceAlertInput = z.infer<typeof UpdatePriceAlertSchema>;
+export type CreateSupportTicketInput = z.infer<typeof CreateSupportTicketSchema>;
+export type UpdateSupportTicketInput = z.infer<typeof UpdateSupportTicketSchema>;
 export type CreateSubscriptionInput = z.infer<typeof CreateSubscriptionSchema>;
 export type CreateAdminUserInput = z.infer<typeof CreateAdminUserSchema>;
 export type UpdateAdminUserInput = z.infer<typeof UpdateAdminUserSchema>;

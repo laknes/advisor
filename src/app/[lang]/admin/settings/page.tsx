@@ -24,6 +24,7 @@ const groupLabels: Record<string, string> = {
   content: 'محتوای سایت',
   seo: 'سئو',
   contact: 'راه‌های ارتباطی',
+  otp: 'کد یکبار مصرف',
   general: 'تنظیمات عمومی',
   system: 'تنظیمات سیستم',
 };
@@ -32,6 +33,8 @@ const groupDescriptions: Record<string, string> = {
   payments: 'کلیدها، وضعیت فعال بودن، sandbox و callback درگاه‌هایی مثل زرین‌پال، زیبال، IDPay و Pay.ir را از همین بخش مدیریت کنید.',
   market_data: 'URL و API key سرویس‌های قیمت بورس، فارکس، طلا، ارز و کریپتو را اینجا وارد کنید.',
   market_data_free: 'Providerهای رایگان یا دارای free tier مثل Alpha Vantage، Finnhub، Twelve Data، Polygon/Massive و CoinGecko را برای دریافت دیتای واقعی بازار پیکربندی کنید.',
+  contact: 'نمایش منوی تماس در هدر، لینک چت آنلاین، شبکه‌های اجتماعی، ایمیل، تلفن و فعال بودن ثبت تیکت را از این بخش مدیریت کنید.',
+  otp: 'ورود با شماره موبایل، تایید شماره، مدت اعتبار کد و تنظیمات اتصال سرویس پیامک را از این بخش مدیریت کنید.',
 };
 
 export default function AdminSettingsPage() {

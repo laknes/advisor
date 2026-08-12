@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SubscriptionService } from '@/server/services/SubscriptionService';
+import { UserService } from '@/server/services/UserService';
 import { CreateSubscriptionSchema } from '@/lib/validations';
 import { formatZodError } from '@/lib/errors';
 import { handleError, requireAuth, successResponse } from '@/server/middleware';
@@ -24,6 +25,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Validation failed', errors: formatZodError(result.error) },
         { status: 400 },
+      );
+    }
+
+    const eligibility = await UserService.getSubscriptionEligibility(user.id);
+    if (!eligibility.eligible) {
+      return NextResponse.json(
+        {
+          error: 'برای تهیه اشتراک، ابتدا ایمیل، شماره موبایل و مشخصات شناسایی خود را تکمیل و تایید کنید.',
+          code: 'PROFILE_VERIFICATION_REQUIRED',
+          missing: eligibility.missing,
+        },
+        { status: 403 },
       );
     }
 

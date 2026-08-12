@@ -18,8 +18,13 @@ model User {
   name          String?
   avatar        String?
   phone         String?
+  phoneVerified Boolean        @default(false)
   country       String?
   verified      Boolean         @default(false)
+  nationalId    String?
+  birthDate     DateTime?
+  address       String?
+  identityStatus String         @default("incomplete")
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -29,6 +34,7 @@ model User {
   alerts        PriceAlert[]
   notifications Notification[]
   savedAnalyses SavedAnalysis[]
+  supportTickets SupportTicket[]
 
   @@map("users")
 }
@@ -92,13 +98,15 @@ model SubscriptionPlan {
   description     String?   @db.Text
   
   type            String    // "timeframe" (daily/weekly/monthly), "long_term" (3month/1year/3year), "market_full", "all_markets", "vip"
+  tier            String    @default("basic") // "basic", "plus", "pro"
   marketId        String?   // null for all-markets or VIP
   
   price           Float
-  currency        String    @default("USD")
+  currency        String    @default("IRR")
   billingPeriod   String    // "monthly", "quarterly", "yearly"
   
   features        String[]
+  accessRules     Json      @default("[]") // [{ marketId, analysisLimit }]
   isActive        Boolean   @default(true)
   
   subscriptions   Subscription[]
@@ -326,4 +334,40 @@ model SiteSetting {
   updatedAt   DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model PhoneOtp {
+  id          String    @id @default(cuid())
+  phone       String
+  codeHash    String
+  purpose     String    @default("login") // "login", "verify_phone"
+  userId      String?
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([phone, purpose, createdAt])
+  @@index([userId, purpose, createdAt])
+  @@map("phone_otps")
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name        String
+  email       String
+  phone       String?
+  subject     String
+  message     String   @db.Text
+  status      String   @default("open") // "open", "pending", "closed"
+  priority    String   @default("normal") // "low", "normal", "high"
+  adminNote   String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@map("support_tickets")
 }

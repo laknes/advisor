@@ -1,3 +1,4 @@
+import { signIn } from 'next-auth/react';
 import { Button } from './Button';
 
 const GoogleIcon = () => (
@@ -9,23 +10,43 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const FacebookIcon = () => (
+const AppleIcon = () => (
   <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24">
-    <path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.7 4.53-4.7 1.31 0 2.69.24 2.69.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z" />
-    <path fill="#fff" d="m16.67 15.56.53-3.49h-3.33V9.81c0-.96.47-1.89 1.96-1.89h1.51V4.95s-1.38-.24-2.69-.24c-2.74 0-4.53 1.68-4.53 4.7v2.66H7.08v3.49h3.05V24a12.3 12.3 0 0 0 3.75 0v-8.44h2.8z" />
+    <path fill="currentColor" d="M16.37 12.14c-.01-2.13 1.74-3.15 1.82-3.2-.99-1.45-2.54-1.65-3.09-1.67-1.3-.14-2.56.79-3.23.79-.68 0-1.7-.77-2.8-.75-1.44.02-2.78.84-3.52 2.12-1.51 2.62-.38 6.47 1.08 8.59.73 1.03 1.58 2.18 2.69 2.14 1.08-.04 1.49-.69 2.79-.69 1.3 0 1.67.69 2.8.67 1.16-.02 1.89-1.03 2.61-2.07.84-1.18 1.17-2.35 1.18-2.41-.03-.01-2.26-.87-2.33-3.52z" />
+    <path fill="currentColor" d="M14.26 5.89c.6-.73 1.01-1.73.9-2.74-.87.04-1.95.58-2.58 1.3-.56.65-1.06 1.69-.93 2.66.98.08 1.99-.5 2.61-1.22z" />
   </svg>
 );
 
 export function SocialAuthButtons() {
+  const handleGoogleLogin = () => {
+    signIn('google', { callbackUrl: '/en/dashboard', redirect: true });
+  };
+
+  const handleAppleLogin = () => {
+    signIn('apple', { callbackUrl: '/en/dashboard', redirect: true });
+  };
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4">
-      <Button variant="secondary" fullWidth className="h-12 bg-white text-secondary-900 hover:bg-slate-100 border-white/70 shadow-sm">
+      <Button
+        type="button"
+        variant="secondary"
+        fullWidth
+        onClick={handleGoogleLogin}
+        className="h-12 bg-white text-secondary-900 hover:bg-slate-100 border-white/70 shadow-sm"
+      >
         <GoogleIcon />
         <span>گوگل</span>
       </Button>
-      <Button variant="secondary" fullWidth className="h-12 bg-white text-secondary-900 hover:bg-slate-100 border-white/70 shadow-sm">
-        <FacebookIcon />
-        <span>فیسبوک</span>
+      <Button
+        type="button"
+        variant="secondary"
+        fullWidth
+        onClick={handleAppleLogin}
+        className="h-12 bg-white text-secondary-900 hover:bg-slate-100 border-white/70 shadow-sm"
+      >
+        <AppleIcon />
+        <span>اپل آیدی</span>
       </Button>
     </div>
   );

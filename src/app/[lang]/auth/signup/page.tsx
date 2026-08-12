@@ -16,14 +16,18 @@ export default function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    acceptedTerms: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, type, checked, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -38,6 +42,9 @@ export default function SignupPage() {
     if (!formData.password) newErrors.password = 'وارد کردن رمز عبور الزامی است';
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'تکرار رمز عبور یکسان نیست';
+    }
+    if (!formData.acceptedTerms) {
+      newErrors.acceptedTerms = 'برای ثبت‌نام باید قوانین و مقررات را بپذیرید';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -124,8 +131,15 @@ export default function SignupPage() {
             />
 
             <div className="flex items-start gap-2">
-              <input type="checkbox" id="terms" className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10" />
-              <label htmlFor="terms" className="text-sm leading-7 text-slate-300">
+              <input
+                type="checkbox"
+                id="acceptedTerms"
+                name="acceptedTerms"
+                checked={formData.acceptedTerms}
+                onChange={handleChange}
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10"
+              />
+              <label htmlFor="acceptedTerms" className="text-sm leading-7 text-slate-300">
                 با{' '}
                 <Link href={`/${locale}/terms`} className="font-medium text-cyan-200 hover:text-white">
                   قوانین و مقررات
@@ -137,6 +151,9 @@ export default function SignupPage() {
                 {' '}موافقم
               </label>
             </div>
+            {errors.acceptedTerms && (
+              <p className="text-sm text-red-400">{errors.acceptedTerms}</p>
+            )}
 
             <Button fullWidth size="lg" isLoading={isLoading} className="h-[3.25rem] bg-cyan-50 text-slate-950 hover:bg-white">
               ساخت حساب
