@@ -3,6 +3,7 @@
 import { AuthExperience, Button, Input, FormGroup, SocialAuthButtons } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { storeAuth } from '@/lib/clientAuth';
+import { evaluatePasswordPolicy } from '@/lib/passwordPolicy';
 import { LockKeyhole, Mail, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -22,14 +23,33 @@ export default function SignupPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const passwordPolicy = evaluatePasswordPolicy(formData.password);
+
+  const strengthLabel = isEnglish
+    ? (passwordPolicy.score <= 1 ? 'Weak' : passwordPolicy.score === 2 ? 'Fair' : passwordPolicy.score === 3 ? 'Good' : 'Strong')
+    : (passwordPolicy.score <= 1 ? 'ضعیف' : passwordPolicy.score === 2 ? 'متوسط' : passwordPolicy.score === 3 ? 'خوب' : 'قوی');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, type, checked, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-    if (errors[name]) {
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      };
+      // Real-time password confirmation check
+      if ((name === 'password' || name === 'confirmPassword') && updated.confirmPassword) {
+        if (updated.password !== updated.confirmPassword) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور یکسان نیست',
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+        }
+      }
+      return updated;
+    });
+    if (name !== 'confirmPassword' && name !== 'password' && errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
@@ -41,6 +61,11 @@ export default function SignupPage() {
     if (!formData.name) newErrors.name = isEnglish ? 'Name is required' : 'وارد کردن نام الزامی است';
     if (!formData.email) newErrors.email = isEnglish ? 'Email is required' : 'وارد کردن ایمیل الزامی است';
     if (!formData.password) newErrors.password = isEnglish ? 'Password is required' : 'وارد کردن رمز عبور الزامی است';
+    else if (!passwordPolicy.isValid) {
+      newErrors.password = isEnglish
+        ? 'Password must be at least 8 characters and include at least one uppercase letter and one number'
+        : 'رمز عبور باید حداقل ۸ کاراکتر بوده و شامل حداقل یک حرف بزرگ انگلیسی و یک عدد باشد';
+    }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور یکسان نیست';
     }
@@ -122,21 +147,67 @@ export default function SignupPage() {
               onChange={handleChange}
               error={errors.password}
               icon={<LockKeyhole className="h-4 w-4" />}
-              helperText={isEnglish ? 'At least 8 characters' : 'حداقل ۸ نویسه'}
+              helperText={isEnglish ? 'Minimum 8 characters, 1 uppercase letter, and 1 number' : 'حداقل ۸ نویسه، ۱ حرف بزرگ انگلیسی و ۱ عدد'}
               className="border-white/10 bg-white/95"
             />
 
-            <Input
-              label={isEnglish ? 'Confirm password' : 'تکرار رمز عبور'}
-              type="password"
-              name="confirmPassword"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              icon={<LockKeyhole className="h-4 w-4" />}
-              className="border-white/10 bg-white/95"
-            />
+            {formData.password.length > 0 && (
+              <div className="rounded-lg border border-white/10 bg-white/[0.05] p-3">
+                <div className="mb-2 flex items-center justify-between text-xs font-bold text-slate-300">
+                  <span>{isEnglish ? 'Password strength' : 'قدرت رمز عبور'}</span>
+                  <span>{strengthLabel}</span>
+                </div>
+                <div className="mb-3 grid grid-cols-4 gap-1.5">
+                  {[0, 1, 2, 3].map((index) => (
+                    <span
+                      key={index}
+                      className={`h-1.5 rounded-full ${
+                        passwordPolicy.score > index
+                          ? passwordPolicy.score <= 1
+                            ? 'bg-red-400'
+                            : passwordPolicy.score === 2
+                              ? 'bg-amber-400'
+                              : passwordPolicy.score === 3
+                                ? 'bg-cyan-300'
+                                : 'bg-emerald-400'
+                          : 'bg-white/10'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="space-y-1.5 text-xs text-slate-300">
+                  <p className={passwordPolicy.length ? 'text-emerald-300' : 'text-slate-400'}>
+                    {passwordPolicy.length ? '✓' : '•'} {isEnglish ? 'At least 8 characters' : 'حداقل ۸ کاراکتر'}
+                  </p>
+                  <p className={passwordPolicy.uppercase ? 'text-emerald-300' : 'text-slate-400'}>
+                    {passwordPolicy.uppercase ? '✓' : '•'} {isEnglish ? 'At least one uppercase letter (A-Z)' : 'حداقل یک حرف بزرگ انگلیسی (A-Z)'}
+                  </p>
+                  <p className={passwordPolicy.digit ? 'text-emerald-300' : 'text-slate-400'}>
+                    {passwordPolicy.digit ? '✓' : '•'} {isEnglish ? 'At least one number (0-9)' : 'حداقل یک عدد (0-9)'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Input
+                label={isEnglish ? 'Confirm password' : 'تکرار رمز عبور'}
+                type="password"
+                name="confirmPassword"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+                icon={<LockKeyhole className="h-4 w-4" />}
+                className="border-white/10 bg-white/95"
+              />
+              {formData.confirmPassword.length > 0 && !errors.confirmPassword && (
+                <div className="flex items-center gap-2 text-sm text-emerald-300">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/20 text-xs">✓</span>
+                  {isEnglish ? 'Passwords match' : 'رمز های عبور یکسان هستند'}
+                </div>
+              )}
+            </div>
 
             <div className="flex items-start gap-2">
               <input

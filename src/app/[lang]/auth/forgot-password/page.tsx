@@ -2,6 +2,7 @@
 
 import { AuthExperience, Button, Input } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
+import { evaluatePasswordPolicy } from '@/lib/passwordPolicy';
 import { Mail, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -16,9 +17,43 @@ export default function ForgotPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    // Real-time password confirmation check
+    if (confirmPassword) {
+      if (value !== confirmPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور یکسان نیست',
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+      }
+    }
+  };
+
+  const handleConfirmPasswordChange = (value: string) => {
+    setConfirmPassword(value);
+    // Real-time password confirmation check
+    if (value) {
+      if (password !== value) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور یکسان نیست',
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+      }
+    }
+  };
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const passwordPolicy = evaluatePasswordPolicy(password);
+  const strengthLabel = isEnglish
+    ? (passwordPolicy.score <= 1 ? 'Weak' : passwordPolicy.score === 2 ? 'Fair' : passwordPolicy.score === 3 ? 'Good' : 'Strong')
+    : (passwordPolicy.score <= 1 ? 'ضعیف' : passwordPolicy.score === 2 ? 'متوسط' : passwordPolicy.score === 3 ? 'خوب' : 'قوی');
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +97,11 @@ export default function ForgotPasswordPage() {
     if (!email.trim()) newErrors.email = isEnglish ? 'Email is required' : 'وارد کردن ایمیل الزامی است';
     if (!token.trim()) newErrors.token = isEnglish ? 'Reset code is required' : 'کد بازیابی الزامی است';
     if (!password.trim()) newErrors.password = isEnglish ? 'Password is required' : 'وارد کردن رمز عبور الزامی است';
-    if (password.length < 8) newErrors.password = isEnglish ? 'Password must be at least 8 characters' : 'رمز عبور باید حداقل ۸ کاراکتر باشد';
+    else if (!passwordPolicy.isValid) {
+      newErrors.password = isEnglish
+        ? 'Password must be at least 8 characters and include at least one uppercase letter and one number'
+        : 'رمز عبور باید حداقل ۸ کاراکتر بوده و شامل حداقل یک حرف بزرگ انگلیسی و یک عدد باشد';
+    }
     if (!confirmPassword.trim()) newErrors.confirmPassword = isEnglish ? 'Password confirmation is required' : 'تکرار رمز عبور الزامی است';
     else if (password !== confirmPassword) newErrors.confirmPassword = isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور با رمز عبور یکسان نیست';
 
@@ -153,21 +192,68 @@ export default function ForgotPasswordPage() {
               name="password"
               placeholder={isEnglish ? 'New password' : 'رمز عبور جدید'}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => handlePasswordChange(e.target.value)}
               error={errors.password}
+              helperText={isEnglish ? 'Minimum 8 characters, 1 uppercase letter, and 1 number' : 'حداقل ۸ نویسه، ۱ حرف بزرگ انگلیسی و ۱ عدد'}
               className="border-white/10 bg-white/95"
             />
 
-            <Input
-              label={isEnglish ? 'Confirm new password' : 'تکرار رمز عبور جدید'}
-              type="password"
-              name="confirmPassword"
-              placeholder={isEnglish ? 'Confirm new password' : 'تکرار رمز عبور جدید'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={errors.confirmPassword}
-              className="border-white/10 bg-white/95"
-            />
+            {password.length > 0 && (
+              <div className="rounded-lg border border-white/10 bg-white/[0.05] p-3">
+                <div className="mb-2 flex items-center justify-between text-xs font-bold text-slate-300">
+                  <span>{isEnglish ? 'Password strength' : 'قدرت رمز عبور'}</span>
+                  <span>{strengthLabel}</span>
+                </div>
+                <div className="mb-3 grid grid-cols-4 gap-1.5">
+                  {[0, 1, 2, 3].map((index) => (
+                    <span
+                      key={index}
+                      className={`h-1.5 rounded-full ${
+                        passwordPolicy.score > index
+                          ? passwordPolicy.score <= 1
+                            ? 'bg-red-400'
+                            : passwordPolicy.score === 2
+                              ? 'bg-amber-400'
+                              : passwordPolicy.score === 3
+                                ? 'bg-cyan-300'
+                                : 'bg-emerald-400'
+                          : 'bg-white/10'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="space-y-1.5 text-xs text-slate-300">
+                  <p className={passwordPolicy.length ? 'text-emerald-300' : 'text-slate-400'}>
+                    {passwordPolicy.length ? '✓' : '•'} {isEnglish ? 'At least 8 characters' : 'حداقل ۸ کاراکتر'}
+                  </p>
+                  <p className={passwordPolicy.uppercase ? 'text-emerald-300' : 'text-slate-400'}>
+                    {passwordPolicy.uppercase ? '✓' : '•'} {isEnglish ? 'At least one uppercase letter (A-Z)' : 'حداقل یک حرف بزرگ انگلیسی (A-Z)'}
+                  </p>
+                  <p className={passwordPolicy.digit ? 'text-emerald-300' : 'text-slate-400'}>
+                    {passwordPolicy.digit ? '✓' : '•'} {isEnglish ? 'At least one number (0-9)' : 'حداقل یک عدد (0-9)'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Input
+                label={isEnglish ? 'Confirm new password' : 'تکرار رمز عبور جدید'}
+                type="password"
+                name="confirmPassword"
+                placeholder={isEnglish ? 'Confirm new password' : 'تکرار رمز عبور جدید'}
+                value={confirmPassword}
+                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                error={errors.confirmPassword}
+                className="border-white/10 bg-white/95"
+              />
+              {confirmPassword.length > 0 && !errors.confirmPassword && (
+                <div className="flex items-center gap-2 text-sm text-emerald-300">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/20 text-xs">✓</span>
+                  {isEnglish ? 'Passwords match' : 'رمز های عبور یکسان هستند'}
+                </div>
+              )}
+            </div>
 
             <Button fullWidth size="lg" isLoading={isLoading} className="h-[3.25rem] bg-cyan-50 text-slate-950 hover:bg-white">
               {isEnglish ? 'Reset password' : 'تغییر رمز عبور'}

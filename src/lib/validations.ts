@@ -1,9 +1,15 @@
 import { z } from 'zod';
 
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must include at least one uppercase letter')
+  .regex(/\d/, 'Password must include at least one number');
+
 // Auth Schemas
 export const RegisterSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
   name: z.string().min(2, 'Name must be at least 2 characters'),
   country: z.string().optional(),
 });
@@ -31,7 +37,7 @@ export const RequestPasswordResetSchema = z.object({
 export const ResetPasswordSchema = z.object({
   email: z.string().email('Invalid email format'),
   token: z.string().min(1, 'Reset code is required'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
   confirmPassword: z.string().min(8, 'Password confirmation must be at least 8 characters'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Password confirmation does not match password',
@@ -166,7 +172,7 @@ export const UpdateDiscountCodeSchema = CreateDiscountCodeSchema.partial();
 
 export const CreateAdminUserSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
   name: z.string().min(2, 'Name must be at least 2 characters'),
   country: z.string().optional(),
   verified: z.boolean().optional(),
