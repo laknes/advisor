@@ -65,10 +65,38 @@ export default function NewAnalysisPage() {
     fetchMarkets();
   }, []);
 
+  const getValidationMessage = (errors: Record<string, string> | undefined) => {
+    if (!errors) return '';
+
+    const firstError = Object.values(errors).find((value) => typeof value === 'string' && value.trim().length > 0);
+    return firstError || '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setMessage('');
+
+    if (!formData.marketId) {
+      setError('لطفا بازار را انتخاب کنید.');
+      return;
+    }
+
+    if (formData.title.trim().length < 5) {
+      setError('عنوان تحلیل باید حداقل ۵ کاراکتر باشد.');
+      return;
+    }
+
+    if (formData.summary.trim().length < 20) {
+      setError('خلاصه تحلیل باید حداقل ۲۰ کاراکتر باشد.');
+      return;
+    }
+
+    if (formData.fullContent.trim().length < 50) {
+      setError('متن کامل تحلیل باید حداقل ۵۰ کاراکتر باشد.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -97,7 +125,12 @@ export default function NewAnalysisPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'ثبت تحلیل انجام نشد.');
+        if (result.error === 'Validation failed') {
+          const validationMessage = getValidationMessage(result.errors);
+          setError(validationMessage || 'اطلاعات وارد شده معتبر نیست. لطفا فیلدها را بررسی کنید.');
+        } else {
+          setError(result.error || 'ثبت تحلیل انجام نشد.');
+        }
         return;
       }
 
