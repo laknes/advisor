@@ -4,8 +4,9 @@ import { Header, Card, CardHeader, CardContent, Button } from '@/components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
+import { useLocale } from '@/components/LocaleProvider';
 
-const faqs = [
+const faqsFa = [
   {
     question: "تحلیل روزانه چگونه آماده می‌شود؟",
     answer: "تیم تحلیل‌گران ما بازارها را به‌صورت پیوسته پایش می‌کند و هر روز گزارش‌هایی شامل نقاط ورود، اهداف و ارزیابی ریسک منتشر می‌شود."
@@ -28,7 +29,34 @@ const faqs = [
   }
 ];
 
+const faqsEn = [
+  {
+    question: 'How is daily analysis prepared?',
+    answer: 'Our analysts continuously monitor markets and publish daily reports with entry zones, targets, and risk assessments.'
+  },
+  {
+    question: 'Which markets are covered?',
+    answer: 'We currently cover Tehran stocks, currencies, gold and precious metals, plus major global money markets.'
+  },
+  {
+    question: 'Can I cancel my subscription at any time?',
+    answer: 'Yes. You can manage subscriptions from your dashboard. After cancellation, access remains active until the current billing period ends.'
+  },
+  {
+    question: 'How accurate are trading signals?',
+    answer: 'No analysis guarantees success. Our historical performance is strong across multiple markets, with a focus on risk management and long-term consistency.'
+  },
+  {
+    question: 'Do you offer private consulting?',
+    answer: 'Yes. Premium plans include direct communication with market experts and dedicated guidance.'
+  }
+];
+
 export default function FAQPage() {
+  const { locale } = useLocale();
+  const isEnglish = locale === 'en';
+  const faqs = isEnglish ? faqsEn : faqsFa;
+
   return (
     <div className="min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
@@ -37,10 +65,10 @@ export default function FAQPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-6">
-              سوالات <span className="text-primary-200">متداول</span>
+              {isEnglish ? 'Frequently ' : 'سوالات '}<span className="text-primary-200">{isEnglish ? 'Asked Questions' : 'متداول'}</span>
             </h1>
             <p className="text-xl text-slate-300 font-medium">
-              پاسخ پرسش‌های رایج درباره پلتفرم و خدمات ما.
+              {isEnglish ? 'Answers to common questions about our platform and services.' : 'پاسخ پرسش‌های رایج درباره پلتفرم و خدمات ما.'}
             </p>
           </div>
 
@@ -54,11 +82,11 @@ export default function FAQPage() {
             <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <HelpCircle className="w-8 h-8 text-primary-600" />
             </div>
-            <h2 className="text-2xl font-bold text-secondary-900 mb-4">هنوز سوال دارید؟</h2>
+            <h2 className="text-2xl font-bold text-secondary-900 mb-4">{isEnglish ? 'Still have questions?' : 'هنوز سوال دارید؟'}</h2>
             <p className="text-secondary-600 mb-8 max-w-md mx-auto">
-              اگر پاسخ مورد نظر را پیدا نکردید، با تیم پشتیبانی تماس بگیرید.
+              {isEnglish ? 'If you did not find your answer, contact our support team.' : 'اگر پاسخ مورد نظر را پیدا نکردید، با تیم پشتیبانی تماس بگیرید.'}
             </p>
-            <Button size="lg" className="px-10 h-14">تماس با پشتیبانی</Button>
+            <Button size="lg" className="px-10 h-14">{isEnglish ? 'Contact support' : 'تماس با پشتیبانی'}</Button>
           </div>
         </div>
       </main>

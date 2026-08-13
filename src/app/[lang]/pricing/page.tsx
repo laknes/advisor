@@ -12,6 +12,12 @@ import type { Market, Subscription, SubscriptionPlan } from '@/lib/types';
 type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
 type PlanTier = SubscriptionPlan['tier'];
 
+const persianRegex = /[\u0600-\u06FF]/;
+
+function hasPersianText(value?: string | null) {
+  return Boolean(value && persianRegex.test(value));
+}
+
 const currencyLabel: Record<'en' | 'fa', Record<string, string>> = {
   en: {
     IRR: 'IRR',
@@ -185,13 +191,105 @@ const featureTranslations: Record<string, string> = {
   'Multi-asset alerts': 'هشدار چنددارایی',
 };
 
+const englishPlanTranslations: Record<string, { name: string; description: string; features: string[] }> = {
+  'daily-analysis': {
+    name: 'Daily Analysis',
+    description: 'Daily market analysis for short-term traders.',
+    features: ['Daily Analysis', 'Access to one market', 'Basic alerts', 'Email notifications'],
+  },
+  'weekly-analysis': {
+    name: 'Weekly Analysis',
+    description: 'In-depth weekly analysis for swing traders.',
+    features: ['Weekly Analysis', 'Short-term timeframe coverage', 'Advanced alerts', 'Priority support'],
+  },
+  'monthly-analysis': {
+    name: 'Monthly Analysis',
+    description: 'Strategic monthly analysis for active investors.',
+    features: ['Monthly Analysis', 'Detailed reports', 'Portfolio guidance', 'Dedicated advisor'],
+  },
+  '3month-strategic': {
+    name: '3-Month Strategy',
+    description: 'Long-horizon strategic analysis delivered quarterly.',
+    features: ['Quarterly reports', 'Trend analysis', 'Risk evaluation', 'Portfolio rebalance guidance'],
+  },
+  '1year-portfolio': {
+    name: '1-Year Portfolio',
+    description: 'Comprehensive portfolio management for a one-year horizon.',
+    features: ['Annual strategy', 'Quarterly rebalance', 'Direct advisor access', 'Full market access'],
+  },
+  '3year-vip': {
+    name: '3-Year VIP Wealth',
+    description: 'Long-term wealth management strategy and support.',
+    features: ['3-year strategic roadmap', 'Monthly portfolio review', 'Priority VIP analysis', 'Full market access'],
+  },
+  'market-full': {
+    name: 'Single Market Full Access',
+    description: 'Full access to analysis and signals for one selected market.',
+    features: ['All timeframes for one market', 'Exclusive signals', 'Real-time alerts', 'Historical data'],
+  },
+  'all-markets': {
+    name: 'All Markets Access',
+    description: 'Professional access to all active markets on the platform.',
+    features: ['Full access to all markets', 'All analysis types', 'Multi-asset alerts', 'Priority support'],
+  },
+  'vip-elite': {
+    name: 'VIP Elite',
+    description: 'Complete private advisory experience for investors.',
+    features: ['Full-time personal advisor', 'Exclusive investment signals', 'Private market webinars', 'Custom alpha reports'],
+  },
+};
+
+const englishFeatureTranslations: Record<string, string> = {
+  'تحلیل روزانه': 'Daily Analysis',
+  'تحلیل هفتگی': 'Weekly Analysis',
+  'تحلیل ماهانه': 'Monthly Analysis',
+  'دسترسی به یک بازار': 'Access to one market',
+  'هشدارهای پایه': 'Basic alerts',
+  'اعلان ایمیلی': 'Email notifications',
+  'هشدارهای پیشرفته': 'Advanced alerts',
+  'پشتیبانی اولویت\u200cدار': 'Priority support',
+  'گزارش\u200cهای دقیق': 'Detailed reports',
+  'راهنمایی پورتفو': 'Portfolio guidance',
+  'مشاور اختصاصی': 'Dedicated advisor',
+  'همه انواع تحلیل': 'All analysis types',
+  'هشدار چنددارایی': 'Multi-asset alerts',
+  'دسترسی کامل همه بازارها': 'Full access to all markets',
+  'دسترسی کامل بازار': 'Full market access',
+};
+
+const englishMarketNameBySlug: Record<string, string> = {
+  all: 'All markets',
+  'iran-stocks': 'Iran stocks',
+  forex: 'Forex',
+  gold: 'Gold',
+  currency: 'Currency',
+};
+
 function formatPlanPrice(plan: SubscriptionPlan, locale: 'en' | 'fa') {
   const amount = locale === 'fa' ? formatFaNumber(plan.price) : new Intl.NumberFormat('en-US').format(plan.price);
   return `${amount} ${currencyLabel[locale][plan.currency] || plan.currency}`;
 }
 
 function getPlanDisplay(plan: SubscriptionPlan, locale: 'en' | 'fa') {
-  if (locale === 'en') return plan;
+  if (locale === 'en') {
+    const fallback = englishPlanTranslations[plan.slug];
+    const name = hasPersianText(plan.name) ? (fallback?.name || plan.name) : plan.name;
+    const description = hasPersianText(plan.description || '')
+      ? (fallback?.description || plan.description || '')
+      : (plan.description || fallback?.description || '');
+    const features = (plan.features?.length ? plan.features : fallback?.features || []).map((feature, index) => {
+      if (!hasPersianText(feature)) return feature;
+      return englishFeatureTranslations[feature] || fallback?.features?.[index] || feature;
+    });
+
+    return {
+      ...plan,
+      name,
+      description,
+      features,
+    };
+  }
+
   const translated = planTranslations[plan.slug];
 
   return {
@@ -217,10 +315,15 @@ function getAccessSummary(plan: SubscriptionPlan, markets: Market[], locale: 'en
 
   return plan.accessRules.map((rule) => {
     const market = markets.find((item) => item.id === rule.marketId);
+    const marketName = !market
+      ? (locale === 'fa' ? 'بازار' : 'Market')
+      : (locale === 'en' && hasPersianText(market.name)
+          ? (englishMarketNameBySlug[market.slug] || 'Market')
+          : market.name);
     const count = locale === 'fa' ? formatFaNumber(rule.analysisLimit) : new Intl.NumberFormat('en-US').format(rule.analysisLimit);
     return locale === 'fa'
-      ? `${market?.name || 'بازار'}: ${count} ${t.analysisCount}`
-      : `${market?.name || 'Market'}: ${count} ${t.analysisCount}`;
+      ? `${marketName}: ${count} ${t.analysisCount}`
+      : `${marketName}: ${count} ${t.analysisCount}`;
   });
 }
 

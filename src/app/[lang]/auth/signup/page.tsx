@@ -11,6 +11,7 @@ import { useState } from 'react';
 export default function SignupPage() {
   const router = useRouter();
   const { locale } = useLocale();
+  const isEnglish = locale === 'en';
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,14 +38,14 @@ export default function SignupPage() {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name) newErrors.name = 'وارد کردن نام الزامی است';
-    if (!formData.email) newErrors.email = 'وارد کردن ایمیل الزامی است';
-    if (!formData.password) newErrors.password = 'وارد کردن رمز عبور الزامی است';
+    if (!formData.name) newErrors.name = isEnglish ? 'Name is required' : 'وارد کردن نام الزامی است';
+    if (!formData.email) newErrors.email = isEnglish ? 'Email is required' : 'وارد کردن ایمیل الزامی است';
+    if (!formData.password) newErrors.password = isEnglish ? 'Password is required' : 'وارد کردن رمز عبور الزامی است';
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'تکرار رمز عبور یکسان نیست';
+      newErrors.confirmPassword = isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور یکسان نیست';
     }
     if (!formData.acceptedTerms) {
-      newErrors.acceptedTerms = 'برای ثبت‌نام باید قوانین و مقررات را بپذیرید';
+      newErrors.acceptedTerms = isEnglish ? 'You must accept the terms and privacy policy' : 'برای ثبت‌نام باید قوانین و مقررات را بپذیرید';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -66,7 +67,7 @@ export default function SignupPage() {
       const payload = await response.json();
 
       if (!response.ok) {
-        setErrors({ email: payload.error || 'ثبت‌نام ناموفق بود' });
+        setErrors({ email: payload.error || (isEnglish ? 'Signup failed' : 'ثبت‌نام ناموفق بود') });
         return;
       }
 
@@ -78,14 +79,21 @@ export default function SignupPage() {
   };
 
   return (
-    <AuthExperience title="ساخت حساب کاربری" subtitle="حساب خود را بسازید و اولین نمای سه‌بعدی از ریسک، فرصت و مسیر رشد پورتفویتان را ببینید.">
+    <AuthExperience
+      title={isEnglish ? 'Create your account' : 'ساخت حساب کاربری'}
+      subtitle={
+        isEnglish
+          ? 'Create your account and unlock a live 3D view of risk, opportunity, and portfolio growth.'
+          : 'حساب خود را بسازید و اولین نمای سه‌بعدی از ریسک، فرصت و مسیر رشد پورتفویتان را ببینید.'
+      }
+    >
       <div className="space-y-6 [&_label]:!text-slate-200 [&_.text-secondary-500]:!text-slate-400">
         <form onSubmit={handleSubmit}>
           <FormGroup className="space-y-4">
             <Input
-              label="نام و نام خانوادگی"
+              label={isEnglish ? 'Full name' : 'نام و نام خانوادگی'}
               name="name"
-              placeholder="نام و نام خانوادگی"
+              placeholder={isEnglish ? 'Full name' : 'نام و نام خانوادگی'}
               value={formData.name}
               onChange={handleChange}
               error={errors.name}
@@ -94,10 +102,10 @@ export default function SignupPage() {
             />
 
             <Input
-              label="نشانی ایمیل"
+              label={isEnglish ? 'Email address' : 'نشانی ایمیل'}
               type="email"
               name="email"
-              placeholder="ایمیل شما"
+              placeholder={isEnglish ? 'Your email' : 'ایمیل شما'}
               value={formData.email}
               onChange={handleChange}
               error={errors.email}
@@ -106,7 +114,7 @@ export default function SignupPage() {
             />
 
             <Input
-              label="رمز عبور"
+              label={isEnglish ? 'Password' : 'رمز عبور'}
               type="password"
               name="password"
               placeholder="••••••••"
@@ -114,12 +122,12 @@ export default function SignupPage() {
               onChange={handleChange}
               error={errors.password}
               icon={<LockKeyhole className="h-4 w-4" />}
-              helperText="حداقل ۸ نویسه"
+              helperText={isEnglish ? 'At least 8 characters' : 'حداقل ۸ نویسه'}
               className="border-white/10 bg-white/95"
             />
 
             <Input
-              label="تکرار رمز عبور"
+              label={isEnglish ? 'Confirm password' : 'تکرار رمز عبور'}
               type="password"
               name="confirmPassword"
               placeholder="••••••••"
@@ -140,15 +148,15 @@ export default function SignupPage() {
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10"
               />
               <label htmlFor="acceptedTerms" className="text-sm leading-7 text-slate-300">
-                با{' '}
+                {isEnglish ? 'I agree with the ' : 'با '}
                 <Link href={`/${locale}/terms`} className="font-medium text-cyan-200 hover:text-white">
-                  قوانین و مقررات
+                  {isEnglish ? 'Terms and Conditions' : 'قوانین و مقررات'}
                 </Link>{' '}
-                و{' '}
+                {isEnglish ? ' and ' : 'و '}
                 <Link href={`/${locale}/privacy`} className="font-medium text-cyan-200 hover:text-white">
-                  حریم خصوصی
+                  {isEnglish ? 'Privacy Policy' : 'حریم خصوصی'}
                 </Link>
-                {' '}موافقم
+                {isEnglish ? '' : ' موافقم'}
               </label>
             </div>
             {errors.acceptedTerms && (
@@ -156,16 +164,16 @@ export default function SignupPage() {
             )}
 
             <Button fullWidth size="lg" isLoading={isLoading} className="h-[3.25rem] bg-cyan-50 text-slate-950 hover:bg-white">
-              ساخت حساب
+              {isEnglish ? 'Create account' : 'ساخت حساب'}
             </Button>
           </FormGroup>
         </form>
 
         <div className="text-center">
           <p className="text-slate-300">
-            از قبل حساب دارید؟{' '}
+            {isEnglish ? 'Already have an account?' : 'از قبل حساب دارید؟'}{' '}
             <Link href={`/${locale}/auth/login`} className="font-medium text-cyan-200 hover:text-white">
-              وارد شوید
+              {isEnglish ? 'Sign in' : 'وارد شوید'}
             </Link>
           </p>
         </div>
@@ -175,7 +183,7 @@ export default function SignupPage() {
             <div className="w-full border-t border-white/12"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-[#201f35] px-3 text-slate-400">یا ادامه با</span>
+            <span className="bg-[#201f35] px-3 text-slate-400">{isEnglish ? 'Or continue with' : 'یا ادامه با'}</span>
           </div>
         </div>
 

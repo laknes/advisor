@@ -4,13 +4,22 @@ import { motion } from 'framer-motion';
 import { Activity, BadgeDollarSign, LineChart, ShieldCheck, Sparkles } from 'lucide-react';
 import { Header } from './Header';
 import { MarketOrbitScene } from './MarketOrbitScene';
+import { useLocale } from './LocaleProvider';
 
-const marketSignals = [
-  { label: 'بورس', value: '+۲.۸٪', icon: LineChart },
-  { label: 'طلا', value: '۲۳۲۱', icon: Sparkles },
-  { label: 'ریسک', value: 'کم', icon: ShieldCheck },
-  { label: 'ارز', value: '+۰.۹٪', icon: BadgeDollarSign },
-];
+const marketSignals = {
+  fa: [
+    { label: 'بورس', value: '+۲.۸٪', icon: LineChart },
+    { label: 'طلا', value: '۲۳۲۱', icon: Sparkles },
+    { label: 'ریسک', value: 'کم', icon: ShieldCheck },
+    { label: 'ارز', value: '+۰.۹٪', icon: BadgeDollarSign },
+  ],
+  en: [
+    { label: 'Stocks', value: '+2.8%', icon: LineChart },
+    { label: 'Gold', value: '2321', icon: Sparkles },
+    { label: 'Risk', value: 'Low', icon: ShieldCheck },
+    { label: 'FX', value: '+0.9%', icon: BadgeDollarSign },
+  ],
+} as const;
 
 interface AuthExperienceProps {
   title: string;
@@ -19,6 +28,9 @@ interface AuthExperienceProps {
 }
 
 export function AuthExperience({ title, subtitle, children }: AuthExperienceProps) {
+  const { locale } = useLocale();
+  const signals = locale === 'en' ? marketSignals.en : marketSignals.fa;
+
   return (
     <div className="auth-experience-root relative min-h-screen overflow-hidden bg-[#070814] text-white">
       <div className="auth-experience-bg absolute inset-0" />
@@ -36,7 +48,7 @@ export function AuthExperience({ title, subtitle, children }: AuthExperienceProp
             className="absolute bottom-4 left-4 right-4"
           >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {marketSignals.map((item) => {
+              {signals.map((item) => {
                 const Icon = item.icon;
                 return (
                   <div key={item.label} className="rounded-lg border border-white/10 bg-black/20 p-3 backdrop-blur-xl">

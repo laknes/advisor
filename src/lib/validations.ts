@@ -25,16 +25,16 @@ export const VerifyOtpSchema = z.object({
 });
 
 export const RequestPasswordResetSchema = z.object({
-  email: z.string().email('ایمیل نامعتبر است'),
+  email: z.string().email('Invalid email format'),
 });
 
 export const ResetPasswordSchema = z.object({
-  email: z.string().email('ایمیل نامعتبر است'),
-  token: z.string().min(1, 'کد بازیابی الزامی است'),
-  password: z.string().min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد'),
-  confirmPassword: z.string().min(8, 'تکرار رمز عبور باید حداقل ۸ کاراکتر باشد'),
+  email: z.string().email('Invalid email format'),
+  token: z.string().min(1, 'Reset code is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string().min(8, 'Password confirmation must be at least 8 characters'),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: 'تکرار رمز عبور با رمز عبور یکسان نیست',
+  message: 'Password confirmation does not match password',
   path: ['confirmPassword'],
 });
 

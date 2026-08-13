@@ -16,7 +16,7 @@ export const LanguageSwitcher = () => {
         className="flex items-center gap-2 font-bold"
       >
         <Globe className="w-4 h-4" />
-        <span>{locale === 'fa' ? 'انگلیسی' : 'فارسی'}</span>
+        <span>{locale === 'fa' ? 'English' : 'Farsi'}</span>
       </Button>
     </div>
   );

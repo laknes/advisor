@@ -36,6 +36,10 @@ function settingString(settings: Record<string, unknown>, key: string) {
   return String(settings[key] || '').trim();
 }
 
+function hasPersianText(value: string) {
+  return /[\u0600-\u06FF]/.test(value);
+}
+
 export default function ContactPage() {
   const { locale } = useLocale();
   const settings = usePublicSettings();
@@ -109,7 +113,13 @@ export default function ContactPage() {
               <div>
                 <h2 className="text-2xl font-black text-white">{locale === 'fa' ? 'راه‌های ارتباطی' : 'Contact channels'}</h2>
                 <p className="mt-2 text-sm leading-7 text-slate-400">
-                  {String(settings.contact_note || (locale === 'fa' ? 'برای پاسخ سریع‌تر، تیکت ثبت کنید یا از چت آنلاین استفاده کنید.' : 'Submit a ticket or use online chat for the fastest response.'))}
+                  {(() => {
+                    const note = String(settings.contact_note || '').trim();
+                    if (locale === 'en' && hasPersianText(note)) {
+                      return 'Submit a ticket or use online chat for the fastest response.';
+                    }
+                    return note || (locale === 'fa' ? 'برای پاسخ سریع‌تر، تیکت ثبت کنید یا از چت آنلاین استفاده کنید.' : 'Submit a ticket or use online chat for the fastest response.');
+                  })()}
                 </p>
               </div>
 
@@ -195,9 +205,12 @@ function getContactChannels(settings: Record<string, unknown>, locale: string): 
   ];
 
   if (chatUrl) {
+    const configuredLabel = settingString(settings, 'online_chat_label');
     channels.push({
       href: chatUrl,
-      label: settingString(settings, 'online_chat_label') || (locale === 'fa' ? 'چت آنلاین' : 'Online chat'),
+      label: locale === 'en' && hasPersianText(configuredLabel)
+        ? 'Online chat'
+        : configuredLabel || (locale === 'fa' ? 'چت آنلاین' : 'Online chat'),
       detail: locale === 'fa' ? 'گفت‌وگوی مستقیم با پشتیبانی' : 'Talk directly with support',
       external: true,
       icon: <MessageCircle className="h-5 w-5" />,

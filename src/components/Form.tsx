@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLocale } from './LocaleProvider';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -12,6 +13,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, icon, helperText, id, type, ...props }, ref) => {
+    const { locale } = useLocale();
+    const isEnglish = locale === 'en';
     const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
     const hasPasswordToggle = type === 'password';
     const inputType = hasPasswordToggle && isPasswordVisible ? 'text' : type;
@@ -49,7 +52,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               type="button"
               onClick={() => setIsPasswordVisible((value) => !value)}
               className="absolute right-3.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-secondary-400 transition hover:bg-secondary-100 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300"
-              aria-label={isPasswordVisible ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
+              aria-label={isPasswordVisible ? (isEnglish ? 'Hide password' : 'مخفی کردن رمز عبور') : (isEnglish ? 'Show password' : 'نمایش رمز عبور')}
               aria-pressed={isPasswordVisible}
             >
               {isPasswordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

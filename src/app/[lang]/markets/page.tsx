@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { Badge, Button, Card, Footer, Header, MarketOrbitScene, PriceChange, useLocale } from '@/components';
 import { apiGet } from '@/lib/apiClient';
-import { formatFaDate, formatFaNumber } from '@/lib/format';
 import type { Analysis, Market, Price } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -37,7 +36,7 @@ const staggerContainer = {
   },
 };
 
-const marketTabs = [
+const marketTabsFa = [
   { id: 'all', label: 'همه بازارها' },
   { id: 'iran-stocks', label: 'بورس ایران' },
   { id: 'forex', label: 'فارکس' },
@@ -45,22 +44,36 @@ const marketTabs = [
   { id: 'currency', label: 'ارزها' },
 ] as const;
 
-type MarketTabId = (typeof marketTabs)[number]['id'];
+const marketTabsEn = [
+  { id: 'all', label: 'All markets' },
+  { id: 'iran-stocks', label: 'Iran stocks' },
+  { id: 'forex', label: 'Forex' },
+  { id: 'gold', label: 'Gold & metals' },
+  { id: 'currency', label: 'Currencies' },
+] as const;
 
-const signalLabel: Record<Analysis['signal'], string> = {
-  BUY: 'خرید',
-  SELL: 'فروش',
-  HOLD: 'نگهداری',
-};
+type MarketTabId = (typeof marketTabsFa)[number]['id'];
 
-const riskLabel: Record<Analysis['riskLevel'], string> = {
-  LOW: 'کم',
-  MEDIUM: 'متوسط',
-  HIGH: 'زیاد',
-};
+const signalLabel = {
+  fa: { BUY: 'خرید', SELL: 'فروش', HOLD: 'نگهداری' },
+  en: { BUY: 'Buy', SELL: 'Sell', HOLD: 'Hold' },
+} as const;
+
+const riskLabel = {
+  fa: { LOW: 'کم', MEDIUM: 'متوسط', HIGH: 'زیاد' },
+  en: { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' },
+} as const;
 
 export default function MarketsPage() {
   const { locale } = useLocale();
+  const isEnglish = locale === 'en';
+  const tabs = isEnglish ? marketTabsEn : marketTabsFa;
+  const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(isEnglish ? 'en-US' : 'fa-IR', options).format(value);
+  const formatDate = (value: Date | string) => new Intl.DateTimeFormat(isEnglish ? 'en-US' : 'fa-IR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(value));
   const [markets, setMarkets] = useState<MarketWithPrices[]>([]);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loadError, setLoadError] = useState('');
@@ -83,7 +96,7 @@ export default function MarketsPage() {
         if (!mounted) return;
         setMarkets([]);
         setAnalyses([]);
-        setLoadError(error instanceof Error ? error.message : 'بارگذاری بازارها از دیتابیس ناموفق بود.');
+        setLoadError(error instanceof Error ? error.message : (isEnglish ? 'Failed to load markets from database.' : 'بارگذاری بازارها از دیتابیس ناموفق بود.'));
       });
 
     return () => {
@@ -117,7 +130,7 @@ export default function MarketsPage() {
         {loadError && (
           <div className="relative z-20 mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm font-bold leading-7 text-amber-100">
-              اتصال به داده‌های واقعی برقرار نشد: {loadError}
+              {isEnglish ? 'Live data connection failed:' : 'اتصال به داده‌های واقعی برقرار نشد:'} {loadError}
             </div>
           </div>
         )}
@@ -129,27 +142,27 @@ export default function MarketsPage() {
           <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_0.95fr] lg:px-8">
             <motion.div initial="initial" animate="animate" variants={staggerContainer} className="space-y-8 lg:order-2">
               <motion.h1 variants={fadeInUp} className="max-w-3xl text-5xl font-black leading-tight text-white md:text-7xl">
-                بازارهای اصلی سرمایه‌گذاری
+                {isEnglish ? 'Core investment markets' : 'بازارهای اصلی سرمایه‌گذاری'}
               </motion.h1>
               <motion.p variants={fadeInUp} className="max-w-2xl text-lg leading-9 text-slate-300 md:text-xl">
-                قیمت‌ها، تغییرات روزانه و تحلیل‌های منتخب بورس، فارکس، طلا و ارز را در یک نمای یکپارچه دنبال کنید.
+                {isEnglish ? 'Track prices, daily moves, and selected analysis across stocks, forex, gold, and currencies in one unified view.' : 'قیمت‌ها، تغییرات روزانه و تحلیل‌های منتخب بورس، فارکس، طلا و ارز را در یک نمای یکپارچه دنبال کنید.'}
               </motion.p>
 
               <motion.div variants={fadeInUp} className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <HeroMetric icon={<Activity className="h-5 w-5" />} label="بازار فعال" value={formatFaNumber(markets.length)} />
-                <HeroMetric icon={<LineChart className="h-5 w-5" />} label="میانگین تغییر" value={`${formatFaNumber(averageChange * 100, { maximumFractionDigits: 2 })}٪`} />
-                <HeroMetric icon={<ShieldCheck className="h-5 w-5" />} label="تحلیل منتشرشده" value={formatFaNumber(analyses.length)} />
+                <HeroMetric icon={<Activity className="h-5 w-5" />} label={isEnglish ? 'Active markets' : 'بازار فعال'} value={formatNumber(markets.length)} />
+                <HeroMetric icon={<LineChart className="h-5 w-5" />} label={isEnglish ? 'Average change' : 'میانگین تغییر'} value={`${formatNumber(averageChange * 100, { maximumFractionDigits: 2 })}${isEnglish ? '%' : '٪'}`} />
+                <HeroMetric icon={<ShieldCheck className="h-5 w-5" />} label={isEnglish ? 'Published analyses' : 'تحلیل منتشرشده'} value={formatNumber(analyses.length)} />
               </motion.div>
 
               <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row">
                 <Link href="#market-grid">
                   <Button size="lg" className="h-14 w-full px-8 text-base sm:w-auto" rightIcon={<ArrowLeft className="h-5 w-5" />}>
-                    مشاهده بازارها
+                    {isEnglish ? 'View markets' : 'مشاهده بازارها'}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/analyses`}>
                   <Button variant="outline" size="lg" className="h-14 w-full px-8 text-base sm:w-auto">
-                    تحلیل‌های بازار
+                    {isEnglish ? 'Market analysis' : 'تحلیل‌های بازار'}
                   </Button>
                 </Link>
               </motion.div>
@@ -163,8 +176,8 @@ export default function MarketsPage() {
                 <div className="absolute left-4 top-4 w-[min(18rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#11051f]/78 p-4 shadow-2xl shadow-cyan-950/40 backdrop-blur-2xl sm:left-6 sm:top-6">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-black text-cyan-100">رصد زنده</p>
-                      <h2 className="mt-2 text-xl font-black text-white">نمای بازار</h2>
+                      <p className="text-xs font-black text-cyan-100">{isEnglish ? 'Live monitor' : 'رصد زنده'}</p>
+                      <h2 className="mt-2 text-xl font-black text-white">{isEnglish ? 'Market view' : 'نمای بازار'}</h2>
                     </div>
                     <Sparkles className="h-5 w-5 text-cyan-100" />
                   </div>
@@ -178,7 +191,7 @@ export default function MarketsPage() {
                             <PriceChange value={price?.changePercent || 0} format="percent" className="text-xs" />
                           </div>
                           <p className="font-mono text-lg font-black text-white">
-                            {formatFaNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}
+                            {formatNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}
                           </p>
                         </div>
                       );
@@ -187,11 +200,11 @@ export default function MarketsPage() {
                 </div>
 
                 <div className="absolute bottom-4 right-4 w-[min(17rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#120720]/82 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl sm:bottom-6 sm:right-6">
-                  <p className="text-xs font-black text-primary-100">شاخص مرجع</p>
+                  <p className="text-xs font-black text-primary-100">{isEnglish ? 'Reference index' : 'شاخص مرجع'}</p>
                   <div className="mt-3 flex items-end justify-between gap-4">
                     <div>
                       <p className="font-mono text-3xl font-black text-white">
-                        {formatFaNumber(headlinePrice?.currentPrice || 0, { maximumFractionDigits: 2 })}
+                        {formatNumber(headlinePrice?.currentPrice || 0, { maximumFractionDigits: 2 })}
                       </p>
                       <PriceChange value={headlinePrice?.changePercent || 0} format="percent" className="mt-2 text-sm" />
                     </div>
@@ -208,9 +221,9 @@ export default function MarketsPage() {
         <section id="market-grid" className="py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <SectionTitle title="انتخاب بازار" subtitle="بازار موردنظر را انتخاب کنید و وارد نمای تحلیل، قیمت و سیگنال‌های همان بازار شوید." />
-              <div className="glass-soft flex max-w-full overflow-x-auto rounded-lg p-1.5" role="tablist" aria-label="فیلتر بازارها">
-                {marketTabs.map((tab) => {
+              <SectionTitle title={isEnglish ? 'Choose a market' : 'انتخاب بازار'} subtitle={isEnglish ? 'Pick a market to view its analysis, price action, and signals.' : 'بازار موردنظر را انتخاب کنید و وارد نمای تحلیل، قیمت و سیگنال‌های همان بازار شوید.'} />
+              <div className="glass-soft flex max-w-full overflow-x-auto rounded-lg p-1.5" role="tablist" aria-label={isEnglish ? 'Market filters' : 'فیلتر بازارها'}>
+                {tabs.map((tab) => {
                   const isActive = activeTab === tab.id;
                   return (
                     <button
@@ -241,11 +254,11 @@ export default function MarketsPage() {
               ) : (
                 <Card className="p-10 text-center md:col-span-2 lg:col-span-4">
                   <BarChart3 className="mx-auto mb-5 h-12 w-12 text-slate-500" />
-                  <h3 className="text-2xl font-black text-white">بازاری از دیتابیس دریافت نشد</h3>
-                  <p className="mx-auto mt-3 max-w-md leading-7 text-slate-400">بازارها را در پنل مدیریت ثبت کنید یا اتصال API داده بازار را بررسی کنید.</p>
+                  <h3 className="text-2xl font-black text-white">{isEnglish ? 'No markets found in database' : 'بازاری از دیتابیس دریافت نشد'}</h3>
+                  <p className="mx-auto mt-3 max-w-md leading-7 text-slate-400">{isEnglish ? 'Add markets from the admin panel or verify the market data API connection.' : 'بازارها را در پنل مدیریت ثبت کنید یا اتصال API داده بازار را بررسی کنید.'}</p>
                   {activeTab !== 'all' && (
                     <Button type="button" variant="outline" className="mt-6" onClick={() => setActiveTab('all')}>
-                      نمایش همه بازارها
+                      {isEnglish ? 'Show all markets' : 'نمایش همه بازارها'}
                     </Button>
                   )}
                 </Card>
@@ -257,27 +270,27 @@ export default function MarketsPage() {
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <SectionTitle title="دیدبان قیمت" subtitle="جدول سریع برای مقایسه قیمت، تغییرات و بازه روز دارایی‌های فعال." />
+              <SectionTitle title={isEnglish ? 'Price watch' : 'دیدبان قیمت'} subtitle={isEnglish ? 'Quick table to compare price, net change, and day range for active assets.' : 'جدول سریع برای مقایسه قیمت، تغییرات و بازه روز دارایی‌های فعال.'} />
               <div className="flex items-center gap-2 text-sm font-bold text-slate-400">
                 <Clock className="h-4 w-4 text-primary-100" />
-                به‌روزرسانی لحظه‌ای
+                {isEnglish ? 'Live updates' : 'به‌روزرسانی لحظه‌ای'}
               </div>
             </div>
 
             <Card noPadding className="overflow-hidden">
               <div className="border-b border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-300">
-                نمایش {formatFaNumber(prices.length)} دارایی فعال
+                {isEnglish ? `Showing ${formatNumber(prices.length)} active assets` : `نمایش ${formatNumber(prices.length)} دارایی فعال`}
               </div>
               <div className="overflow-x-auto">
                 {prices.length > 0 ? (
                   <table className="w-full min-w-[760px]">
                     <thead>
                       <tr className="border-b border-white/10 bg-white/[0.06] text-slate-300">
-                        <th className="px-8 py-5 text-right text-xs font-black">دارایی / نماد</th>
-                        <th className="px-8 py-5 text-right text-xs font-black">آخرین قیمت</th>
-                        <th className="px-8 py-5 text-right text-xs font-black">تغییر خالص</th>
-                        <th className="px-8 py-5 text-right text-xs font-black">درصد تغییر</th>
-                        <th className="hidden px-8 py-5 text-right text-xs font-black md:table-cell">بازه روز</th>
+                        <th className="px-8 py-5 text-right text-xs font-black">{isEnglish ? 'Asset / Symbol' : 'دارایی / نماد'}</th>
+                        <th className="px-8 py-5 text-right text-xs font-black">{isEnglish ? 'Last price' : 'آخرین قیمت'}</th>
+                        <th className="px-8 py-5 text-right text-xs font-black">{isEnglish ? 'Net change' : 'تغییر خالص'}</th>
+                        <th className="px-8 py-5 text-right text-xs font-black">{isEnglish ? '% change' : 'درصد تغییر'}</th>
+                        <th className="hidden px-8 py-5 text-right text-xs font-black md:table-cell">{isEnglish ? 'Day range' : 'بازه روز'}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -286,11 +299,11 @@ export default function MarketsPage() {
                           <td className="px-8 py-5">
                             <div className="flex flex-col">
                               <span className="font-mono text-lg font-black text-white">{price.symbol}</span>
-                              <span className="text-xs font-bold text-slate-400">بازار جهانی</span>
+                              <span className="text-xs font-bold text-slate-400">{isEnglish ? 'Global market' : 'بازار جهانی'}</span>
                             </div>
                           </td>
                           <td className="px-8 py-5 font-mono text-xl font-black text-white">
-                            {formatFaNumber(price.currentPrice, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                            {formatNumber(price.currentPrice, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
                           </td>
                           <td className="px-8 py-5"><PriceChange value={price.change || 0} /></td>
                           <td className="px-8 py-5"><PriceChange value={price.changePercent || 0} format="percent" /></td>
@@ -300,8 +313,8 @@ export default function MarketsPage() {
                                 <div className="h-full w-[65%] rounded-full bg-gradient-to-l from-cyan-100 to-primary-200" />
                               </div>
                               <div className="flex w-32 justify-between text-[10px] font-bold">
-                                <span className="text-red-300">{formatFaNumber(price.dayLow || 0, { maximumFractionDigits: 2 })}</span>
-                                <span className="text-primary-100">{formatFaNumber(price.dayHigh || 0, { maximumFractionDigits: 2 })}</span>
+                                <span className="text-red-300">{formatNumber(price.dayLow || 0, { maximumFractionDigits: 2 })}</span>
+                                <span className="text-primary-100">{formatNumber(price.dayHigh || 0, { maximumFractionDigits: 2 })}</span>
                               </div>
                             </div>
                           </td>
@@ -311,8 +324,8 @@ export default function MarketsPage() {
                   </table>
                 ) : (
                   <div className="px-6 py-12 text-center">
-                    <p className="text-lg font-black text-white">قیمتی از دیتابیس دریافت نشد</p>
-                    <p className="mt-3 text-sm leading-7 text-slate-400">پس از اتصال ارائه‌دهنده داده بازار یا ثبت قیمت‌ها، این جدول به‌صورت واقعی پر می‌شود.</p>
+                    <p className="text-lg font-black text-white">{isEnglish ? 'No prices found in database' : 'قیمتی از دیتابیس دریافت نشد'}</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-400">{isEnglish ? 'This table will populate after a market data provider is connected or prices are added.' : 'پس از اتصال ارائه‌دهنده داده بازار یا ثبت قیمت‌ها، این جدول به‌صورت واقعی پر می‌شود.'}</p>
                   </div>
                 )}
               </div>
@@ -323,10 +336,10 @@ export default function MarketsPage() {
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <SectionTitle title="تحلیل‌های مرتبط" subtitle="آخرین سناریوهای منتشرشده برای بازارهای انتخاب‌شده." />
+              <SectionTitle title={isEnglish ? 'Related analysis' : 'تحلیل‌های مرتبط'} subtitle={isEnglish ? 'Latest published scenarios for selected markets.' : 'آخرین سناریوهای منتشرشده برای بازارهای انتخاب‌شده.'} />
               <Link href={`/${locale}/analyses`}>
                 <Button variant="ghost" rightIcon={<ArrowLeft className="h-5 w-5" />}>
-                  مشاهده همه تحلیل‌ها
+                  {isEnglish ? 'View all analysis' : 'مشاهده همه تحلیل‌ها'}
                 </Button>
               </Link>
             </div>
@@ -343,27 +356,27 @@ export default function MarketsPage() {
                             <div className="flex items-center gap-3">
                               <span className="text-3xl">{market?.icon || '📈'}</span>
                               <div>
-                                <p className="text-xs font-black text-primary-100">{market?.name || 'بازار'}</p>
+                                <p className="text-xs font-black text-primary-100">{market?.name || (isEnglish ? 'Market' : 'بازار')}</p>
                                 <h3 className="mt-1 text-xl font-black leading-8 text-white">{analysis.title}</h3>
                               </div>
                             </div>
                             <Badge variant={analysis.signal === 'BUY' ? 'success' : analysis.signal === 'SELL' ? 'danger' : 'warning'}>
-                              {signalLabel[analysis.signal]}
+                              {isEnglish ? signalLabel.en[analysis.signal] : signalLabel.fa[analysis.signal]}
                             </Badge>
                           </div>
                           <p className="line-clamp-3 min-h-[84px] leading-7 text-slate-300">{analysis.summary}</p>
                           <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
-                            <SmallMetric label="ریسک" value={riskLabel[analysis.riskLevel]} />
-                            <SmallMetric label="دقت" value={`${formatFaNumber(analysis.accuracy ?? 0)}٪`} />
+                            <SmallMetric label={isEnglish ? 'Risk' : 'ریسک'} value={isEnglish ? riskLabel.en[analysis.riskLevel] : riskLabel.fa[analysis.riskLevel]} />
+                            <SmallMetric label={isEnglish ? 'Accuracy' : 'دقت'} value={`${formatNumber(analysis.accuracy ?? 0)}${isEnglish ? '%' : '٪'}`} />
                           </div>
                           <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
                             <Clock className="h-4 w-4" />
-                            {formatFaDate(analysis.publishedAt)}
+                            {formatDate(analysis.publishedAt)}
                           </div>
                         </div>
                         <Link href={analysis.isLocked ? `/${locale}/pricing` : `/${locale}/dashboard/analyses`} className="mt-6">
                           <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                            {analysis.isLocked ? 'باز کردن تحلیل' : 'مشاهده کامل'}
+                            {analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'View details' : 'مشاهده کامل')}
                           </Button>
                         </Link>
                       </Card>
@@ -374,10 +387,10 @@ export default function MarketsPage() {
             ) : (
               <Card className="p-12 text-center">
                 <Filter className="mx-auto mb-5 h-12 w-12 text-slate-500" />
-                <h3 className="text-2xl font-black text-white">برای این بازار هنوز تحلیلی منتشر نشده است</h3>
-                <p className="mx-auto mt-3 max-w-md leading-7 text-slate-400">از فیلتر «همه بازارها» استفاده کنید یا بعداً دوباره بررسی کنید.</p>
+                <h3 className="text-2xl font-black text-white">{isEnglish ? 'No analysis has been published for this market yet' : 'برای این بازار هنوز تحلیلی منتشر نشده است'}</h3>
+                <p className="mx-auto mt-3 max-w-md leading-7 text-slate-400">{isEnglish ? 'Use the “All markets” filter or check back later.' : 'از فیلتر «همه بازارها» استفاده کنید یا بعداً دوباره بررسی کنید.'}</p>
                 <Button type="button" variant="outline" className="mt-6" onClick={() => setActiveTab('all')}>
-                  نمایش همه بازارها
+                  {isEnglish ? 'Show all markets' : 'نمایش همه بازارها'}
                 </Button>
               </Card>
             )}
@@ -387,16 +400,16 @@ export default function MarketsPage() {
         <section className="relative overflow-hidden py-20 md:py-28">
           <div className="absolute inset-x-6 inset-y-0 rounded-lg bg-gradient-to-l from-white/18 via-white/10 to-primary-200/20 blur-2xl" />
           <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-4xl font-black leading-tight text-white md:text-6xl">بازار مناسب استراتژی خود را پیدا کنید</h2>
+            <h2 className="text-4xl font-black leading-tight text-white md:text-6xl">{isEnglish ? 'Find the market that matches your strategy' : 'بازار مناسب استراتژی خود را پیدا کنید'}</h2>
             <p className="mx-auto mt-7 max-w-2xl text-lg leading-9 text-slate-300">
-              برای دسترسی به تحلیل‌های دقیق‌تر، هشدارها و مدیریت پورتفو، حساب کاربری خود را فعال کنید.
+              {isEnglish ? 'Activate your account to access deeper analysis, alerts, and portfolio management.' : 'برای دسترسی به تحلیل‌های دقیق‌تر، هشدارها و مدیریت پورتفو، حساب کاربری خود را فعال کنید.'}
             </p>
             <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
               <Link href={`/${locale}/auth/signup`}>
-                <Button size="lg" className="h-14 px-10">شروع رایگان</Button>
+                <Button size="lg" className="h-14 px-10">{isEnglish ? 'Start free' : 'شروع رایگان'}</Button>
               </Link>
               <Link href={`/${locale}/pricing`}>
-                <Button size="lg" variant="outline" className="h-14 px-10">مشاهده پلن‌ها</Button>
+                <Button size="lg" variant="outline" className="h-14 px-10">{isEnglish ? 'View plans' : 'مشاهده پلن‌ها'}</Button>
               </Link>
             </div>
           </div>
@@ -430,6 +443,8 @@ function HeroMetric({ icon, label, value }: { icon: ReactNode; label: string; va
 }
 
 function MarketCard({ market, locale, analysisCount }: { market: MarketWithPrices; locale: string; analysisCount: number }) {
+  const isEnglish = locale === 'en';
+  const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(isEnglish ? 'en-US' : 'fa-IR', options).format(value);
   const price = market.prices?.[0];
 
   return (
@@ -450,28 +465,28 @@ function MarketCard({ market, locale, analysisCount }: { market: MarketWithPrice
 
         <div className="space-y-3 border-y border-white/10 py-4">
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm font-bold text-slate-400">آخرین قیمت</span>
-            <span className="font-mono text-xl font-black text-white">{formatFaNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}</span>
+            <span className="text-sm font-bold text-slate-400">{isEnglish ? 'Last price' : 'آخرین قیمت'}</span>
+            <span className="font-mono text-xl font-black text-white">{formatNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}</span>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm font-bold text-slate-400">تغییر روزانه</span>
+            <span className="text-sm font-bold text-slate-400">{isEnglish ? 'Daily change' : 'تغییر روزانه'}</span>
             <PriceChange value={price?.changePercent || 0} format="percent" />
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm font-bold text-slate-400">تحلیل فعال</span>
-            <span className="font-mono font-black text-white">{formatFaNumber(analysisCount)}</span>
+            <span className="text-sm font-bold text-slate-400">{isEnglish ? 'Active analyses' : 'تحلیل فعال'}</span>
+            <span className="font-mono font-black text-white">{formatNumber(analysisCount)}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <SmallMetric label="هدف" value={price?.dayHigh ? formatFaNumber(price.dayHigh, { maximumFractionDigits: 2 }) : 'نامشخص'} />
-          <SmallMetric label="حمایت" value={price?.dayLow ? formatFaNumber(price.dayLow, { maximumFractionDigits: 2 }) : 'نامشخص'} />
+          <SmallMetric label={isEnglish ? 'Target' : 'هدف'} value={price?.dayHigh ? formatNumber(price.dayHigh, { maximumFractionDigits: 2 }) : (isEnglish ? 'N/A' : 'نامشخص')} />
+          <SmallMetric label={isEnglish ? 'Support' : 'حمایت'} value={price?.dayLow ? formatNumber(price.dayLow, { maximumFractionDigits: 2 }) : (isEnglish ? 'N/A' : 'نامشخص')} />
         </div>
       </div>
 
       <Link href={`/${locale}/markets/${market.slug}`} className="mt-6">
         <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-          مشاهده تحلیل
+          {isEnglish ? 'View analysis' : 'مشاهده تحلیل'}
         </Button>
       </Link>
     </Card>

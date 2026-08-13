@@ -10,6 +10,7 @@ import { useState } from 'react';
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const { locale } = useLocale();
+  const isEnglish = locale === 'en';
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
@@ -22,8 +23,8 @@ export default function ForgotPasswordPage() {
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
-    if (!email.trim()) newErrors.email = 'وارد کردن ایمیل الزامی است';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'ایمیل وارد شده معتبر نیست';
+    if (!email.trim()) newErrors.email = isEnglish ? 'Email is required' : 'وارد کردن ایمیل الزامی است';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = isEnglish ? 'Please enter a valid email' : 'ایمیل وارد شده معتبر نیست';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -41,12 +42,12 @@ export default function ForgotPasswordPage() {
       const payload = await response.json();
 
       if (!response.ok) {
-        setErrors({ email: payload.error || 'درخواست بازنشانی ناموفق بود' });
+        setErrors({ email: payload.error || (isEnglish ? 'Reset request failed' : 'درخواست بازنشانی ناموفق بود') });
         return;
       }
 
       setResetSent(true);
-      setMessage(payload.data?.message || 'درخواست بازنشانی ارسال شد.');
+      setMessage(payload.data?.message || (isEnglish ? 'Reset request sent.' : 'درخواست بازنشانی ارسال شد.'));
       if (payload.data?.token) {
         setToken(payload.data.token);
       }
@@ -58,12 +59,12 @@ export default function ForgotPasswordPage() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
-    if (!email.trim()) newErrors.email = 'وارد کردن ایمیل الزامی است';
-    if (!token.trim()) newErrors.token = 'کد بازیابی الزامی است';
-    if (!password.trim()) newErrors.password = 'وارد کردن رمز عبور الزامی است';
-    if (password.length < 8) newErrors.password = 'رمز عبور باید حداقل ۸ کاراکتر باشد';
-    if (!confirmPassword.trim()) newErrors.confirmPassword = 'تکرار رمز عبور الزامی است';
-    else if (password !== confirmPassword) newErrors.confirmPassword = 'تکرار رمز عبور با رمز عبور یکسان نیست';
+    if (!email.trim()) newErrors.email = isEnglish ? 'Email is required' : 'وارد کردن ایمیل الزامی است';
+    if (!token.trim()) newErrors.token = isEnglish ? 'Reset code is required' : 'کد بازیابی الزامی است';
+    if (!password.trim()) newErrors.password = isEnglish ? 'Password is required' : 'وارد کردن رمز عبور الزامی است';
+    if (password.length < 8) newErrors.password = isEnglish ? 'Password must be at least 8 characters' : 'رمز عبور باید حداقل ۸ کاراکتر باشد';
+    if (!confirmPassword.trim()) newErrors.confirmPassword = isEnglish ? 'Password confirmation is required' : 'تکرار رمز عبور الزامی است';
+    else if (password !== confirmPassword) newErrors.confirmPassword = isEnglish ? 'Password confirmation does not match' : 'تکرار رمز عبور با رمز عبور یکسان نیست';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -81,11 +82,11 @@ export default function ForgotPasswordPage() {
       const payload = await response.json();
 
       if (!response.ok) {
-        setErrors({ token: payload.error || 'بازیابی رمز عبور ناموفق بود' });
+        setErrors({ token: payload.error || (isEnglish ? 'Password reset failed' : 'بازیابی رمز عبور ناموفق بود') });
         return;
       }
 
-      setMessage(payload.data?.message || 'رمز عبور با موفقیت تغییر کرد.');
+      setMessage(payload.data?.message || (isEnglish ? 'Password changed successfully.' : 'رمز عبور با موفقیت تغییر کرد.'));
       setTimeout(() => router.push(`/${locale}/auth/login`), 1200);
     } finally {
       setIsLoading(false);
@@ -93,15 +94,22 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthExperience title="فراموشی رمز عبور" subtitle="ایمیل خود را وارد کنید تا کد بازیابی برایتان ارسال شود و رمز عبور را مجدداً تنظیم کنید.">
+    <AuthExperience
+      title={isEnglish ? 'Forgot password' : 'فراموشی رمز عبور'}
+      subtitle={
+        isEnglish
+          ? 'Enter your email to receive a reset code and set a new password.'
+          : 'ایمیل خود را وارد کنید تا کد بازیابی برایتان ارسال شود و رمز عبور را مجدداً تنظیم کنید.'
+      }
+    >
       <div className="space-y-6 [&_label]:!text-slate-200 [&_.text-secondary-500]:!text-slate-400">
         {!resetSent ? (
           <form onSubmit={handleRequestReset} className="space-y-4">
             <Input
-              label="نشانی ایمیل"
+              label={isEnglish ? 'Email address' : 'نشانی ایمیل'}
               type="email"
               name="email"
-              placeholder="ایمیل شما"
+              placeholder={isEnglish ? 'Your email' : 'ایمیل شما'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               error={errors.email}
@@ -110,16 +118,16 @@ export default function ForgotPasswordPage() {
             />
 
             <Button fullWidth size="lg" isLoading={isLoading} className="h-[3.25rem] bg-cyan-50 text-slate-950 hover:bg-white">
-              ارسال کد بازیابی
+              {isEnglish ? 'Send reset code' : 'ارسال کد بازیابی'}
             </Button>
           </form>
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <Input
-              label="نشانی ایمیل"
+              label={isEnglish ? 'Email address' : 'نشانی ایمیل'}
               type="email"
               name="email"
-              placeholder="ایمیل شما"
+              placeholder={isEnglish ? 'Your email' : 'ایمیل شما'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               error={errors.email}
@@ -128,10 +136,10 @@ export default function ForgotPasswordPage() {
             />
 
             <Input
-              label="کد بازیابی"
+              label={isEnglish ? 'Reset code' : 'کد بازیابی'}
               type="text"
               name="token"
-              placeholder="کد دریافتی"
+              placeholder={isEnglish ? 'Received code' : 'کد دریافتی'}
               value={token}
               onChange={(e) => setToken(e.target.value)}
               error={errors.token}
@@ -140,10 +148,10 @@ export default function ForgotPasswordPage() {
             />
 
             <Input
-              label="رمز عبور جدید"
+              label={isEnglish ? 'New password' : 'رمز عبور جدید'}
               type="password"
               name="password"
-              placeholder="رمز عبور جدید"
+              placeholder={isEnglish ? 'New password' : 'رمز عبور جدید'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={errors.password}
@@ -151,10 +159,10 @@ export default function ForgotPasswordPage() {
             />
 
             <Input
-              label="تکرار رمز عبور جدید"
+              label={isEnglish ? 'Confirm new password' : 'تکرار رمز عبور جدید'}
               type="password"
               name="confirmPassword"
-              placeholder="تکرار رمز عبور جدید"
+              placeholder={isEnglish ? 'Confirm new password' : 'تکرار رمز عبور جدید'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               error={errors.confirmPassword}
@@ -162,7 +170,7 @@ export default function ForgotPasswordPage() {
             />
 
             <Button fullWidth size="lg" isLoading={isLoading} className="h-[3.25rem] bg-cyan-50 text-slate-950 hover:bg-white">
-              تغییر رمز عبور
+              {isEnglish ? 'Reset password' : 'تغییر رمز عبور'}
             </Button>
           </form>
         )}
@@ -175,7 +183,7 @@ export default function ForgotPasswordPage() {
 
         <div className="text-center text-sm text-slate-300">
           <Link href={`/${locale}/auth/login`} className="font-medium text-cyan-200 hover:text-white">
-            بازگشت به صفحه ورود
+            {isEnglish ? 'Back to login' : 'بازگشت به صفحه ورود'}
           </Link>
         </div>
       </div>

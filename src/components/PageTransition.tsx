@@ -3,9 +3,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useLocale } from './LocaleProvider';
 
 export const PageTransition = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
+  const { locale } = useLocale();
+  const isEnglish = locale === 'en';
   const [isRouting, setIsRouting] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -66,7 +69,7 @@ export const PageTransition = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <AnimatePresence>
-        {isRouting && <RouteLoadingOverlay />}
+        {isRouting && <RouteLoadingOverlay isEnglish={isEnglish} />}
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
@@ -85,7 +88,7 @@ export const PageTransition = ({ children }: { children: ReactNode }) => {
   );
 };
 
-function RouteLoadingOverlay() {
+function RouteLoadingOverlay({ isEnglish }: { isEnglish: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -95,7 +98,7 @@ function RouteLoadingOverlay() {
       className="fixed inset-0 z-[9998] grid place-items-center overflow-hidden bg-[rgba(var(--theme-bg-rgb),0.82)] px-6 backdrop-blur-xl"
       role="status"
       aria-live="polite"
-      aria-label="در حال بارگذاری صفحه"
+      aria-label={isEnglish ? 'Page is loading' : 'در حال بارگذاری صفحه'}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,color-mix(in_srgb,var(--theme-accent)_26%,transparent),transparent_24rem)]" />
       <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px)] [background-size:54px_54px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
@@ -134,7 +137,7 @@ function RouteLoadingOverlay() {
           ))}
         </div>
 
-        <p className="mt-5 text-sm font-black text-white">در حال آماده‌سازی صفحه</p>
+        <p className="mt-5 text-sm font-black text-white">{isEnglish ? 'Preparing page...' : 'در حال آماده‌سازی صفحه'}</p>
         <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
           <motion.div
             initial={{ x: '100%' }}

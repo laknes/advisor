@@ -101,6 +101,84 @@ const trustItems = [
 
 export default function AboutPage() {
   const { locale } = useLocale();
+  const isEnglish = locale === 'en';
+
+  const localizedStats = isEnglish
+    ? [
+        { label: 'Markets Covered', value: '4+', detail: 'Stocks, gold, currencies, and forex' },
+        { label: 'Analysis Types', value: '3', detail: 'Short-term, long-term, and premium' },
+        { label: 'Core Focus', value: 'Risk', detail: 'Emotion-free decisions' },
+      ]
+    : stats;
+
+  const localizedValues = isEnglish
+    ? [
+        {
+          icon: ShieldCheck,
+          title: 'Transparent Analysis',
+          text: 'Every analysis includes scenario, entry zone, targets, risk boundary, and rationale so users understand the assumptions behind each signal.',
+        },
+        {
+          icon: Target,
+          title: 'Actionable Decisions',
+          text: 'Our goal is not long ambiguous commentary; output must support practical decisions, market prioritization, and capital management.',
+        },
+        {
+          icon: LockKeyhole,
+          title: 'User Independence',
+          text: 'Mousavi Investment is a decision-support tool, not a guaranteed-profit promise. We highlight risk so final choices are more informed.',
+        },
+      ]
+    : values;
+
+  const localizedProcess = isEnglish
+    ? [
+        {
+          icon: Radar,
+          title: 'Market Data Monitoring',
+          text: 'Price action, trend, volume, key events, and cross-market behavior are monitored continuously.',
+        },
+        {
+          icon: BarChart3,
+          title: 'Technical & Fundamental Analysis',
+          text: 'Scenarios are evaluated using price structure, key levels, macro context, and liquidity flow.',
+        },
+        {
+          icon: FileText,
+          title: 'Actionable Reporting',
+          text: 'Insights are delivered as readable reports, signals, alerts, and risk-management suggestions.',
+        },
+        {
+          icon: BellRing,
+          title: 'Follow-up & Updates',
+          text: 'When market conditions change, analyses and alerts are updated so decisions are not based on stale data.',
+        },
+      ]
+    : process;
+
+  const localizedMarkets = isEnglish
+    ? [
+        { icon: LineChart, title: 'Iran Stocks', text: 'Track market index, key sectors, and high-impact symbols.' },
+        { icon: Globe2, title: 'Forex', text: 'Analyze major currency pairs, USD trend, and key trading zones.' },
+        { icon: Sparkles, title: 'Gold & Metals', text: 'Review global spot gold, support zones, and risk-off scenarios.' },
+        { icon: WalletCards, title: 'Currencies & Crypto', text: 'Monitor major currencies, liquidity flow, and multi-asset opportunities.' },
+      ]
+    : markets;
+
+  const localizedTrustItems = isEnglish
+    ? [
+        'Transparent risk communication without guaranteed-profit claims',
+        'Clear separation of free, subscription, and premium analyses',
+        'Cross-market monitoring to reduce one-dimensional decisions',
+        'Focus on capital management, not just entry points',
+        'A practical product design tailored for Persian-speaking investors',
+        'Analyses connected to dashboard, watchlist, and alerts',
+      ]
+    : trustItems;
+
+  const audienceItems = isEnglish
+    ? ['Short-term traders', 'Long-term investors', 'Analysis-first users', 'Personal portfolio managers']
+    : ['معامله‌گر کوتاه‌مدت', 'سرمایه‌گذار بلندمدت', 'کاربر علاقه‌مند به تحلیل', 'مدیر پورتفوی شخصی'];
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#160022] text-white">
@@ -114,21 +192,23 @@ export default function AboutPage() {
           <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8">
             <motion.div initial="initial" animate="animate" variants={stagger} className="space-y-8 lg:order-2">
               <motion.h1 variants={fadeInUp} className="max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-                درباره سرمایه گذاری موسوی
-                <span className="block text-primary-100">تحلیل بازار، تبدیل‌شده به تصمیم قابل اجرا</span>
+                {isEnglish ? 'About Mousavi Investment' : 'درباره سرمایه گذاری موسوی'}
+                <span className="block text-primary-100">{isEnglish ? 'Market analysis turned into actionable decisions' : 'تحلیل بازار، تبدیل‌شده به تصمیم قابل اجرا'}</span>
               </motion.h1>
               <motion.p variants={fadeInUp} className="max-w-3xl text-lg leading-9 text-slate-300">
-                سرمایه گذاری موسوی برای سرمایه‌گذارانی ساخته شده که می‌خواهند بین داده‌های پراکنده بازار، گزارش‌های طولانی و هیجان لحظه‌ای، یک مسیر روشن‌تر برای تصمیم‌گیری داشته باشند. ما تحلیل، مدیریت ریسک و ابزارهای پیگیری بازار را در یک تجربه فارسی و منظم کنار هم قرار می‌دهیم.
+                {isEnglish
+                  ? 'Mousavi Investment is built for investors who want a clearer decision path across fragmented data, long reports, and market noise. We combine analysis, risk management, and market-tracking tools in one structured experience.'
+                  : 'سرمایه گذاری موسوی برای سرمایه‌گذارانی ساخته شده که می‌خواهند بین داده‌های پراکنده بازار، گزارش‌های طولانی و هیجان لحظه‌ای، یک مسیر روشن‌تر برای تصمیم‌گیری داشته باشند. ما تحلیل، مدیریت ریسک و ابزارهای پیگیری بازار را در یک تجربه فارسی و منظم کنار هم قرار می‌دهیم.'}
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row">
                 <Link href={`/${locale}/pricing`}>
                   <Button size="lg" className="h-14 w-full px-8 sm:w-auto" rightIcon={<ArrowLeft className="h-5 w-5" />}>
-                    مشاهده پلن‌ها
+                    {isEnglish ? 'View plans' : 'مشاهده پلن‌ها'}
                   </Button>
                 </Link>
                 <Link href={`/${locale}/markets`}>
                   <Button variant="outline" size="lg" className="h-14 w-full px-8 sm:w-auto">
-                    بازارهای تحت پوشش
+                    {isEnglish ? 'Covered markets' : 'بازارهای تحت پوشش'}
                   </Button>
                 </Link>
               </motion.div>
@@ -138,8 +218,8 @@ export default function AboutPage() {
               <Card className="relative border-white/10 bg-white/[0.08] p-5 shadow-2xl md:p-7">
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-black text-primary-100">نمای تصمیم‌سازی</p>
-                    <h2 className="mt-2 text-2xl font-black">از داده تا اقدام</h2>
+                    <p className="text-sm font-black text-primary-100">{isEnglish ? 'Decision view' : 'نمای تصمیم‌سازی'}</p>
+                    <h2 className="mt-2 text-2xl font-black">{isEnglish ? 'From data to action' : 'از داده تا اقدام'}</h2>
                   </div>
                   <div className="rounded-lg bg-primary-100/15 p-3 text-primary-100">
                     <LineChart className="h-7 w-7" />
@@ -147,11 +227,17 @@ export default function AboutPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {[
-                    { label: 'روند بازار', value: 'صعودی محتاطانه', width: '78%' },
-                    { label: 'سطح ریسک', value: 'متوسط', width: '54%' },
-                    { label: 'قدرت سناریو', value: 'بالا', width: '86%' },
-                  ].map((item) => (
+                    {(isEnglish
+                      ? [
+                          { label: 'Market trend', value: 'Cautiously bullish', width: '78%' },
+                          { label: 'Risk level', value: 'Medium', width: '54%' },
+                          { label: 'Scenario strength', value: 'High', width: '86%' },
+                        ]
+                      : [
+                          { label: 'روند بازار', value: 'صعودی محتاطانه', width: '78%' },
+                          { label: 'سطح ریسک', value: 'متوسط', width: '54%' },
+                          { label: 'قدرت سناریو', value: 'بالا', width: '86%' },
+                        ]).map((item) => (
                     <div key={item.label} className="rounded-lg border border-white/10 bg-black/20 p-4">
                       <div className="mb-3 flex items-center justify-between gap-4">
                         <span className="text-sm font-bold text-slate-300">{item.label}</span>
@@ -165,7 +251,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="mt-5 grid grid-cols-3 gap-3">
-                  {stats.map((stat) => (
+                  {localizedStats.map((stat) => (
                     <div key={stat.label} className="rounded-lg border border-white/10 bg-white/[0.06] p-3">
                       <p className="text-2xl font-black text-primary-100">{stat.value}</p>
                       <p className="mt-1 text-xs font-black text-white">{stat.label}</p>
@@ -182,12 +268,12 @@ export default function AboutPage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
               <SectionIntro
-                title="ماموریت ما"
-                subtitle="کمک به تصمیم‌گیری آگاهانه در بازارهای پرنوسان"
-                text="ما باور داریم سرمایه‌گذاری خوب فقط پیدا کردن یک سیگنال نیست؛ ترکیبی از فهم روند، شناخت ریسک، زمان‌بندی مناسب و پایبندی به برنامه است. سرمایه گذاری موسوی تلاش می‌کند این اجزا را ساده، شفاف و قابل پیگیری کند."
+                title={isEnglish ? 'Our mission' : 'ماموریت ما'}
+                subtitle={isEnglish ? 'Helping better decisions in volatile markets' : 'کمک به تصمیم‌گیری آگاهانه در بازارهای پرنوسان'}
+                text={isEnglish ? 'We believe strong investing is not just one signal; it is trend awareness, risk understanding, timing discipline, and execution consistency. Mousavi Investment makes these parts simpler and clearer.' : 'ما باور داریم سرمایه‌گذاری خوب فقط پیدا کردن یک سیگنال نیست؛ ترکیبی از فهم روند، شناخت ریسک، زمان‌بندی مناسب و پایبندی به برنامه است. سرمایه گذاری موسوی تلاش می‌کند این اجزا را ساده، شفاف و قابل پیگیری کند.'}
               />
               <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                {values.map((item) => (
+                {localizedValues.map((item) => (
                   <InfoCard key={item.title} {...item} />
                 ))}
               </div>
@@ -197,9 +283,9 @@ export default function AboutPage() {
 
         <section className="border-y border-white/10 bg-white/[0.04] py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionTitle title="روش کار ما" subtitle="هر گزارش از یک مسیر مشخص عبور می‌کند تا خروجی آن فقط یک نظر کلی نباشد." />
+            <SectionTitle title={isEnglish ? 'How we work' : 'روش کار ما'} subtitle={isEnglish ? 'Every report follows a clear workflow so output is more than a generic opinion.' : 'هر گزارش از یک مسیر مشخص عبور می‌کند تا خروجی آن فقط یک نظر کلی نباشد.'} />
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {process.map((item, index) => (
+              {localizedProcess.map((item, index) => (
                 <ProcessCard key={item.title} index={index + 1} {...item} />
               ))}
             </div>
@@ -208,9 +294,9 @@ export default function AboutPage() {
 
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionTitle title="بازارهایی که پوشش می‌دهیم" subtitle="پلتفرم برای نگاه چندبازاری طراحی شده، چون ریسک و فرصت معمولاً فقط در یک نمودار دیده نمی‌شود." />
+            <SectionTitle title={isEnglish ? 'Markets we cover' : 'بازارهایی که پوشش می‌دهیم'} subtitle={isEnglish ? 'The platform is built for a cross-market view because risk and opportunity rarely live in just one chart.' : 'پلتفرم برای نگاه چندبازاری طراحی شده، چون ریسک و فرصت معمولاً فقط در یک نمودار دیده نمی‌شود.'} />
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-              {markets.map((item) => (
+              {localizedMarkets.map((item) => (
                 <InfoCard key={item.title} {...item} />
               ))}
             </div>
@@ -221,12 +307,14 @@ export default function AboutPage() {
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:px-8">
             <Card className="border-white/10 bg-white/[0.08] p-6 md:p-8">
               <Users className="mb-6 h-9 w-9 text-primary-100" />
-              <h2 className="text-3xl font-black leading-tight md:text-4xl">برای چه کسانی ساخته شده‌ایم؟</h2>
+              <h2 className="text-3xl font-black leading-tight md:text-4xl">{isEnglish ? 'Who is this for?' : 'برای چه کسانی ساخته شده‌ایم؟'}</h2>
               <p className="mt-5 text-base leading-8 text-slate-300">
-                این پلتفرم برای معامله‌گران فعال، سرمایه‌گذاران بلندمدت، مدیران پورتفو و کاربرانی طراحی شده که می‌خواهند تصمیم‌های مالی خود را با نظم، داده و تحلیل حرفه‌ای‌تر دنبال کنند.
+                {isEnglish
+                  ? 'This platform is designed for active traders, long-term investors, portfolio managers, and users who want structured, data-driven financial decisions.'
+                  : 'این پلتفرم برای معامله‌گران فعال، سرمایه‌گذاران بلندمدت، مدیران پورتفو و کاربرانی طراحی شده که می‌خواهند تصمیم‌های مالی خود را با نظم، داده و تحلیل حرفه‌ای‌تر دنبال کنند.'}
               </p>
               <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {['معامله‌گر کوتاه‌مدت', 'سرمایه‌گذار بلندمدت', 'کاربر علاقه‌مند به تحلیل', 'مدیر پورتفوی شخصی'].map((item) => (
+                {audienceItems.map((item) => (
                   <div key={item} className="rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-sm font-black text-slate-200">
                     {item}
                   </div>
@@ -236,9 +324,9 @@ export default function AboutPage() {
 
             <Card className="border-primary-100/30 !bg-white p-6 !text-secondary-900 shadow-xl shadow-primary-900/10 md:p-8">
               <ShieldCheck className="mb-6 h-9 w-9 text-primary-700" />
-              <h2 className="text-3xl font-black leading-tight md:text-4xl">چرا به ما اعتماد می‌کنید؟</h2>
+              <h2 className="text-3xl font-black leading-tight md:text-4xl">{isEnglish ? 'Why investors trust us' : 'چرا به ما اعتماد می‌کنید؟'}</h2>
               <div className="mt-7 space-y-4">
-                {trustItems.map((item) => (
+                {localizedTrustItems.map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary-700" />
                     <p className="text-sm font-bold leading-7 text-secondary-800 md:text-base">{item}</p>
@@ -252,19 +340,19 @@ export default function AboutPage() {
         <section className="relative overflow-hidden py-20 md:py-28">
           <div className="absolute inset-x-6 inset-y-0 rounded-lg bg-gradient-to-l from-white/20 via-white/10 to-primary-200/20 blur-2xl" />
           <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-4xl font-black leading-tight md:text-6xl">آماده‌اید بازار را شفاف‌تر ببینید؟</h2>
+            <h2 className="text-4xl font-black leading-tight md:text-6xl">{isEnglish ? 'Ready to see markets with more clarity?' : 'آماده‌اید بازار را شفاف‌تر ببینید؟'}</h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-9 text-slate-300">
-              از صفحه بازارها شروع کنید، پلن مناسب خود را انتخاب کنید و تحلیل‌هایی را دنبال کنید که به تصمیم‌های قابل اجرا نزدیک‌ترند.
+              {isEnglish ? 'Start from Markets, choose a plan that fits your strategy, and follow analysis that leads to actionable decisions.' : 'از صفحه بازارها شروع کنید، پلن مناسب خود را انتخاب کنید و تحلیل‌هایی را دنبال کنید که به تصمیم‌های قابل اجرا نزدیک‌ترند.'}
             </p>
             <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
               <Link href={`/${locale}/markets`}>
                 <Button size="lg" className="h-14 px-10" rightIcon={<ArrowLeft className="h-5 w-5" />}>
-                  شروع از بازارها
+                  {isEnglish ? 'Start with markets' : 'شروع از بازارها'}
                 </Button>
               </Link>
               <Link href={`/${locale}/faq`}>
                 <Button size="lg" variant="outline" className="h-14 px-10">
-                  سوالات متداول
+                  {isEnglish ? 'FAQ' : 'سوالات متداول'}
                 </Button>
               </Link>
             </div>

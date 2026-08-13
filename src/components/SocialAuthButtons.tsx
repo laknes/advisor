@@ -1,5 +1,6 @@
 import { signIn } from 'next-auth/react';
 import { Button } from './Button';
+import { useLocale } from './LocaleProvider';
 
 const GoogleIcon = () => (
   <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24">
@@ -18,12 +19,15 @@ const AppleIcon = () => (
 );
 
 export function SocialAuthButtons() {
+  const { locale } = useLocale();
+  const callbackUrl = `/${locale}/dashboard`;
+
   const handleGoogleLogin = () => {
-    signIn('google', { callbackUrl: '/en/dashboard', redirect: true });
+    signIn('google', { callbackUrl, redirect: true });
   };
 
   const handleAppleLogin = () => {
-    signIn('apple', { callbackUrl: '/en/dashboard', redirect: true });
+    signIn('apple', { callbackUrl, redirect: true });
   };
 
   return (
@@ -36,7 +40,7 @@ export function SocialAuthButtons() {
         className="h-12 bg-white text-secondary-900 hover:bg-slate-100 border-white/70 shadow-sm"
       >
         <GoogleIcon />
-        <span>گوگل</span>
+        <span>{locale === 'en' ? 'Google' : 'گوگل'}</span>
       </Button>
       <Button
         type="button"
@@ -46,7 +50,7 @@ export function SocialAuthButtons() {
         className="h-12 bg-white text-secondary-900 hover:bg-slate-100 border-white/70 shadow-sm"
       >
         <AppleIcon />
-        <span>اپل آیدی</span>
+        <span>{locale === 'en' ? 'Apple ID' : 'اپل آیدی'}</span>
       </Button>
     </div>
   );

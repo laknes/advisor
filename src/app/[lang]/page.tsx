@@ -5,7 +5,6 @@ import { Header, Footer, Button, Card, CardContent, PriceChange, StatBlock, useL
 import { useDictionary } from '@/components/useDictionary';
 import { apiGet } from '@/lib/apiClient';
 import { Analysis, Market, Price, SubscriptionPlan } from '@/lib/types';
-import { formatFaDate, formatFaNumber } from '@/lib/format';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, LineChart, ShieldCheck, Sparkles, Zap } from 'lucide-react';
@@ -83,6 +82,45 @@ const getMarketWatchTab = (price: Price): MarketWatchTabId => {
 export default function Home() {
   const { locale } = useLocale();
   const isEnglish = locale === 'en';
+  const hasPersianText = (value: string) => /[\u0600-\u06FF]/.test(value);
+  const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(isEnglish ? 'en-US' : 'fa-IR', options).format(value);
+  const formatDate = (value: Date | string) => new Intl.DateTimeFormat(isEnglish ? 'en-US' : 'fa-IR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(value));
+  const englishTextMap: Record<string, string> = {
+    'تحلیل روزانه': 'Daily Analysis',
+    'تحلیل هفتگی': 'Weekly Analysis',
+    'تحلیل ماهانه': 'Monthly Analysis',
+    'دسترسی همه بازارها': 'All Markets Access',
+    'VIP الیت': 'VIP Elite',
+    'تحلیل روزانه بازار برای معامله\u200cگران کوتاه\u200cمدت': 'Daily market analysis for short-term traders',
+    'تحلیل عمیق هفتگی برای معامله\u200cگران نوسانی': 'Deep weekly analysis for swing traders',
+    'تحلیل استراتژیک ماهانه برای سرمایه\u200cگذاران فعال': 'Strategic monthly analysis for active investors',
+    'دسترسی پریمیوم به همه بازارهای فعال پلتفرم': 'Premium access to all active platform markets',
+    'تجربه کامل مشاوره اختصاصی سرمایه\u200cگذاری': 'Full premium investment advisory experience',
+    'دسترسی به یک بازار': 'Access to one market',
+    'هشدارهای پایه': 'Basic alerts',
+    'اعلان ایمیلی': 'Email notifications',
+    'تمام تایم\u200cفریم\u200cهای کوتاه\u200cمدت': 'All short-term timeframes',
+    'هشدارهای پیشرفته': 'Advanced alerts',
+    'پشتیبانی اولویت\u200cدار': 'Priority support',
+    'گزارش\u200cهای دقیق': 'Detailed reports',
+    'راهنمایی پورتفو': 'Portfolio guidance',
+    'مشاور اختصاصی': 'Dedicated advisor',
+    'دسترسی کامل همه بازارها': 'Full all-markets access',
+    'تمام انواع تحلیل': 'All analysis types',
+    'هشدار چنددارایی': 'Multi-asset alerts',
+    'مشاور شخصی تمام\u200cوقت': 'Full-time personal advisor',
+    'سیگنال\u200cهای اختصاصی سرمایه\u200cگذاری': 'Exclusive investment signals',
+    'وبینارهای خصوصی بازار': 'Private market webinars',
+  };
+  const localizeText = (value?: string | null, fallback = '') => {
+    if (!value) return fallback;
+    if (!isEnglish) return value;
+    return englishTextMap[value] || value;
+  };
   const dict = useDictionary();
   const [markets, setMarkets] = useState<Array<Market & { prices?: Price[] }>>([]);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
@@ -109,31 +147,31 @@ export default function Home() {
           setMarkets(marketData.value.markets || []);
         } else {
           setMarkets([]);
-          errors.push('دریافت بازارها');
+          errors.push(isEnglish ? 'markets' : 'دریافت بازارها');
         }
 
         if (analysisData.status === 'fulfilled') {
           setAnalyses(analysisData.value.analyses || []);
         } else {
           setAnalyses([]);
-          errors.push('دریافت تحلیل‌ها');
+          errors.push(isEnglish ? 'analyses' : 'دریافت تحلیل‌ها');
         }
 
         if (planData.status === 'fulfilled') {
           setPlans(planData.value.plans || []);
         } else {
           setPlans([]);
-          errors.push('دریافت پلن‌های اشتراک');
+          errors.push(isEnglish ? 'subscription plans' : 'دریافت پلن‌های اشتراک');
         }
 
         if (settingsData.status === 'fulfilled') {
           setSettings(settingsData.value.settings || {});
         } else {
           setSettings({});
-          errors.push('دریافت تنظیمات عمومی');
+          errors.push(isEnglish ? 'public settings' : 'دریافت تنظیمات عمومی');
         }
 
-        setLoadError(errors.length > 0 ? `${errors.join('، ')} با مشکل مواجه شد.` : '');
+        setLoadError(errors.length > 0 ? (isEnglish ? `Failed to load ${errors.join(', ')}` : `${errors.join('، ')} با مشکل مواجه شد.`) : '');
       });
 
     return () => {
@@ -197,11 +235,15 @@ export default function Home() {
           <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
             <motion.div initial="initial" animate="animate" variants={staggerContainer} className="space-y-8 lg:order-2">
               <motion.h1 variants={fadeInUp} className="max-w-3xl text-5xl font-black leading-tight tracking-normal text-white md:text-7xl">
-                {settings.hero_title || (isEnglish ? 'Smart investment guidance' : 'مشاوره سرمایه‌گذاری هوشمند')}
+                {(isEnglish && hasPersianText(String(settings.hero_title || ''))
+                  ? 'Smart investment guidance'
+                  : settings.hero_title) || (isEnglish ? 'Smart investment guidance' : 'مشاوره سرمایه‌گذاری هوشمند')}
                 <span className="block text-primary-100">{isEnglish ? 'For volatile markets' : 'برای بازارهای پرنوسان'}</span>
               </motion.h1>
               <motion.p variants={fadeInUp} className="max-w-2xl text-lg leading-9 text-slate-300 md:text-xl">
-                {settings.hero_subtitle || (isEnglish ? 'Track expert market analysis, portfolio management, and real-time signals in one clear, fast experience.' : 'تحلیل‌های تخصصی، مدیریت پورتفو و دیدبان زنده بازار را در یک تجربه فارسی، سریع و شفاف دنبال کنید.')}
+                {(isEnglish && hasPersianText(String(settings.hero_subtitle || ''))
+                  ? 'Track expert market analysis, portfolio management, and real-time signals in one clear, fast experience.'
+                  : settings.hero_subtitle) || (isEnglish ? 'Track expert market analysis, portfolio management, and real-time signals in one clear, fast experience.' : 'تحلیل‌های تخصصی، مدیریت پورتفو و دیدبان زنده بازار را در یک تجربه فارسی، سریع و شفاف دنبال کنید.')}
               </motion.p>
 
               <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row">
@@ -246,11 +288,11 @@ export default function Home() {
                           <div className="flex items-center gap-4">
                             <div className="text-4xl">{market.icon}</div>
                             <div>
-                              <h3 className="text-xl font-black text-white">{market.name}</h3>
+                              <h3 className="text-xl font-black text-white">{localizeText(market.name, market.name)}</h3>
                               <p className="text-sm font-bold text-primary-100">{market.symbol}</p>
                             </div>
                           </div>
-                          <p className="min-h-[84px] leading-7 text-slate-300">{market.description}</p>
+                          <p className="min-h-[84px] leading-7 text-slate-300">{localizeText(market.description, market.description || '')}</p>
                           <Button variant="outline" size="md" fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
                             {isEnglish ? 'View analysis' : 'مشاهده تحلیل'}
                           </Button>
@@ -288,16 +330,16 @@ export default function Home() {
                           <span className={cn('rounded-lg px-3 py-1 text-xs font-black', analysis.signal === 'BUY' ? 'bg-primary-100/15 text-primary-100' : analysis.signal === 'SELL' ? 'bg-red-300/15 text-red-200' : 'bg-primary-200/15 text-primary-100')}>
                             {isEnglish ? 'Signal' : 'سیگنال'} {signalLabel(locale, analysis.signal)}
                           </span>
-                          <span className="text-sm font-bold text-slate-400">{formatFaDate(analysis.publishedAt)}</span>
+                          <span className="text-sm font-bold text-slate-400">{formatDate(analysis.publishedAt)}</span>
                         </div>
-                        <h3 className="text-xl font-black leading-8 text-white">{analysis.title}</h3>
-                        <p className="line-clamp-2 leading-7 text-slate-300">{analysis.summary}</p>
+                        <h3 className="text-xl font-black leading-8 text-white">{localizeText(analysis.title, analysis.title)}</h3>
+                        <p className="line-clamp-2 leading-7 text-slate-300">{localizeText(analysis.summary, analysis.summary)}</p>
                         <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
-                          <Metric label={isEnglish ? 'Entry' : 'ورود'} value={formatFaNumber(Number(analysis.entryPrice))} />
-                          <Metric label={isEnglish ? 'Target' : 'هدف'} value={formatFaNumber(Number(analysis.targetPrice))} accent />
+                          <Metric label={isEnglish ? 'Entry' : 'ورود'} value={formatNumber(Number(analysis.entryPrice))} />
+                          <Metric label={isEnglish ? 'Target' : 'هدف'} value={formatNumber(Number(analysis.targetPrice))} accent />
                         </div>
                         <div className="flex items-center justify-between gap-3">
-                          <span className="text-sm font-bold text-slate-300">{formatFaNumber(analysis.accuracy ?? 0)}{isEnglish ? '% accuracy' : '٪ دقت'}</span>
+                          <span className="text-sm font-bold text-slate-300">{formatNumber(analysis.accuracy ?? 0)}{isEnglish ? '% accuracy' : '٪ دقت'}</span>
                           <ButtonLink href={`/${locale}/analyses/${analysis.id}`} size="sm" variant={analysis.isLocked ? 'secondary' : 'primary'}>
                             {analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
                           </ButtonLink>
@@ -346,7 +388,7 @@ export default function Home() {
 
             <Card noPadding className="overflow-hidden" id="market-watch-table" role="tabpanel">
               <div className="border-b border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-300">
-                {isEnglish ? `Showing ${formatFaNumber(filteredPrices.length)} of ${formatFaNumber(prices.length)} assets` : `نمایش ${formatFaNumber(filteredPrices.length)} مورد از ${formatFaNumber(prices.length)} دارایی`}
+                {isEnglish ? `Showing ${formatNumber(filteredPrices.length)} of ${formatNumber(prices.length)} assets` : `نمایش ${formatNumber(filteredPrices.length)} مورد از ${formatNumber(prices.length)} دارایی`}
               </div>
               <div className="overflow-x-auto">
                 {filteredPrices.length > 0 ? (
@@ -372,7 +414,7 @@ export default function Home() {
                             </div>
                           </td>
                           <td className="px-8 py-5 font-mono text-xl font-black text-white">
-                            {formatFaNumber(price.currentPrice, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                            {formatNumber(price.currentPrice, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
                           </td>
                           <td className="px-8 py-5"><PriceChange value={price.change || 0} /></td>
                           <td className="px-8 py-5"><PriceChange value={price.changePercent || 0} format="percent" /></td>
@@ -382,8 +424,8 @@ export default function Home() {
                                 <motion.div initial={{ width: 0 }} animate={{ width: '65%' }} className="h-full bg-white" />
                               </div>
                               <div className="flex w-32 justify-between text-[10px] font-bold">
-                                <span className="text-red-300">{formatFaNumber(price.dayLow || 0, { maximumFractionDigits: 2 })}</span>
-                                <span className="text-primary-100">{formatFaNumber(price.dayHigh || 0, { maximumFractionDigits: 2 })}</span>
+                                <span className="text-red-300">{formatNumber(price.dayLow || 0, { maximumFractionDigits: 2 })}</span>
+                                <span className="text-primary-100">{formatNumber(price.dayHigh || 0, { maximumFractionDigits: 2 })}</span>
                               </div>
                             </div>
                           </td>
@@ -417,18 +459,18 @@ export default function Home() {
                       {index === 1 && <div className="absolute left-4 top-4 rounded-lg bg-white px-3 py-1 text-xs font-black text-primary-900">{isEnglish ? 'Popular' : 'محبوب'}</div>}
                       <div className="flex-1 space-y-6">
                         <div>
-                          <h3 className="text-2xl font-black text-white">{plan.name}</h3>
-                          <p className="mt-3 min-h-[56px] leading-7 text-slate-300">{plan.description}</p>
+                          <h3 className="text-2xl font-black text-white">{localizeText(plan.name, plan.name)}</h3>
+                          <p className="mt-3 min-h-[56px] leading-7 text-slate-300">{localizeText(plan.description, plan.description || '')}</p>
                         </div>
                         <div className="border-y border-white/10 py-5">
-                          <span className="text-4xl font-black text-primary-100">{formatFaNumber(plan.price)} {isEnglish ? 'USD' : 'دلار'}</span>
+                          <span className="text-4xl font-black text-primary-100">{formatNumber(plan.price)} {isEnglish ? 'USD' : 'دلار'}</span>
                           <span className="mr-2 font-bold text-slate-400">/ {billingLabel(locale, plan.billingPeriod)}</span>
                         </div>
                         <ul className="space-y-3">
                           {plan.features.map((feature) => (
                             <li key={feature} className="flex items-start gap-3 text-slate-300">
                               <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary-100" />
-                              <span className="text-sm font-bold leading-6">{feature}</span>
+                              <span className="text-sm font-bold leading-6">{localizeText(feature, feature)}</span>
                             </li>
                           ))}
                         </ul>
@@ -457,10 +499,10 @@ export default function Home() {
             <SectionTitle title={isEnglish ? 'Proven performance' : 'سابقه عملکرد قابل اتکا'} subtitle={isEnglish ? 'Performance indicators to measure decision quality and risk management.' : 'شاخص‌های عملکرد تحلیل‌ها برای سنجش کیفیت تصمیم‌سازی و مدیریت ریسک.'} />
             <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {[
-                { label: isEnglish ? 'Analysis accuracy' : 'دقت تحلیل', value: `${formatFaNumber(performanceStats.accuracy)}${isEnglish ? '%' : '٪'}` },
-                { label: isEnglish ? 'Total analyses' : 'کل تحلیل‌ها', value: formatFaNumber(performanceStats.totalAnalyses) },
-                { label: isEnglish ? 'Success rate' : 'نرخ موفقیت', value: `${formatFaNumber(performanceStats.winRate)}${isEnglish ? '%' : '٪'}` },
-                { label: isEnglish ? 'Average return' : 'میانگین بازده', value: `${formatFaNumber(performanceStats.averageReturn)}${isEnglish ? '%' : '٪'}` },
+                { label: isEnglish ? 'Analysis accuracy' : 'دقت تحلیل', value: `${formatNumber(performanceStats.accuracy)}${isEnglish ? '%' : '٪'}` },
+                { label: isEnglish ? 'Total analyses' : 'کل تحلیل‌ها', value: formatNumber(performanceStats.totalAnalyses) },
+                { label: isEnglish ? 'Success rate' : 'نرخ موفقیت', value: `${formatNumber(performanceStats.winRate)}${isEnglish ? '%' : '٪'}` },
+                { label: isEnglish ? 'Average return' : 'میانگین بازده', value: `${formatNumber(performanceStats.averageReturn)}${isEnglish ? '%' : '٪'}` },
               ].map((stat) => (
                 <motion.div key={stat.label} variants={fadeInUp}>
                   <Card className="h-full p-5">
@@ -502,6 +544,21 @@ function SectionTitle({ title, subtitle, align = 'center' }: { title: string; su
 }
 
 function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices?: Price[] }>; locale: 'fa' | 'en' }) {
+  const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fa-IR', options).format(value);
+  const localizeLabel = (value: string) => {
+    if (locale !== 'en') return value;
+
+    const map: Record<string, string> = {
+      'بورس ایران': 'Iran Stocks',
+      'فارکس': 'Forex',
+      'طلا و فلزات': 'Gold & Metals',
+      'ارزها': 'Currencies',
+      'بازار جهانی': 'Global Market',
+    };
+
+    return map[value] || value;
+  };
+
   const featuredMarkets = markets.slice(0, 4);
   const sceneLegend = [
     { label: locale === 'en' ? 'Portfolio core' : 'هسته پورتفو', color: 'bg-primary-100' },
@@ -537,11 +594,11 @@ function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices
             return (
               <div key={market.id} className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-sm font-bold text-slate-200">{market.name}</span>
+                  <span className="text-sm font-bold text-slate-200">{localizeLabel(market.name)}</span>
                   <PriceChange value={price?.changePercent || 0} format="percent" className="text-xs" />
                 </div>
                 <div className="flex items-end justify-between gap-4">
-                  <span className="font-mono text-lg font-black text-white">{formatFaNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}</span>
+                  <span className="font-mono text-lg font-black text-white">{formatNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}</span>
                   <div className="h-1.5 w-20 overflow-hidden rounded-full bg-white/10">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${58 + idx * 12}%` }} transition={{ duration: 1.2, delay: 0.35 + idx * 0.08 }} className="h-full rounded-full bg-gradient-to-l from-cyan-100 to-primary-200" />
                   </div>
@@ -577,7 +634,7 @@ function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-xs font-black text-primary-100">{locale === 'en' ? 'Risk control ring' : 'رینگ کنترل ریسک'}</p>
-            <p className="mt-1 text-3xl font-black text-white">۲۴٪</p>
+            <p className="mt-1 text-3xl font-black text-white">{locale === 'en' ? '24%' : '۲۴٪'}</p>
           </div>
           <div className="rounded-lg bg-emerald-300/12 p-2 text-emerald-200">
             <ShieldCheck className="h-5 w-5" />
