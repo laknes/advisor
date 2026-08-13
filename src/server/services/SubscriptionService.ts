@@ -41,10 +41,10 @@ const LEGACY_PLAN_SELECT = {
   updatedAt: true,
 } as const;
 
-type PlanWithoutTier = Prisma.SubscriptionPlanGetPayload<{ select: typeof PLAN_SELECT }>;
-type PlanWithOptionalFields = PlanWithoutTier & {
+type LegacyPlan = Prisma.SubscriptionPlanGetPayload<{ select: typeof LEGACY_PLAN_SELECT }>;
+type PlanWithOptionalFields = LegacyPlan & {
   tier?: string | null;
-  accessRules?: unknown;
+  accessRules?: Prisma.JsonValue | null;
   features?: string[] | null;
 };
 
