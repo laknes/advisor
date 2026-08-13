@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { ExtensionErrorFilter } from "@/components/ExtensionErrorFilter";
+import { GlobalLoadingOverlay } from "@/components/GlobalLoadingOverlay";
+import { LoadingProvider } from "@/context/LoadingContext";
+import { LoadingInitializer } from "@/components/LoadingInitializer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SettingsService } from "@/server/services/SettingsService";
 import "./globals.css";
@@ -124,7 +127,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-[#160022] text-secondary-100">
         <ExtensionErrorFilter />
-        <ThemeProvider>{children}</ThemeProvider>
+        <LoadingProvider>
+          <LoadingInitializer />
+          <GlobalLoadingOverlay />
+          <ThemeProvider>{children}</ThemeProvider>
+        </LoadingProvider>
       </body>
     </html>
   );

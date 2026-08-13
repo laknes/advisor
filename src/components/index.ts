@@ -13,3 +13,5 @@ export { ThemeProvider, useTheme } from './ThemeProvider';
 export { SocialAuthButtons } from './SocialAuthButtons';
 export { AuthExperience } from './AuthExperience';
 export { MarketOrbitScene } from './MarketOrbitScene';
+export { GlobalLoadingOverlay } from './GlobalLoadingOverlay';
+export { LoadingInitializer } from './LoadingInitializer';

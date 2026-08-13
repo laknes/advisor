@@ -1,21 +1,31 @@
 import { getAuthHeaders } from '@/lib/clientAuth';
+import { notifyLoadingEnd, notifyLoadingStart } from '@/context/LoadingContext';
 
-export async function apiGet<T>(url: string, authenticated = false): Promise<T> {
-  const response = await fetch(url, {
+async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  notifyLoadingStart();
+
+  try {
+    const response = await fetch(url, options);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || 'Request failed');
+    }
+
+    return payload.data as T;
+  } finally {
+    notifyLoadingEnd();
+  }
+}
+
+export function apiGet<T>(url: string, authenticated = false): Promise<T> {
+  return request<T>(url, {
     headers: authenticated ? getAuthHeaders() : undefined,
     cache: 'no-store',
   });
-
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || 'Request failed');
-  }
-
-  return payload.data as T;
 }
 
-export async function apiPut<T>(url: string, body: unknown, authenticated = true): Promise<T> {
-  const response = await fetch(url, {
+export function apiPut<T>(url: string, body: unknown, authenticated = true): Promise<T> {
+  return request<T>(url, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -23,17 +33,10 @@ export async function apiPut<T>(url: string, body: unknown, authenticated = true
     },
     body: JSON.stringify(body),
   });
-
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || 'Request failed');
-  }
-
-  return payload.data as T;
 }
 
-export async function apiPost<T>(url: string, body?: unknown, authenticated = true): Promise<T> {
-  const response = await fetch(url, {
+export function apiPost<T>(url: string, body?: unknown, authenticated = true): Promise<T> {
+  return request<T>(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -41,25 +44,11 @@ export async function apiPost<T>(url: string, body?: unknown, authenticated = tr
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || 'Request failed');
-  }
-
-  return payload.data as T;
 }
 
-export async function apiDelete<T>(url: string, authenticated = true): Promise<T> {
-  const response = await fetch(url, {
+export function apiDelete<T>(url: string, authenticated = true): Promise<T> {
+  return request<T>(url, {
     method: 'DELETE',
     headers: authenticated ? getAuthHeaders() : undefined,
   });
-
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || 'Request failed');
-  }
-
-  return payload.data as T;
 }
