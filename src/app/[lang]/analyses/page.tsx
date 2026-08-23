@@ -168,9 +168,9 @@ export default function AnalysesPage() {
                         </div>
 
                         <div className="mt-6">
-                          <Link href={analysis.isLocked ? `/${locale}/pricing` : `/${locale}/dashboard/analyses`}>
+                          <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/dashboard/analyses`}>
                             <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                              {analysis.isLocked ? 'باز کردن تحلیل' : 'مشاهده کامل'}
+                              {analysis.accessLevel === 'login' ? 'ورود برای مشاهده' : analysis.isLocked ? 'باز کردن تحلیل' : 'مشاهده کامل'}
                             </Button>
                           </Link>
                         </div>
@@ -228,7 +228,7 @@ function SegmentedControl<T extends string>({
             onClick={() => onChange(item.id)}
             className={cn(
               'whitespace-nowrap rounded-lg px-4 py-2 text-sm font-black transition-all focus:outline-none focus:ring-2 focus:ring-white/70',
-              isActive ? 'bg-white text-primary-900 shadow-lg shadow-black/20' : 'text-slate-300 hover:bg-white/10 hover:text-white',
+              isActive ? 'bg-white/90 text-primary-900 shadow-lg shadow-black/20 backdrop-blur-xl border border-white/60' : 'text-slate-300 hover:bg-white/10 hover:text-white',
             )}
           >
             {item.label}

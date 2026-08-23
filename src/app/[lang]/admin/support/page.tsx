@@ -121,7 +121,7 @@ export default function AdminSupportPage() {
                   setStatusFilter(next);
                   loadTickets(next);
                 }}
-                className="h-10 rounded-lg border border-white/10 bg-[#241033] px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
+                className="h-10 rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-input-bg)] backdrop-blur-xl px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
               >
                 <option value="all">همه</option>
                 <option value="open">باز</option>

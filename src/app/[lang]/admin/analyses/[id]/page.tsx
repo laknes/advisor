@@ -44,6 +44,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
     takeProfit: '',
     requiredSubscription: '',
     isLocked: false,
+    accessLevel: 'public',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,6 +81,7 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
           takeProfit: data.takeProfit?.toString() || '',
           requiredSubscription: data.requiredSubscription || '',
           isLocked: data.isLocked ?? false,
+          accessLevel: data.accessLevel || (data.isLocked ? 'subscription' : 'public'),
         });
       } catch {
         setError('Unable to load analysis details.');
@@ -321,6 +323,18 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
                         { label: 'Monthly', value: 'monthly' },
                         { label: '3-Month', value: '3month' },
                         { label: 'ویژه', value: 'vip' },
+                      ]}
+                    />
+                  </FormGroup>
+                  <FormGroup label="Access Level">
+                    <Select
+                      name="accessLevel"
+                      value={analysis.accessLevel}
+                      onChange={handleChange}
+                      options={[
+                        { label: 'Public (Free)', value: 'public' },
+                        { label: 'Free (Login required)', value: 'login' },
+                        { label: 'Subscription required', value: 'subscription' },
                       ]}
                     />
                   </FormGroup>

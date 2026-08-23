@@ -1,3 +1,5 @@
+'use client';
+
 import React, { ReactNode, ButtonHTMLAttributes } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -30,12 +32,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ...props
     } = props_destructured;
 
-    const baseStyles = 'inline-flex items-center justify-center gap-2 font-bold rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent';
+    const baseStyles = 'inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent';
 
     const variants = {
-      primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-300 shadow-lg shadow-primary-900/25',
-      secondary: 'bg-white/14 text-white hover:bg-white/20 border border-white/15 focus:ring-white/40 backdrop-blur-xl',
-      outline: 'border border-white/70 text-white hover:bg-white/10 focus:ring-white backdrop-blur-xl',
+      primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-300 shadow-lg shadow-black/20',
+      secondary: 'bg-white/10 text-white hover:bg-white/15 border border-white/15 focus:ring-white/40 backdrop-blur-xl',
+      outline: 'border border-primary-300/70 text-primary-100 hover:bg-white/10 focus:ring-primary-200 backdrop-blur-xl',
       danger: 'bg-red-500 text-white hover:bg-red-400 focus:ring-red-400',
       ghost: 'text-slate-200 hover:bg-white/10 focus:ring-white',
     };

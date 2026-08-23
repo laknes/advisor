@@ -45,6 +45,7 @@ export interface Analysis {
   expiresAt?: Date;
   isLocked: boolean;
   requiredSubscription?: string;
+  accessLevel?: 'public' | 'login' | 'subscription';
 }
 
 export interface SubscriptionPlan {

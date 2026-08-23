@@ -15,3 +15,4 @@ export { AuthExperience } from './AuthExperience';
 export { MarketOrbitScene } from './MarketOrbitScene';
 export { GlobalLoadingOverlay } from './GlobalLoadingOverlay';
 export { LoadingInitializer } from './LoadingInitializer';
+export { LoadingState } from './LoadingState';

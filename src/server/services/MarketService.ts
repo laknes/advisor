@@ -29,6 +29,23 @@ export class MarketService {
         analyses: {
           orderBy: { publishedAt: 'desc' },
           take: 10,
+          select: {
+            id: true,
+            marketId: true,
+            title: true,
+            summary: true,
+            timeframe: true,
+            analysisType: true,
+            signal: true,
+            riskLevel: true,
+            targetPrice: true,
+            accuracy: true,
+            isLocked: true,
+            requiredSubscription: true,
+            accessLevel: true,
+            publishedAt: true,
+            expiresAt: true,
+          },
         },
         prices: {
           orderBy: { timestamp: 'desc' },

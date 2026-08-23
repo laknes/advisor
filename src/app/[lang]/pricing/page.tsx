@@ -536,7 +536,7 @@ export default function PricingPage() {
                     type="button"
                     onClick={() => setBillingPeriod(period)}
                     className={`min-w-24 rounded-lg px-5 py-3 text-sm font-black transition ${
-                      billingPeriod === period ? 'bg-white text-primary-900 shadow-lg' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                      billingPeriod === period ? 'bg-white/90 text-primary-900 shadow-lg backdrop-blur-xl border border-white/60' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     {billingLabels[locale][period]}
@@ -610,7 +610,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="bg-white py-16 text-secondary-950">
+        <section className="glass-surface py-16 text-secondary-950">
           <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
             <h2 className="text-3xl font-black leading-tight md:text-5xl">{t.ctaTitle}</h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-secondary-700">{t.ctaText}</p>

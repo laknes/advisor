@@ -78,7 +78,7 @@ export default function FAQPage() {
             ))}
           </div>
 
-          <div className="mt-20 text-center bg-white p-12 rounded-3xl shadow-xl border border-secondary-100">
+          <div className="glass-surface mt-20 text-center p-12 rounded-3xl shadow-xl">
             <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <HelpCircle className="w-8 h-8 text-primary-600" />
             </div>
@@ -100,7 +100,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   return (
     <motion.div 
       initial={false}
-      className="bg-white rounded-2xl border border-secondary-100 shadow-sm overflow-hidden"
+      className="glass-surface rounded-2xl shadow-sm overflow-hidden"
     >
       <button
         onClick={() => setIsOpen(!isOpen)}

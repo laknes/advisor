@@ -234,7 +234,7 @@ export default function MarketsPage() {
                       onClick={() => setActiveTab(tab.id)}
                       className={cn(
                         'whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-black transition-all focus:outline-none focus:ring-2 focus:ring-white/70',
-                        isActive ? 'bg-white text-primary-900 shadow-lg shadow-black/20' : 'text-slate-300 hover:bg-white/10 hover:text-white',
+                        isActive ? 'bg-white/90 text-primary-900 shadow-lg shadow-black/20 backdrop-blur-xl border border-white/60' : 'text-slate-300 hover:bg-white/10 hover:text-white',
                       )}
                     >
                       {tab.label}
@@ -374,9 +374,9 @@ export default function MarketsPage() {
                             {formatDate(analysis.publishedAt)}
                           </div>
                         </div>
-                        <Link href={analysis.isLocked ? `/${locale}/pricing` : `/${locale}/dashboard/analyses`} className="mt-6">
+                        <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/analyses/${analysis.id}`} className="mt-6">
                           <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                            {analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'View details' : 'مشاهده کامل')}
+                            {analysis.accessLevel === 'login' ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'View details' : 'مشاهده کامل')}
                           </Button>
                         </Link>
                       </Card>

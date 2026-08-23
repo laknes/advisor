@@ -81,6 +81,7 @@ model Analysis {
   
   isLocked        Boolean   @default(true)
   requiredSubscription String? // "daily", "weekly", null for free
+  accessLevel     String    @default("subscription") // "public", "login", or "subscription"
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

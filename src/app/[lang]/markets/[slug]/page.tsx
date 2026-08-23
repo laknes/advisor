@@ -118,7 +118,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
       <Header isAuthenticated={false} />
 
       {/* Page Header & Live Price */}
-      <section className="bg-white border-b border-secondary-200 pt-12 pb-8">
+      <section className="glass-surface border-b pt-12 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
@@ -147,7 +147,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-secondary-900 text-white p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center gap-8 min-w-[300px]"
+                className="bg-secondary-900/80 backdrop-blur-2xl text-white p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center gap-8 min-w-[300px] border border-white/10"
               >
                 <div className="text-center md:text-left">
                   <p className="text-secondary-400 text-xs font-bold uppercase tracking-widest mb-1">Live Price</p>
@@ -209,7 +209,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
             </div>
 
             {/* Analysis Type Tabs */}
-            <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-secondary-200">
+            <div className="glass-surface flex p-1.5 rounded-2xl shadow-sm">
               <button
                 onClick={() => {
                   setAnalysisType('short_term');
@@ -252,7 +252,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                 className={cn(
                   "px-6 py-2.5 rounded-full font-bold transition-all border-2",
                   timeframe === frame.id
-                    ? "bg-white border-primary-600 text-primary-600 shadow-md"
+                    ? "bg-white/70 backdrop-blur-xl border-primary-600 text-primary-600 shadow-md"
                     : "bg-transparent border-transparent text-secondary-500 hover:text-primary-600"
                 )}
               >
@@ -363,14 +363,14 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                             </span>
                           </div>
                           
-                          {analysis.isLocked ? (
-                            <Link href={`/${locale}/pricing`}>
+                          {analysis.accessLevel === 'login' || analysis.isLocked ? (
+                            <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/pricing`}>
                               <Button size="md" className="shadow-lg shadow-primary-100 font-bold px-6">
-                                Unlock Now
+                                {analysis.accessLevel === 'login' ? 'Login to view' : 'Unlock Now'}
                               </Button>
                             </Link>
                           ) : (
-                            <Link href={`/${locale}/dashboard/analyses`}>
+                            <Link href={`/${locale}/analyses/${analysis.id}`}>
                               <Button variant="ghost" size="md" className="font-bold text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-4" rightIcon={<ChevronRight className="w-4 h-4" />}>
                                 View Full
                               </Button>

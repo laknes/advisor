@@ -19,7 +19,7 @@ export default function PrivacyPage() {
 
         <h1 className="text-4xl font-bold text-white mb-8">{isEnglish ? 'Privacy Policy' : 'حریم خصوصی'}</h1>
 
-        <div className="rounded-lg bg-white p-8 text-secondary-700 shadow-xl prose prose-lg max-w-none space-y-6">
+        <div className="glass-surface rounded-lg p-8 text-secondary-700 shadow-xl prose prose-lg max-w-none space-y-6">
           <section>
             <h2 className="text-2xl font-bold text-secondary-900 mt-8 mb-4">{isEnglish ? '1. Introduction' : '۱. مقدمه'}</h2>
             <p>

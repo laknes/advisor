@@ -71,6 +71,7 @@ export const CreateAnalysisSchema = z.object({
   accuracy: z.number().min(0).max(100).optional(),
   requiredSubscription: z.string().optional(),
   isLocked: z.boolean().default(false),
+  accessLevel: z.enum(['public', 'login', 'subscription']).default('subscription'),
 });
 
 // Portfolio Schemas

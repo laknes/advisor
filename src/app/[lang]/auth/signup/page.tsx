@@ -254,7 +254,7 @@ export default function SignupPage() {
             <div className="w-full border-t border-white/12"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-[#201f35] px-3 text-slate-400">{isEnglish ? 'Or continue with' : 'یا ادامه با'}</span>
+            <span className="bg-[color:var(--theme-bg-soft)] px-3 text-slate-400">{isEnglish ? 'Or continue with' : 'یا ادامه با'}</span>
           </div>
         </div>
 

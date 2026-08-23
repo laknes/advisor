@@ -182,7 +182,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                       isAccountMenuOpen ? 'visible translate-y-0 scale-100 opacity-100' : 'invisible translate-y-1 scale-95 opacity-0',
                     )}
                   >
-                    <div className="overflow-hidden rounded-lg border border-white/15 bg-[#12001d]/95 shadow-2xl shadow-black/40 ring-1 ring-white/10 backdrop-blur-md">
+                    <div className="overflow-hidden rounded-lg border border-white/15 bg-[color:var(--theme-header)] shadow-2xl shadow-black/40 ring-1 ring-white/10 backdrop-blur-2xl">
                       <Link
                         href={`/${locale}/dashboard/profile`}
                         role="menuitem"

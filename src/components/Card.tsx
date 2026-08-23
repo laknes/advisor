@@ -1,3 +1,5 @@
+'use client';
+
 import React, { ReactNode } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -13,7 +15,8 @@ interface CardProps extends Omit<HTMLMotionProps<'div'>, 'children' | 'onClick'>
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ children, className, noPadding = false, hoverable = false, onClick, ...props }, ref) => {
     const classNames = typeof className === 'string' ? className : '';
-    const isLightSurface = /\b!?bg-(white|secondary-50|red-50|green-50|blue-50|yellow-50)\b/.test(classNames);
+    // Only treat a standalone bg-white/etc token as a light surface; exclude opacity variants like bg-white/[0.07] or bg-white/10
+    const isLightSurface = /(?:^|\s)!?bg-(white|secondary-50|red-50|green-50|blue-50|yellow-50)(?=\s|$)/.test(classNames);
 
     return (
       <motion.div
@@ -22,7 +25,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         whileHover={hoverable ? { translateY: -4, boxShadow: '0 24px 70px -28px rgba(216, 180, 254, 0.5)' } : undefined}
         transition={{ duration: 0.2 }}
         className={cn(
-          'rounded-lg overflow-hidden',
+          'rounded-2xl overflow-hidden',
           isLightSurface ? 'card-light border border-secondary-100 text-secondary-900 shadow-xl shadow-black/5' : 'glass-panel text-slate-100',
           hoverable && 'cursor-pointer',
           !noPadding && 'p-6',

@@ -24,6 +24,7 @@ export class AnalysisService {
         targetPrice: true,
         accuracy: true,
         isLocked: true,
+        accessLevel: true,
         publishedAt: true,
       },
     });
@@ -57,6 +58,7 @@ export class AnalysisService {
         targetPrice: true,
         accuracy: true,
         isLocked: true,
+        accessLevel: true,
         publishedAt: true,
       },
     });
@@ -88,6 +90,7 @@ export class AnalysisService {
         accuracy: true,
         isLocked: true,
         requiredSubscription: true,
+        accessLevel: true,
         publishedAt: true,
         expiresAt: true,
       },
@@ -97,16 +100,17 @@ export class AnalysisService {
       throw new NotFoundError('Analysis');
     }
 
-    if (analysis.isLocked) {
-      const hasAccess = userId
+    const accessLevel = analysis.accessLevel;
+    const hasAccess = accessLevel === 'public'
+      || (accessLevel === 'login' && Boolean(userId))
+      || (accessLevel === 'subscription' && userId
         ? await SubscriptionService.hasAccessToMarketAnalysis(userId, analysis.marketId, analysis.requiredSubscription)
-        : false;
+        : false);
 
-      if (!hasAccess) {
-        const publicAnalysis: Partial<typeof analysis> = { ...analysis };
-        delete publicAnalysis.fullContent;
-        return publicAnalysis;
-      }
+    if (!hasAccess) {
+      const publicAnalysis: Partial<typeof analysis> = { ...analysis };
+      delete publicAnalysis.fullContent;
+      return publicAnalysis;
     }
 
     return analysis;
@@ -134,6 +138,7 @@ export class AnalysisService {
         analysisType: true,
         isLocked: true,
         requiredSubscription: true,
+        accessLevel: true,
         publishedAt: true,
       },
     });

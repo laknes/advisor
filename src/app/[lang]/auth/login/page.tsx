@@ -6,11 +6,12 @@ import { usePublicSettings } from '@/components/usePublicSettings';
 import { storeAuth } from '@/lib/clientAuth';
 import { LockKeyhole, Mail, Phone, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { locale } = useLocale();
   const isEnglish = locale === 'en';
   const settings = usePublicSettings();
@@ -44,6 +45,12 @@ export default function LoginPage() {
   }, [resendCooldown]);
 
   const cooldownLabel = `${String(Math.floor(resendCooldown / 60)).padStart(2, '0')}:${String(resendCooldown % 60).padStart(2, '0')}`;
+  const getPostLoginDestination = (fallback: string) => {
+    const redirect = searchParams.get('redirect');
+    return redirect?.startsWith(`/${locale}/`)
+      ? redirect
+      : fallback;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -104,7 +111,7 @@ export default function LoginPage() {
       }
 
       storeAuth(payload.data.token, payload.data.user);
-      router.push(payload.data.user?.isAdmin ? `/${locale}/admin` : `/${locale}/dashboard`);
+      router.push(getPostLoginDestination(payload.data.user?.isAdmin ? `/${locale}/admin` : `/${locale}/dashboard`));
     } finally {
       setIsLoading(false);
     }
@@ -175,7 +182,7 @@ export default function LoginPage() {
       }
 
       storeAuth(payload.data.token, payload.data.user);
-      router.push(payload.data.user?.isAdmin ? `/${locale}/admin` : `/${locale}/dashboard`);
+      router.push(getPostLoginDestination(payload.data.user?.isAdmin ? `/${locale}/admin` : `/${locale}/dashboard`));
     } finally {
       setIsLoading(false);
     }
@@ -336,7 +343,7 @@ export default function LoginPage() {
             <div className="w-full border-t border-white/12"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-[#201f35] px-3 text-slate-400">یا ادامه با</span>
+            <span className="bg-[color:var(--theme-bg-soft)] px-3 text-slate-400">یا ادامه با</span>
           </div>
         </div>
 

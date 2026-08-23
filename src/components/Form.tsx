@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
@@ -37,7 +39,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={id}
             type={inputType}
             className={cn(
-              'w-full px-4 py-3 bg-white border-2 border-secondary-100 rounded-xl text-secondary-900 placeholder-secondary-400',
+              'w-full px-4 py-3 bg-white/60 backdrop-blur-xl border-2 border-white/50 rounded-xl text-secondary-900 placeholder-secondary-400',
               'focus:outline-none focus:ring-4 focus:ring-primary-50 focus:border-primary-500',
               'transition-all duration-200 shadow-sm',
               icon && 'pl-11',
@@ -108,7 +110,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             props.onChange?.(e);
           }}
           className={cn(
-            'w-full px-4 py-2.5 bg-white border border-secondary-200 rounded-lg text-secondary-900 placeholder-secondary-400',
+            'w-full px-4 py-2.5 bg-white/60 backdrop-blur-xl border border-white/50 rounded-lg text-secondary-900 placeholder-secondary-400',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
             'transition-all duration-200 resize-none',
             error && 'border-red-300 focus:ring-red-500',
@@ -149,7 +151,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={id}
           className={cn(
-            'w-full px-4 py-2.5 bg-white border border-secondary-200 rounded-lg text-secondary-900',
+            'w-full px-4 py-2.5 bg-white/60 backdrop-blur-xl border border-white/50 rounded-lg text-secondary-900',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
             'transition-all duration-200 appearance-none cursor-pointer',
             error && 'border-red-300 focus:ring-red-500',

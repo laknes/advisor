@@ -118,8 +118,9 @@ export default function NewAnalysisPage() {
           entryPrice: formData.entryPrice ? Number(formData.entryPrice) : undefined,
           targetPrice: formData.targetPrice ? Number(formData.targetPrice) : undefined,
           stopLoss: formData.stopLoss ? Number(formData.stopLoss) : undefined,
-          requiredSubscription: formData.accessLevel === 'free' ? undefined : formData.accessLevel,
-          isLocked: formData.accessLevel !== 'free',
+          requiredSubscription: ['basic', 'premium', 'vip'].includes(formData.accessLevel) ? formData.accessLevel : undefined,
+          isLocked: formData.accessLevel !== 'free' && formData.accessLevel !== 'login',
+          accessLevel: formData.accessLevel === 'free' ? 'public' : formData.accessLevel === 'login' ? 'login' : 'subscription',
         }),
       });
       const result = await response.json();
@@ -310,6 +311,7 @@ export default function NewAnalysisPage() {
                       onChange={handleChange}
                       options={[
                         { value: 'free', label: dict.admin.free_access },
+                        { value: 'login', label: 'Free - Login required' },
                         { value: 'basic', label: dict.admin.basic_sub },
                         { value: 'premium', label: dict.admin.premium_sub },
                         { value: 'vip', label: dict.admin.vip_sub },

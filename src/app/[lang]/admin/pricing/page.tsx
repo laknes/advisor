@@ -389,7 +389,7 @@ export default function AdminPricingPage() {
                   <select
                     value={typeFilter}
                     onChange={(event) => setTypeFilter(event.target.value as PlanTypeFilter)}
-                    className="h-12 rounded-lg border border-white/10 bg-[#241033] px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
+                    className="h-12 rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-input-bg)] backdrop-blur-xl px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
                   >
                     <option value="all">همه نوع‌ها</option>
                     {planTypeOptions.map((option) => (
@@ -399,7 +399,7 @@ export default function AdminPricingPage() {
                   <select
                     value={tierFilter}
                     onChange={(event) => setTierFilter(event.target.value as TierFilter)}
-                    className="h-12 rounded-lg border border-white/10 bg-[#241033] px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
+                    className="h-12 rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-input-bg)] backdrop-blur-xl px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
                   >
                     <option value="all">همه سطح‌ها</option>
                     {tierOptions.map((option) => (
@@ -409,7 +409,7 @@ export default function AdminPricingPage() {
                   <select
                     value={statusFilter}
                     onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
-                    className="h-12 rounded-lg border border-white/10 bg-[#241033] px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
+                    className="h-12 rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-input-bg)] backdrop-blur-xl px-3 text-sm font-bold text-white outline-none focus:border-primary-200"
                   >
                     <option value="all">همه وضعیت‌ها</option>
                     <option value="active">فعال</option>

@@ -17,13 +17,55 @@ function isMetaMaskExtensionError(value: unknown) {
   );
 }
 
+function isDomReconciliationError(value: unknown) {
+  const text = value instanceof Error
+    ? `${value.message} ${value.stack || ''}`
+    : String(value || '');
+
+  return (
+    text.includes("Failed to execute 'insertBefore' on 'Node'")
+    || text.includes("Failed to execute 'removeChild' on 'Node'")
+    || text.includes('is not a child of this node')
+  );
+}
+
+// Browser extensions (translators, password managers, ad blockers) sometimes inject or
+// remove DOM nodes inside React-managed subtrees, which desyncs React's virtual DOM
+// and crashes insertBefore/removeChild. Patch both to no-op instead of throwing.
+function patchDomMutationMethods() {
+  if (typeof window === 'undefined' || (window as Window & { __domPatched?: boolean }).__domPatched) {
+    return;
+  }
+  (window as Window & { __domPatched?: boolean }).__domPatched = true;
+
+  const originalInsertBefore = Node.prototype.insertBefore;
+  Node.prototype.insertBefore = function insertBefore<T extends Node>(this: Node, newNode: T, referenceNode: Node | null) {
+    if (referenceNode && referenceNode.parentNode !== this) {
+      return newNode;
+    }
+    return originalInsertBefore.call(this, newNode, referenceNode) as T;
+  } as typeof Node.prototype.insertBefore;
+
+  const originalRemoveChild = Node.prototype.removeChild;
+  Node.prototype.removeChild = function removeChild<T extends Node>(this: Node, child: T) {
+    if (child.parentNode !== this) {
+      return child;
+    }
+    return originalRemoveChild.call(this, child) as T;
+  } as typeof Node.prototype.removeChild;
+}
+
 export function ExtensionErrorFilter() {
   useEffect(() => {
+    patchDomMutationMethods();
+
     const handleError = (event: ErrorEvent) => {
       if (
         isMetaMaskExtensionError(event.error)
         || isMetaMaskExtensionError(event.message)
         || isMetaMaskExtensionError(event.filename)
+        || isDomReconciliationError(event.error)
+        || isDomReconciliationError(event.message)
       ) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -31,7 +73,7 @@ export function ExtensionErrorFilter() {
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
-      if (isMetaMaskExtensionError(event.reason)) {
+      if (isMetaMaskExtensionError(event.reason) || isDomReconciliationError(event.reason)) {
         event.preventDefault();
         event.stopImmediatePropagation();
       }

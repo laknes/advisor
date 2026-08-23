@@ -341,7 +341,7 @@ export default function Home() {
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm font-bold text-slate-300">{formatNumber(analysis.accuracy ?? 0)}{isEnglish ? '% accuracy' : '٪ دقت'}</span>
                           <ButtonLink href={`/${locale}/analyses/${analysis.id}`} size="sm" variant={analysis.isLocked ? 'secondary' : 'primary'}>
-                            {analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
+                            {analysis.accessLevel === 'login' ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
                           </ButtonLink>
                         </div>
                       </div>
@@ -376,7 +376,7 @@ export default function Home() {
                       onClick={() => setActiveMarketWatchTab(tab.id)}
                       className={cn(
                         'whitespace-nowrap rounded-lg px-5 py-2.5 text-sm font-black transition-all focus:outline-none focus:ring-2 focus:ring-white/70',
-                        isActive ? 'bg-white text-primary-900 shadow-lg shadow-black/20' : 'text-slate-300 hover:bg-white/10 hover:text-white',
+                        isActive ? 'bg-white/90 text-primary-900 shadow-lg shadow-black/20 backdrop-blur-xl border border-white/60' : 'text-slate-300 hover:bg-white/10 hover:text-white',
                       )}
                     >
                       {tab.label}
