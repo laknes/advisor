@@ -38,6 +38,10 @@ NODE_MAX_OLD_SPACE_SIZE="${NODE_MAX_OLD_SPACE_SIZE:-768}"
 NON_INTERACTIVE="${NON_INTERACTIVE:-false}"
 MANAGED_POSTGRES="false"
 INSTALL_MODE="${INSTALL_MODE:-install}"
+NODE_BIN=""
+NPM_BIN=""
+NPX_BIN=""
+NODE_BIN_DIR=""
 
 log() {
   printf '\033[1;35m[install]\033[0m %s\n' "$*"
@@ -206,6 +210,9 @@ load_existing_env_for_update() {
 
   DATABASE_URL="${provided_database_url:-${DATABASE_URL:-${INSTALL_DATABASE_URL:-}}}"
   APP_BASE_URL="${provided_app_base_url:-${APP_BASE_URL:-${NEXTAUTH_URL:-}}}"
+  if [[ -z "$DOMAIN" && "$APP_BASE_URL" =~ ^https?:// ]]; then
+    DOMAIN="$(printf '%s' "$APP_BASE_URL" | sed -E 's#^https?://([^/:]+).*#\1#')"
+  fi
   NEXTAUTH_SECRET="${provided_nextauth_secret:-${NEXTAUTH_SECRET:-}}"
   JWT_SECRET="${provided_jwt_secret:-${JWT_SECRET:-}}"
   ADMIN_EMAIL="${provided_admin_email:-${ADMIN_EMAIL:-}}"
@@ -433,10 +440,13 @@ install_system_packages() {
 
 install_nodejs() {
   if command -v node >/dev/null 2>&1; then
-    local major
-    major="$(node -v | sed 's/^v//' | cut -d. -f1)"
-    if [[ "$major" -ge 18 ]]; then
+    local version major minor
+    version="$(node -v | sed 's/^v//')"
+    major="$(printf '%s' "$version" | cut -d. -f1)"
+    minor="$(printf '%s' "$version" | cut -d. -f2)"
+    if [[ "$major" -gt 20 || ( "$major" -eq 20 && "$minor" -ge 9 ) ]]; then
       log "Node.js $(node -v) already installed"
+      resolve_node_tools
       return
     fi
   fi
@@ -449,6 +459,30 @@ install_nodejs() {
     > /etc/apt/sources.list.d/nodesource.list
   apt-get update
   apt-get install -y nodejs
+  resolve_node_tools
+}
+
+resolve_node_tools() {
+  NODE_BIN="$(command -v node || true)"
+  NPM_BIN="$(command -v npm || true)"
+  NPX_BIN="$(command -v npx || true)"
+
+  if [[ -z "$NODE_BIN" || -z "$NPM_BIN" || -z "$NPX_BIN" ]]; then
+    die "Node.js, npm, or npx was not found on PATH after installation."
+  fi
+
+  NODE_BIN_DIR="$(dirname "$NODE_BIN")"
+
+  local version major minor
+  version="$("$NODE_BIN" -v | sed 's/^v//')"
+  major="$(printf '%s' "$version" | cut -d. -f1)"
+  minor="$(printf '%s' "$version" | cut -d. -f2)"
+  if [[ "$major" -lt 20 || ( "$major" -eq 20 && "$minor" -lt 9 ) ]]; then
+    die "Node.js >=20.9.0 is required. Current version is v${version} at ${NODE_BIN}."
+  fi
+
+  log "Using Node $("$NODE_BIN" -v) from ${NODE_BIN}"
+  log "Using npm $("$NPM_BIN" -v) from ${NPM_BIN}"
 }
 
 memory_mb() {
@@ -627,22 +661,28 @@ EOF
 install_app_dependencies() {
   log "Installing Node dependencies"
   cd "$APP_DIR"
+  resolve_node_tools
+
+  log "Cleaning generated dependency/build directories before install"
+  rm -rf "${APP_DIR}/node_modules" "${APP_DIR}/.next"
 
   local npm_status
   local npm_env=(
+    "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     "NODE_OPTIONS=--max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}"
     "npm_config_jobs=1"
     "npm_config_audit=false"
     "npm_config_fund=false"
     "npm_config_progress=false"
+    "npm_config_optional=true"
   )
 
   set +e
   if [[ -f package-lock.json ]]; then
-    sudo -u "$APP_USER" env "${npm_env[@]}" npm ci --no-audit --no-fund --progress=false
+    sudo -u "$APP_USER" env "${npm_env[@]}" "$NPM_BIN" ci --include=optional --no-audit --no-fund --progress=false
     npm_status=$?
   else
-    sudo -u "$APP_USER" env "${npm_env[@]}" npm install --no-audit --no-fund --progress=false
+    sudo -u "$APP_USER" env "${npm_env[@]}" "$NPM_BIN" install --include=optional --no-audit --no-fund --progress=false
     npm_status=$?
   fi
   set -e
@@ -662,7 +702,8 @@ test_database_connection() {
   source "$APP_DIR/.env.production"
   set +a
 
-  if printf 'SELECT 1;\n' | sudo -u "$APP_USER" npx prisma db execute --stdin --schema prisma/schema.prisma >/dev/null; then
+  resolve_node_tools
+  if printf 'SELECT 1;\n' | sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db execute --stdin --schema prisma/schema.prisma >/dev/null; then
     log "Database connection verified"
   else
     die "Database connection failed. Check DATABASE_URL, SSL parameters, network access, and database credentials."
@@ -677,20 +718,22 @@ setup_prisma() {
   source "$APP_DIR/.env.production"
   set +a
 
-  sudo -u "$APP_USER" npx prisma validate
-  sudo -u "$APP_USER" npx prisma generate
+  resolve_node_tools
+  sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma validate
+  sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma generate
   test_database_connection
 
   if [[ "$INSTALL_MODE" == "update" ]]; then
     log "Update mode: existing database detected from DATABASE_URL; applying schema changes only"
-    sudo -u "$APP_USER" npx prisma db push
+    sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db push
   else
     log "Install mode: synchronizing full Prisma schema"
-    sudo -u "$APP_USER" npx prisma db push
+    sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db push
   fi
 }
 
 seed_production_data() {
+  resolve_node_tools
   if [[ "$INSTALL_MODE" == "update" && -z "$ADMIN_PASSWORD" ]]; then
     warn "Update mode: no admin password provided; seeding baseline data and contact settings without changing admin users."
     log "Seeding baseline markets, plans, and contact/support settings"
@@ -701,9 +744,10 @@ seed_production_data() {
     set +a
 
     sudo -u "$APP_USER" env \
+      "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
       INSTALL_SKIP_ADMIN_SEED="true" \
       DATABASE_URL="$DATABASE_URL" \
-      node scripts/seed-production.mjs
+      "$NODE_BIN" scripts/seed-production.mjs
     return
   fi
 
@@ -715,11 +759,12 @@ seed_production_data() {
   set +a
 
   sudo -u "$APP_USER" env \
+    "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     INSTALL_ADMIN_EMAIL="$ADMIN_EMAIL" \
     INSTALL_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
     INSTALL_ADMIN_NAME="$ADMIN_NAME" \
     DATABASE_URL="$DATABASE_URL" \
-    node scripts/seed-production.mjs
+    "$NODE_BIN" scripts/seed-production.mjs
 }
 
 build_app() {
@@ -729,11 +774,16 @@ build_app() {
   # shellcheck disable=SC1091
   source "$APP_DIR/.env.production"
   set +a
-  sudo -u "$APP_USER" env "NODE_OPTIONS=--max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}" npm run build
+  resolve_node_tools
+  sudo -u "$APP_USER" env \
+    "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    "NODE_OPTIONS=--max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}" \
+    "$NPM_BIN" run build
 }
 
 create_systemd_service() {
   log "Creating systemd service"
+  resolve_node_tools
   local after_units="network.target"
   local wants_units=""
   if [[ "$MANAGED_POSTGRES" == "true" ]]; then
@@ -753,7 +803,8 @@ User=${APP_USER}
 Group=${APP_USER}
 WorkingDirectory=${APP_DIR}
 EnvironmentFile=${APP_DIR}/.env.production
-ExecStart=/usr/bin/npm run start -- -p ${PORT}
+Environment=PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=${NPM_BIN} run start -- -p ${PORT}
 Restart=always
 RestartSec=5
 KillSignal=SIGINT
@@ -770,9 +821,8 @@ EOF
 
 restart_existing_service() {
   if systemctl cat "${APP_NAME}.service" >/dev/null 2>&1; then
-    log "Restarting existing systemd service"
-    systemctl daemon-reload
-    systemctl restart "${APP_NAME}"
+    log "Refreshing and restarting existing systemd service"
+    create_systemd_service
   else
     warn "Systemd service ${APP_NAME}.service was not found; creating it"
     create_systemd_service
@@ -785,12 +835,18 @@ configure_nginx() {
     return
   fi
 
-  log "Configuring Nginx reverse proxy for ${DOMAIN}"
+  local server_names
+  server_names="$DOMAIN"
+  if [[ "$DOMAIN" != www.* ]]; then
+    server_names="${DOMAIN} www.${DOMAIN}"
+  fi
+
+  log "Configuring Nginx reverse proxy for ${server_names}"
   cat > "/etc/nginx/sites-available/${APP_NAME}" <<EOF
 server {
     listen 80;
     listen [::]:80;
-    server_name ${DOMAIN};
+    server_name ${server_names};
 
     client_max_body_size 25m;
 
@@ -832,10 +888,16 @@ configure_ssl() {
   systemctl enable --now nginx
   systemctl reload nginx
 
+  local certbot_domains
+  certbot_domains=(-d "$DOMAIN")
+  if [[ "$DOMAIN" != www.* ]] && getent hosts "www.${DOMAIN}" >/dev/null 2>&1; then
+    certbot_domains+=(-d "www.${DOMAIN}")
+  fi
+
   log "Requesting Let's Encrypt certificate for ${DOMAIN}"
   if certbot --nginx --non-interactive --agree-tos \
     --email "$LETSENCRYPT_EMAIL" \
-    -d "$DOMAIN" \
+    "${certbot_domains[@]}" \
     --redirect; then
     log "SSL certificate installed for ${DOMAIN}"
   else
@@ -866,6 +928,18 @@ health_check() {
     warn "Local app health check failed. Inspect logs with: journalctl -u ${APP_NAME} -f"
     systemctl --no-pager --full status "${APP_NAME}" || true
     journalctl -u "${APP_NAME}" -n 80 --no-pager || true
+  fi
+
+  if [[ "$SKIP_NGINX" != "true" && -n "$DOMAIN" ]]; then
+    local nginx_status
+    nginx_status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "http://${DOMAIN}/fa" || true)"
+    if [[ "$nginx_status" == "200" || "$nginx_status" == "307" || "$nginx_status" == "308" ]]; then
+      log "Public Nginx health check passed with HTTP ${nginx_status}"
+    else
+      warn "Public Nginx health check returned HTTP ${nginx_status:-000}. Check server_name, DNS, and proxy_pass."
+      nginx -t || true
+      journalctl -u nginx -n 80 --no-pager || true
+    fi
   fi
 
   local db_status
