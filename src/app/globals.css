@@ -78,7 +78,10 @@ header, footer { background-color: var(--theme-header) !important; border-color:
 .text-secondary-700 { color: var(--theme-muted) !important; }
 .text-secondary-800, .text-secondary-900 { color: var(--theme-text) !important; }
 .text-primary-100, .text-primary-200, .text-cyan-200 { color: var(--theme-accent) !important; }
-.admin-input, input, textarea, select { background-color: var(--theme-input-bg); color: var(--theme-input-text); border-color: var(--theme-border); }
+.admin-input, input, textarea, select { background-color: var(--theme-input-bg); border-color: var(--theme-border); }
+input:not(.admin-input), textarea:not(.admin-input), select:not(.admin-input) { color: #1c1917 !important; }
+input:not(.admin-input)::placeholder, textarea:not(.admin-input)::placeholder { color: #78716c !important; opacity: 1; }
+select option { color: #1c1917; background: #ffffff; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--theme-bg-deep); }
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--theme-accent) 45%, transparent); border-radius: 999px; }
@@ -87,3 +90,8 @@ header, footer { background-color: var(--theme-header) !important; border-color:
 .card-light .text-secondary-700 { color: #44403c !important; }
 .card-light .text-secondary-800 { color: #292524 !important; }
 .card-light .text-secondary-900 { color: #1c1917 !important; }
+.admin-analyses-page { background: #eef4f3 !important; color: #1c1917 !important; }
+.admin-analyses-page .card-light { background: rgba(255, 255, 255, 0.94) !important; border-color: #d7e2df !important; }
+.admin-analyses-page .card-light [data-card-title], .admin-analyses-page .card-light .text-white { color: #1c1917 !important; }
+.admin-analyses-page .card-light [data-card-header] { border-color: #d7e2df !important; }
+.admin-analyses-page .card-light .text-secondary-400, .admin-analyses-page .card-light .text-secondary-500, .admin-analyses-page .card-light .text-secondary-600, .admin-analyses-page .card-light .text-secondary-700 { color: #57534e !important; }
