@@ -680,8 +680,9 @@ install_app_dependencies() {
   cd "$APP_DIR"
   resolve_node_tools
 
-  log "Cleaning generated dependency/build directories before install"
-  rm -rf "${APP_DIR}/node_modules" "${APP_DIR}/.next"
+  log "Cleaning dependency directory before install"
+  # Keep the active .next build available until the replacement build completes and the service restarts.
+  rm -rf "${APP_DIR}/node_modules"
 
   local npm_status
   local npm_env=(
@@ -792,10 +793,29 @@ build_app() {
   source "$APP_DIR/.env.production"
   set +a
   resolve_node_tools
+  local staging_dir previous_static_dir
+  staging_dir="${APP_DIR}/.next-build-$$"
+  previous_static_dir="$(mktemp -d)"
+
+  rm -rf "$staging_dir"
+  if [[ -d "${APP_DIR}/.next/static" ]]; then
+    cp -a "${APP_DIR}/.next/static/." "$previous_static_dir/"
+  fi
+
   sudo -u "$APP_USER" env \
     "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     "NODE_OPTIONS=--max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}" \
+    "NEXT_BUILD_DIST_DIR=${staging_dir}" \
     "$NPM_BIN" run build
+
+  mkdir -p "${staging_dir}/static"
+  cp -an "${previous_static_dir}/." "${staging_dir}/static/" || true
+  rm -rf "${APP_DIR}/.next.previous"
+  if [[ -d "${APP_DIR}/.next" ]]; then
+    mv "${APP_DIR}/.next" "${APP_DIR}/.next.previous"
+  fi
+  mv "$staging_dir" "${APP_DIR}/.next"
+  rm -rf "${APP_DIR}/.next.previous" "$previous_static_dir"
 }
 
 create_systemd_service() {
