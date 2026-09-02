@@ -157,7 +157,7 @@ export default function AnalysesPage() {
                           </div>
 
                           <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
-                            <Metric icon={<Target className="h-4 w-4" />} label="هدف" value={analysis.targetPrice ? formatFaNumber(analysis.targetPrice) : 'نامشخص'} />
+                            <Metric icon={<Target className="h-4 w-4" />} label="ناحیه خروج" value={analysis.exitZone || 'نامشخص'} />
                             <Metric icon={<ShieldAlert className="h-4 w-4" />} label="دقت" value={`${formatFaNumber(analysis.accuracy ?? 0)}٪`} />
                           </div>
 

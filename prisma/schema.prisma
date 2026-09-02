@@ -70,10 +70,8 @@ model Analysis {
   
   signal          String    // "BUY", "SELL", "HOLD"
   riskLevel       String    // "LOW", "MEDIUM", "HIGH"
-  targetPrice     Float?
-  entryPrice      Float?
-  stopLoss        Float?
-  takeProfit      Float?
+  entryZone       String?   @db.Text
+  exitZone        String?   @db.Text
   
   accuracy        Float?    @default(0) // Historical accuracy percentage
   publishedAt     DateTime

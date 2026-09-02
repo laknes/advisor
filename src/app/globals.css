@@ -75,8 +75,15 @@ header, footer { background-color: var(--theme-header) !important; border-color:
 .card-light, .glass-surface { background: rgba(255, 255, 255, 0.72) !important; border-color: rgba(255, 255, 255, 0.5) !important; backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); }
 .text-white, .text-slate-100, .text-slate-200 { color: var(--theme-text) !important; }
 .text-slate-300, .text-slate-400, .text-secondary-500, .text-secondary-600 { color: var(--theme-muted) !important; }
+.text-secondary-700 { color: var(--theme-muted) !important; }
+.text-secondary-800, .text-secondary-900 { color: var(--theme-text) !important; }
 .text-primary-100, .text-primary-200, .text-cyan-200 { color: var(--theme-accent) !important; }
 .admin-input, input, textarea, select { background-color: var(--theme-input-bg); color: var(--theme-input-text); border-color: var(--theme-border); }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--theme-bg-deep); }
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--theme-accent) 45%, transparent); border-radius: 999px; }
+
+/* Legacy light-surface cards still use the original ink palette. */
+.card-light .text-secondary-700 { color: #44403c !important; }
+.card-light .text-secondary-800 { color: #292524 !important; }
+.card-light .text-secondary-900 { color: #1c1917 !important; }

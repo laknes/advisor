@@ -38,10 +38,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
     analysisType: 'short_term',
     signal: 'BUY',
     riskLevel: 'MEDIUM',
-    targetPrice: '',
-    entryPrice: '',
-    stopLoss: '',
-    takeProfit: '',
+    entryZone: '',
+    exitZone: '',
     requiredSubscription: '',
     isLocked: false,
     accessLevel: 'public',
@@ -75,10 +73,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
           analysisType: data.analysisType || 'short_term',
           signal: data.signal || 'BUY',
           riskLevel: data.riskLevel || 'MEDIUM',
-          targetPrice: data.targetPrice?.toString() || '',
-          entryPrice: data.entryPrice?.toString() || '',
-          stopLoss: data.stopLoss?.toString() || '',
-          takeProfit: data.takeProfit?.toString() || '',
+          entryZone: data.entryZone || '',
+          exitZone: data.exitZone || '',
           requiredSubscription: data.requiredSubscription || '',
           isLocked: data.isLocked ?? false,
           accessLevel: data.accessLevel || (data.isLocked ? 'subscription' : 'public'),
@@ -133,10 +129,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
         },
         body: JSON.stringify({
           ...analysis,
-          targetPrice: analysis.targetPrice ? Number(analysis.targetPrice) : undefined,
-          entryPrice: analysis.entryPrice ? Number(analysis.entryPrice) : undefined,
-          stopLoss: analysis.stopLoss ? Number(analysis.stopLoss) : undefined,
-          takeProfit: analysis.takeProfit ? Number(analysis.takeProfit) : undefined,
+          entryZone: analysis.entryZone.trim() || undefined,
+          exitZone: analysis.exitZone.trim() || undefined,
         }),
       });
 
@@ -296,17 +290,11 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
                       ]}
                     />
                   </FormGroup>
-                  <FormGroup label="Entry Price">
-                    <Input name="entryPrice" type="number" value={analysis.entryPrice} onChange={handleChange} />
+                  <FormGroup label="Entry Zone">
+                    <Input name="entryZone" value={analysis.entryZone} onChange={handleChange} />
                   </FormGroup>
-                  <FormGroup label="Target Price">
-                    <Input name="targetPrice" type="number" value={analysis.targetPrice} onChange={handleChange} />
-                  </FormGroup>
-                  <FormGroup label="Stop Loss">
-                    <Input name="stopLoss" type="number" value={analysis.stopLoss} onChange={handleChange} />
-                  </FormGroup>
-                  <FormGroup label="Take Profit">
-                    <Input name="takeProfit" type="number" value={analysis.takeProfit} onChange={handleChange} />
+                  <FormGroup label="Exit Zone">
+                    <Input name="exitZone" value={analysis.exitZone} onChange={handleChange} />
                   </FormGroup>
                 </div>
 

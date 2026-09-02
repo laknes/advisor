@@ -36,10 +36,8 @@ export interface Analysis {
   analysisType: 'short_term' | 'long_term';
   signal: 'BUY' | 'SELL' | 'HOLD';
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
-  targetPrice?: number;
-  entryPrice?: number;
-  stopLoss?: number;
-  takeProfit?: number;
+  entryZone?: string;
+  exitZone?: string;
   accuracy?: number;
   publishedAt: Date;
   expiresAt?: Date;

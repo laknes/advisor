@@ -327,23 +327,23 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                           {!analysis.isLocked ? (
                             <div className="bg-secondary-50 p-6 rounded-2xl grid grid-cols-2 gap-6 border border-secondary-100">
                               <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Target Price</p>
-                                <p className="text-xl font-black text-primary-600 font-mono">{analysis.targetPrice}</p>
+                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Entry Zone</p>
+                                <p className="text-xl font-black text-primary-600">{analysis.entryZone || 'ثبت نشده'}</p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Stop Loss</p>
-                                <p className="text-xl font-black text-red-500 font-mono">{analysis.stopLoss || 'ثبت نشده'}</p>
+                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Exit Zone</p>
+                                <p className="text-xl font-black text-red-500">{analysis.exitZone || 'ثبت نشده'}</p>
                               </div>
                             </div>
                           ) : (
                             <div className="relative group/lock">
                               <div className="bg-secondary-50 p-6 rounded-2xl grid grid-cols-2 gap-6 border border-secondary-100 blur-sm select-none">
                                 <div>
-                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Target Price</p>
+                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Entry Zone</p>
                                   <p className="text-base font-black text-primary-600">مخصوص اعضا</p>
                                 </div>
                                 <div>
-                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Stop Loss</p>
+                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Exit Zone</p>
                                   <p className="text-base font-black text-red-500">مخصوص اعضا</p>
                                 </div>
                               </div>

@@ -15,11 +15,11 @@ interface BadgeProps {
 
 export const Badge: React.FC<BadgeProps> = ({ variant = 'neutral', children, className, pulse = false }) => {
   const variants = {
-    success: 'bg-primary-100 text-primary-900 border border-primary-200',
-    danger: 'bg-red-100 text-red-800 border border-red-200',
-    warning: 'bg-white text-primary-900 border border-white',
-    info: 'bg-blue-100 text-blue-800 border border-blue-200',
-    neutral: 'bg-secondary-100 text-secondary-800 border border-secondary-200',
+    success: 'border border-emerald-300/20 bg-emerald-400/15 text-emerald-200',
+    danger: 'border border-red-300/20 bg-red-400/15 text-red-200',
+    warning: 'border border-amber-200/20 bg-amber-300/15 text-amber-200',
+    info: 'border border-cyan-300/20 bg-cyan-300/15 text-cyan-200',
+    neutral: 'border border-slate-300/15 bg-slate-200/10 text-slate-200',
   };
 
   return (

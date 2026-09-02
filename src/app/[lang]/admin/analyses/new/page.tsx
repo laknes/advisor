@@ -34,9 +34,8 @@ export default function NewAnalysisPage() {
     riskLevel: 'MEDIUM',
     summary: '',
     fullContent: '',
-    entryPrice: '',
-    targetPrice: '',
-    stopLoss: '',
+    entryZone: '',
+    exitZone: '',
     accessLevel: 'premium',
     scheduleDate: '',
     scheduleTime: '',
@@ -115,9 +114,8 @@ export default function NewAnalysisPage() {
           analysisType: formData.analysisType,
           signal: formData.signal,
           riskLevel: formData.riskLevel,
-          entryPrice: formData.entryPrice ? Number(formData.entryPrice) : undefined,
-          targetPrice: formData.targetPrice ? Number(formData.targetPrice) : undefined,
-          stopLoss: formData.stopLoss ? Number(formData.stopLoss) : undefined,
+          entryZone: formData.entryZone.trim() || undefined,
+          exitZone: formData.exitZone.trim() || undefined,
           requiredSubscription: ['basic', 'premium', 'vip'].includes(formData.accessLevel) ? formData.accessLevel : undefined,
           isLocked: formData.accessLevel !== 'free' && formData.accessLevel !== 'login',
           accessLevel: formData.accessLevel === 'free' ? 'public' : formData.accessLevel === 'login' ? 'login' : 'subscription',
@@ -220,32 +218,19 @@ export default function NewAnalysisPage() {
 
                 <Card className="border-none shadow-xl bg-white">
                   <CardHeader title={dict.admin.trading_signals} icon={<Target className="w-5 h-5 text-green-600" />} />
-                  <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <Input 
-                      label={dict.admin.entry_price} 
-                      name="entryPrice" 
-                      type="number" 
-                      step="0.01" 
-                      placeholder="0.00"
-                      value={formData.entryPrice}
+                      label="ناحیه ورود"
+                      name="entryZone"
+                      placeholder="مثال: محدوده حمایتی ... تا ..."
+                      value={formData.entryZone}
                       onChange={handleChange}
                     />
                     <Input 
-                      label={dict.admin.target_price} 
-                      name="targetPrice" 
-                      type="number" 
-                      step="0.01" 
-                      placeholder="0.00"
-                      value={formData.targetPrice}
-                      onChange={handleChange}
-                    />
-                    <Input 
-                      label={dict.admin.stop_loss} 
-                      name="stopLoss" 
-                      type="number" 
-                      step="0.01" 
-                      placeholder="0.00"
-                      value={formData.stopLoss}
+                      label="ناحیه خروج"
+                      name="exitZone"
+                      placeholder="مثال: محدوده مقاومتی ... تا ..."
+                      value={formData.exitZone}
                       onChange={handleChange}
                     />
                   </CardContent>

@@ -195,10 +195,6 @@ export default function Home() {
       accuracy,
       totalAnalyses: analyses.length,
       winRate: accuracy,
-      averageReturn: analyses.reduce((sum, analysis) => {
-        if (!analysis.entryPrice || !analysis.targetPrice) return sum;
-        return sum + ((analysis.targetPrice - analysis.entryPrice) / analysis.entryPrice) * 100;
-      }, 0) / Math.max(analyses.length, 1),
     };
   }, [analyses]);
 
@@ -335,8 +331,8 @@ export default function Home() {
                         <h3 className="text-xl font-black leading-8 text-white">{localizeText(analysis.title, analysis.title)}</h3>
                         <p className="line-clamp-2 leading-7 text-slate-300">{localizeText(analysis.summary, analysis.summary)}</p>
                         <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
-                          <Metric label={isEnglish ? 'Entry' : 'ورود'} value={formatNumber(Number(analysis.entryPrice))} />
-                          <Metric label={isEnglish ? 'Target' : 'هدف'} value={formatNumber(Number(analysis.targetPrice))} accent />
+                          <Metric label={isEnglish ? 'Entry zone' : 'ناحیه ورود'} value={analysis.entryZone || '—'} />
+                          <Metric label={isEnglish ? 'Exit zone' : 'ناحیه خروج'} value={analysis.exitZone || '—'} accent />
                         </div>
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm font-bold text-slate-300">{formatNumber(analysis.accuracy ?? 0)}{isEnglish ? '% accuracy' : '٪ دقت'}</span>
@@ -497,12 +493,11 @@ export default function Home() {
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionTitle title={isEnglish ? 'Proven performance' : 'سابقه عملکرد قابل اتکا'} subtitle={isEnglish ? 'Performance indicators to measure decision quality and risk management.' : 'شاخص‌های عملکرد تحلیل‌ها برای سنجش کیفیت تصمیم‌سازی و مدیریت ریسک.'} />
-            <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {[
                 { label: isEnglish ? 'Analysis accuracy' : 'دقت تحلیل', value: `${formatNumber(performanceStats.accuracy)}${isEnglish ? '%' : '٪'}` },
                 { label: isEnglish ? 'Total analyses' : 'کل تحلیل‌ها', value: formatNumber(performanceStats.totalAnalyses) },
                 { label: isEnglish ? 'Success rate' : 'نرخ موفقیت', value: `${formatNumber(performanceStats.winRate)}${isEnglish ? '%' : '٪'}` },
-                { label: isEnglish ? 'Average return' : 'میانگین بازده', value: `${formatNumber(performanceStats.averageReturn)}${isEnglish ? '%' : '٪'}` },
               ].map((stat) => (
                 <motion.div key={stat.label} variants={fadeInUp}>
                   <Card className="h-full p-5">

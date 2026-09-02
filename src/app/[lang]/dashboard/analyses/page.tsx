@@ -18,7 +18,7 @@ export default function AnalysesPage() {
     signal: 'BUY' | 'SELL' | 'HOLD';
     riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
     publishedAt: string;
-    targetPrice?: number | null;
+    exitZone?: string | null;
     accuracy?: number | null;
   }>>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,8 +109,8 @@ export default function AnalysesPage() {
                         </Badge>
                       </div>
                       <div>
-                        <span className="text-secondary-600">Target:</span>
-                        <span className="ml-2 font-semibold text-secondary-900">{analysis.targetPrice ? `$${analysis.targetPrice}` : '—'}</span>
+                        <span className="text-secondary-600">Exit zone:</span>
+                        <span className="ml-2 font-semibold text-secondary-900">{analysis.exitZone || '—'}</span>
                       </div>
                       <div>
                         <span className="text-secondary-600">Accuracy:</span>
