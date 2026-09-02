@@ -35,6 +35,7 @@ SKIP_NGINX="${SKIP_NGINX:-false}"
 SKIP_SWAP="${SKIP_SWAP:-false}"
 SWAP_SIZE_MB="${SWAP_SIZE_MB:-2048}"
 NODE_MAX_OLD_SPACE_SIZE="${NODE_MAX_OLD_SPACE_SIZE:-768}"
+DB_RETRY_ATTEMPTS="${DB_RETRY_ATTEMPTS:-4}"
 NON_INTERACTIVE="${NON_INTERACTIVE:-false}"
 MANAGED_POSTGRES="false"
 INSTALL_MODE="${INSTALL_MODE:-install}"
@@ -99,7 +100,7 @@ Options:
 Environment overrides:
   DOMAIN, APP_BASE_URL, LETSENCRYPT_EMAIL, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_EMAILS,
   PORT, DATABASE_URL, NEXTAUTH_SECRET, JWT_SECRET, DB_NAME, DB_USER, DB_PASS, STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY,
-  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SKIP_SWAP, SWAP_SIZE_MB, NODE_MAX_OLD_SPACE_SIZE, INSTALL_MODE
+  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SKIP_SWAP, SWAP_SIZE_MB, NODE_MAX_OLD_SPACE_SIZE, DB_RETRY_ATTEMPTS, INSTALL_MODE
 EOF
 }
 
@@ -422,6 +423,22 @@ dotenv_quote() {
   node -e "const s = process.argv[1] || ''; process.stdout.write(JSON.stringify(s));" "$1"
 }
 
+run_database_command() {
+  local attempt=1
+  local delay_seconds
+
+  until "$@"; do
+    if [[ "$attempt" -ge "$DB_RETRY_ATTEMPTS" ]]; then
+      return 1
+    fi
+
+    delay_seconds=$((attempt * 5))
+    warn "Database command failed; retrying in ${delay_seconds}s (${attempt}/${DB_RETRY_ATTEMPTS})"
+    sleep "$delay_seconds"
+    attempt=$((attempt + 1))
+  done
+}
+
 install_system_packages() {
   log "Installing system packages"
   apt-get update
@@ -706,7 +723,7 @@ test_database_connection() {
   if printf 'SELECT 1;\n' | sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db execute --stdin --schema prisma/schema.prisma >/dev/null; then
     log "Database connection verified"
   else
-    die "Database connection failed. Check DATABASE_URL, SSL parameters, network access, and database credentials."
+    die "Database connection failed. Check Neon status, outbound TCP access to port 5432, DATABASE_URL SSL parameters, and database credentials."
   fi
 }
 
@@ -725,10 +742,10 @@ setup_prisma() {
 
   if [[ "$INSTALL_MODE" == "update" ]]; then
     log "Update mode: existing database detected from DATABASE_URL; applying schema changes only"
-    sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db push
+    run_database_command sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db push || die "Unable to apply the Prisma schema after ${DB_RETRY_ATTEMPTS} attempts."
   else
     log "Install mode: synchronizing full Prisma schema"
-    sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db push
+    run_database_command sudo -u "$APP_USER" env "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" "$NPX_BIN" prisma db push || die "Unable to apply the Prisma schema after ${DB_RETRY_ATTEMPTS} attempts."
   fi
 }
 
@@ -743,11 +760,11 @@ seed_production_data() {
     source "$APP_DIR/.env.production"
     set +a
 
-    sudo -u "$APP_USER" env \
+    run_database_command sudo -u "$APP_USER" env \
       "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
       INSTALL_SKIP_ADMIN_SEED="true" \
       DATABASE_URL="$DATABASE_URL" \
-      "$NODE_BIN" scripts/seed-production.mjs
+      "$NODE_BIN" scripts/seed-production.mjs || die "Production seed failed after ${DB_RETRY_ATTEMPTS} database connection attempts."
     return
   fi
 
@@ -758,13 +775,13 @@ seed_production_data() {
   source "$APP_DIR/.env.production"
   set +a
 
-  sudo -u "$APP_USER" env \
+  run_database_command sudo -u "$APP_USER" env \
     "PATH=${NODE_BIN_DIR}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     INSTALL_ADMIN_EMAIL="$ADMIN_EMAIL" \
     INSTALL_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
     INSTALL_ADMIN_NAME="$ADMIN_NAME" \
     DATABASE_URL="$DATABASE_URL" \
-    "$NODE_BIN" scripts/seed-production.mjs
+    "$NODE_BIN" scripts/seed-production.mjs || die "Production seed failed after ${DB_RETRY_ATTEMPTS} database connection attempts."
 }
 
 build_app() {
