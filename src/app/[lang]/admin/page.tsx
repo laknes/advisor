@@ -24,6 +24,8 @@ import {
   RefreshCw,
   Users,
   WalletCards,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 const adminLinks = [
@@ -81,6 +83,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [integrations, setIntegrations] = useState<IntegrationStatus | null>(null);
   const [syncStatus, setSyncStatus] = useState('');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -131,13 +134,30 @@ export default function AdminDashboard() {
       <Header isAuthenticated userName="مدیر سیستم" />
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <aside className="sticky top-24 hidden h-[calc(100vh-7rem)] w-72 shrink-0 lg:block">
-          <div className="glass-panel flex h-full flex-col rounded-lg p-4">
-            <div className="mb-6 rounded-lg bg-white p-4 text-primary-900">
-              <p className="text-xs font-black">Admin OS</p>
-              <p className="mt-1 text-xl font-black">پنل مدیریتی حرفه‌ای</p>
+        <aside className={cn(
+          'sticky top-24 hidden h-[calc(100vh-7rem)] shrink-0 transition-[width] duration-300 lg:block',
+          isSidebarCollapsed ? 'w-20' : 'w-72',
+        )}>
+          <div className="glass-panel flex h-full min-h-0 flex-col rounded-lg p-3">
+            <div className={cn('mb-4 flex items-center rounded-lg bg-white p-3 text-primary-900', isSidebarCollapsed ? 'justify-center' : 'justify-between gap-3')}>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0">
+                  <p className="text-xs font-black">پنل مدیریت</p>
+                  <p className="mt-1 truncate text-lg font-black">مدیریتی حرفه‌ای</p>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-primary-900 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-300"
+                aria-label={isSidebarCollapsed ? 'باز کردن منو' : 'جمع کردن منو'}
+                title={isSidebarCollapsed ? 'باز کردن منو' : 'جمع کردن منو'}
+                aria-expanded={!isSidebarCollapsed}
+              >
+                {isSidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+              </button>
             </div>
-            <nav className="space-y-2">
+            <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden py-1 pr-1">
               {adminLinks.map((item, index) => {
                 const Icon = item.icon;
                 return (
@@ -145,20 +165,26 @@ export default function AdminDashboard() {
                     key={item.href}
                     href={`/${locale}/admin${item.href}`}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold transition',
+                      'flex min-h-11 items-center rounded-lg py-3 text-sm font-bold transition',
+                      isSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
                       index === 0 ? 'bg-white text-primary-900' : 'text-slate-300 hover:bg-white/10 hover:text-white',
                     )}
+                    title={isSidebarCollapsed ? item.label : undefined}
                   >
                     <Icon className="h-5 w-5" />
-                    {item.label}
+                    {!isSidebarCollapsed && <span className="whitespace-nowrap">{item.label}</span>}
                   </Link>
                 );
               })}
             </nav>
-            <div className="mt-auto rounded-lg border border-white/10 bg-white/[0.06] p-4">
-              <ShieldCheck className="mb-3 h-6 w-6" />
-              <p className="font-black">دسترسی ادمین</p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">APIهای مدیریتی با allowlist ایمیل ادمین محافظت می‌شوند.</p>
+            <div className={cn('mt-3 shrink-0 rounded-lg border border-white/10 bg-white/[0.06] p-3', isSidebarCollapsed ? 'flex justify-center' : '')}>
+              <ShieldCheck className={cn('h-6 w-6', !isSidebarCollapsed && 'mb-3')} />
+              {!isSidebarCollapsed && (
+                <>
+                  <p className="font-black">دسترسی ادمین</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">APIهای مدیریتی با فهرست مجاز ایمیل ادمین محافظت می‌شوند.</p>
+                </>
+              )}
             </div>
           </div>
         </aside>

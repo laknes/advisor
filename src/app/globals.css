@@ -95,3 +95,21 @@ select option { color: #1c1917; background: #ffffff; }
 .admin-analyses-page .card-light [data-card-title], .admin-analyses-page .card-light .text-white { color: #1c1917 !important; }
 .admin-analyses-page .card-light [data-card-header] { border-color: #d7e2df !important; }
 .admin-analyses-page .card-light .text-secondary-400, .admin-analyses-page .card-light .text-secondary-500, .admin-analyses-page .card-light .text-secondary-600, .admin-analyses-page .card-light .text-secondary-700 { color: #57534e !important; }
+.platform-settings-page { background: linear-gradient(135deg, #e8f2f0 0%, #f7fbfa 48%, #e2ecea 100%) !important; color: #1c1917 !important; }
+.platform-settings-page .glass-surface { background: rgba(255, 255, 255, 0.68) !important; border: 1px solid rgba(255, 255, 255, 0.8) !important; box-shadow: 0 24px 70px -42px rgba(15, 45, 48, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9); }
+.platform-settings-page .glass-surface h2, .platform-settings-page .glass-surface .text-secondary-900 { color: #1c1917 !important; }
+.platform-settings-page .glass-surface .text-secondary-400, .platform-settings-page .glass-surface .text-secondary-500, .platform-settings-page .glass-surface .text-secondary-600, .platform-settings-page .glass-surface .text-secondary-700 { color: #57534e !important; }
+.platform-settings-page input, .platform-settings-page textarea, .platform-settings-page select { background: rgba(255, 255, 255, 0.72) !important; border-color: rgba(112, 145, 143, 0.32) !important; box-shadow: inset 0 1px 2px rgba(15, 45, 48, 0.04), 0 8px 20px -18px rgba(15, 45, 48, 0.7); }
+.platform-settings-page input:focus, .platform-settings-page textarea:focus, .platform-settings-page select:focus { border-color: #147d78 !important; box-shadow: 0 0 0 4px rgba(20, 125, 120, 0.14) !important; }
+.profile-page { background: linear-gradient(135deg, #e8f2f0 0%, #f7fbfa 48%, #e2ecea 100%) !important; color: #1c1917 !important; }
+.profile-page .glass-panel { background: rgba(255, 255, 255, 0.68) !important; border-color: rgba(255, 255, 255, 0.82) !important; box-shadow: 0 24px 70px -42px rgba(15, 45, 48, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9); }
+.profile-page .glass-panel [data-card-title], .profile-page .glass-panel .text-white { color: #1c1917 !important; }
+.profile-page .glass-panel [data-card-header] { border-color: rgba(112, 145, 143, 0.22) !important; }
+.profile-page .glass-panel .text-slate-200, .profile-page .glass-panel .text-slate-300, .profile-page .glass-panel .text-slate-400, .profile-page .glass-panel .text-secondary-500, .profile-page .glass-panel .text-secondary-600, .profile-page .glass-panel .text-secondary-700 { color: #57534e !important; }
+.profile-page .glass-panel > .space-y-4 > label, .profile-page .glass-panel label { color: #292524 !important; }
+.profile-page .glass-panel input:not([type='checkbox']), .profile-page .glass-panel textarea, .profile-page .glass-panel select { background: rgba(255, 255, 255, 0.76) !important; border-color: rgba(112, 145, 143, 0.32) !important; color: #1c1917 !important; box-shadow: inset 0 1px 2px rgba(15, 45, 48, 0.04), 0 8px 20px -18px rgba(15, 45, 48, 0.7); }
+.profile-page .glass-panel input:not([type='checkbox']):focus, .profile-page .glass-panel textarea:focus, .profile-page .glass-panel select:focus { border-color: #147d78 !important; box-shadow: 0 0 0 4px rgba(20, 125, 120, 0.14) !important; }
+.profile-page .glass-panel input:not([type='checkbox']):disabled, .profile-page .glass-panel textarea:disabled { background: rgba(226, 236, 234, 0.72) !important; color: #57534e !important; }
+.profile-page .glass-panel .border-white\/10 { border-color: rgba(112, 145, 143, 0.2) !important; }
+.profile-page .glass-panel .bg-white\/\[0\.05\] { background: rgba(255, 255, 255, 0.5) !important; }
+.profile-page .glass-panel .text-primary-100, .profile-page .glass-panel .text-cyan-200 { color: #147d78 !important; }
