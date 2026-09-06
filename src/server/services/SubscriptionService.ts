@@ -288,11 +288,18 @@ export class SubscriptionService {
   }
 
   static async deletePlan(planId: string) {
+    const subscriptionCount = await prisma.subscription.count({ where: { planId } });
+
+    if (subscriptionCount === 0) {
+      const plan = await prisma.subscriptionPlan.delete({ where: { id: planId } });
+      return { plan: normalizePlan(plan as PlanWithOptionalFields), deleted: true };
+    }
+
     const plan = await prisma.subscriptionPlan.update({
       where: { id: planId },
       data: { isActive: false },
     });
-    return normalizePlan(plan as PlanWithOptionalFields);
+    return { plan: normalizePlan(plan as PlanWithOptionalFields), deleted: false };
   }
 
   /**

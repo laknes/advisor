@@ -59,6 +59,19 @@ export function ExtensionErrorFilter() {
   useEffect(() => {
     patchDomMutationMethods();
 
+    const reportClientError = (message: string, stack?: string) => {
+      try {
+        fetch('/api/logs/client', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: message.slice(0, 2000), stack: stack?.slice(0, 8000), url: window.location.href }),
+          keepalive: true,
+        }).catch(() => undefined);
+      } catch {
+        // Reporting must never break the page.
+      }
+    };
+
     const handleError = (event: ErrorEvent) => {
       if (
         isMetaMaskExtensionError(event.error)
@@ -69,14 +82,21 @@ export function ExtensionErrorFilter() {
       ) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        return;
       }
+
+      reportClientError(event.error instanceof Error ? event.error.message : event.message, event.error instanceof Error ? event.error.stack : undefined);
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
       if (isMetaMaskExtensionError(event.reason) || isDomReconciliationError(event.reason)) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        return;
       }
+
+      const reason = event.reason;
+      reportClientError(reason instanceof Error ? reason.message : String(reason), reason instanceof Error ? reason.stack : undefined);
     };
 
     const blockWalletAccess = () => {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { ForbiddenError, UnauthorizedError } from '@/lib/errors';
+import { LogService } from '@/server/services/LogService';
 
 export interface AuthRequest extends NextRequest {
   user?: { userId: string; email: string };
@@ -97,6 +98,16 @@ export function isAdminEmail(email?: string | null) {
 
 export async function handleError(error: any) {
   console.error('API Error:', error);
+
+  const statusCode = error?.statusCode && error?.code ? error.statusCode : 500;
+  await LogService.log({
+    level: statusCode >= 500 ? 'error' : 'warn',
+    source: 'server',
+    message: error?.message || 'Internal server error',
+    stack: error instanceof Error ? error.stack : undefined,
+    statusCode,
+    code: error?.code,
+  });
 
   if (error.statusCode && error.code) {
     return NextResponse.json(

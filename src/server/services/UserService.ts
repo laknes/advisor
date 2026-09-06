@@ -4,6 +4,7 @@ import { hashPassword, comparePassword, createToken } from '@/lib/auth';
 import { AppError, ConflictError, NotFoundError, UnauthorizedError } from '@/lib/errors';
 import type { RegisterInput, LoginInput, RequestOtpInput, UpdateProfileInput, VerifyOtpInput, RequestPasswordResetInput, ResetPasswordInput } from '@/lib/validations';
 import { SettingsService } from './SettingsService';
+import { SmsProviderService } from './SmsProviderService';
 import { createPasswordResetToken, consumePasswordResetToken } from '@/lib/passwordReset';
 
 function normalizePhone(phone: string) {
@@ -319,8 +320,7 @@ export class UserService {
   }
 
   private static async sendOtpCode(phone: string, code: string, settings: Record<string, unknown>) {
-    const provider = String(settings.otp_sms_provider || 'manual');
-    console.info(`[otp:${provider}] ${phone} -> ${code}`);
+    await SmsProviderService.send(phone, code, settings);
   }
 
   /**

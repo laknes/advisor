@@ -48,8 +48,11 @@ export async function DELETE(
   try {
     await requireAdmin(req);
     const { id } = await params;
-    const plan = await SubscriptionService.deletePlan(id);
-    return successResponse({ plan }, 'Subscription plan deactivated successfully');
+    const { plan, deleted } = await SubscriptionService.deletePlan(id);
+    return successResponse(
+      { plan, deleted },
+      deleted ? 'Subscription plan deleted successfully' : 'Subscription plan has active subscriptions and was deactivated instead',
+    );
   } catch (error) {
     return handleError(error);
   }

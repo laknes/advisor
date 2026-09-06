@@ -25,9 +25,19 @@ export const defaultSiteSettings = [
   { key: 'otp_resend_seconds', value: 60, group: 'otp', label: 'OTP resend delay seconds', description: 'حداقل فاصله بین دو درخواست کد برای یک شماره.', type: 'number', isPublic: false },
   { key: 'otp_max_attempts', value: 5, group: 'otp', label: 'OTP max attempts', description: 'حداکثر دفعات تلاش برای وارد کردن هر کد.', type: 'number', isPublic: false },
   { key: 'otp_dev_show_code', value: true, group: 'otp', label: 'Show OTP code in development', description: 'برای تست بدون سرویس پیامک، کد را در پاسخ API و لاگ سرور نشان می‌دهد.', type: 'boolean', isPublic: false },
-  { key: 'otp_sms_provider', value: 'manual', group: 'otp', label: 'SMS provider', description: 'نام سرویس پیامک. فعلا حالت manual برای تست و اتصال بعدی استفاده می‌شود.', type: 'text', isPublic: false },
-  { key: 'otp_sms_api_key', value: '', group: 'otp', label: 'SMS API key', type: 'password', isPublic: false },
-  { key: 'otp_sms_sender', value: '', group: 'otp', label: 'SMS sender number', type: 'text', isPublic: false },
+  { key: 'otp_sms_provider', value: 'manual', group: 'otp', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای manual، کد فقط در لاگ سرور نمایش داده می‌شود.', type: 'select', isPublic: false },
+  { key: 'otp_sms_api_key', value: '', group: 'otp', label: 'SMS API key (legacy)', description: 'فقط برای سازگاری با نسخه‌های قدیمی؛ تنظیمات هر سرویس در بخش مربوط به همان سرویس در پایین انجام می‌شود.', type: 'password', isPublic: false },
+  { key: 'otp_sms_sender', value: '', group: 'otp', label: 'SMS sender number (legacy)', description: 'فقط برای سازگاری با نسخه‌های قدیمی؛ تنظیمات هر سرویس در بخش مربوط به همان سرویس در پایین انجام می‌شود.', type: 'text', isPublic: false },
+  { key: 'kavenegar_api_key', value: '', group: 'otp', label: 'Kavenegar API key', description: 'کلید API پنل کاوه‌نگار. مستندات: https://kavenegar.com/rest.html', type: 'password', isPublic: false },
+  { key: 'kavenegar_template', value: '', group: 'otp', label: 'Kavenegar OTP template', description: 'نام الگوی Verify Lookup ساخته‌شده در پنل کاوه‌نگار برای ارسال کد یکبار مصرف.', type: 'text', isPublic: false },
+  { key: 'melipayamak_username', value: '', group: 'otp', label: 'Melipayamak username', description: 'نام کاربری پنل ملی‌پیامک. مستندات: https://www.melipayamak.com/api/', type: 'text', isPublic: false },
+  { key: 'melipayamak_password', value: '', group: 'otp', label: 'Melipayamak password', type: 'password', isPublic: false },
+  { key: 'melipayamak_pattern_code', value: '', group: 'otp', label: 'Melipayamak pattern code', description: 'شناسه پترن (bodyId) ساخته‌شده در پنل برای ارسال کد یکبار مصرف.', type: 'text', isPublic: false },
+  { key: 'sms_ir_api_key', value: '', group: 'otp', label: 'SMS.ir API key', description: 'کلید API پنل SMS.ir. مستندات: https://app.sms.ir/developer/index', type: 'password', isPublic: false },
+  { key: 'sms_ir_template_id', value: '', group: 'otp', label: 'SMS.ir template ID', description: 'شناسه الگوی Verify ساخته‌شده در پنل SMS.ir برای ارسال کد یکبار مصرف.', type: 'text', isPublic: false },
+  { key: 'ippanel_api_key', value: '', group: 'otp', label: 'IPPanel API key', description: 'کلید API پنل IPPanel. مستندات: https://ippanel.com/', type: 'password', isPublic: false },
+  { key: 'ippanel_originator', value: '', group: 'otp', label: 'IPPanel sender line', description: 'شماره خط ارسال‌کننده پیامک ثبت‌شده در پنل IPPanel.', type: 'text', isPublic: false },
+  { key: 'ippanel_pattern_code', value: '', group: 'otp', label: 'IPPanel pattern code', description: 'شناسه الگوی پیامک ساخته‌شده در پنل IPPanel برای ارسال کد یکبار مصرف.', type: 'text', isPublic: false },
   { key: 'default_currency', value: 'IRR', group: 'billing', label: 'Default currency', type: 'text', isPublic: true },
   { key: 'payment_default_gateway', value: 'zarinpal', group: 'payments', label: 'Default Iranian payment gateway', description: 'Supported values: zarinpal, zibal, idpay, payir', type: 'text', isPublic: false },
   { key: 'payment_callback_url', value: '', group: 'payments', label: 'Payment callback URL', description: 'Public callback URL used after payment verification.', type: 'text', isPublic: false },
@@ -141,6 +151,11 @@ export class SettingsService {
         value: { equals: 'Professional investment advisory platform' },
       },
       data: { value: 'پلتفرم حرفه‌ای مشاوره سرمایه‌گذاری' },
+    });
+
+    await prisma.siteSetting.updateMany({
+      where: { key: 'otp_sms_provider', type: { not: 'select' } },
+      data: { type: 'select', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای manual، کد فقط در لاگ سرور نمایش داده می‌شود.' },
     });
   }
 

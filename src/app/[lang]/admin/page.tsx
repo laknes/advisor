@@ -12,6 +12,7 @@ import {
   Activity,
   BarChart3,
   Bell,
+  Bug,
   CreditCard,
   FileText,
   Gauge,
@@ -37,6 +38,7 @@ const adminLinks = [
   { href: '/discounts', label: 'تخفیف‌ها', icon: Percent },
   { href: '/support', label: 'پشتیبانی', icon: LifeBuoy },
   { href: '/reports', label: 'گزارش‌ها', icon: BarChart3 },
+  { href: '/logs', label: 'لاگ‌ها و خطاها', icon: Bug },
   { href: '/settings', label: 'تنظیمات', icon: Settings },
 ];
 

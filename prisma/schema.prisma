@@ -370,3 +370,22 @@ model SupportTicket {
   @@index([status, createdAt])
   @@map("support_tickets")
 }
+
+model ErrorLog {
+  id        String   @id @default(cuid())
+  level     String   @default("error") // "error", "warn", "info"
+  source    String   @default("server") // "server", "client", "process"
+  message   String   @db.Text
+  stack     String?  @db.Text
+  route     String?
+  method    String?
+  statusCode Int?
+  code      String?
+  userId    String?
+  context   Json?
+  createdAt DateTime @default(now())
+
+  @@index([level, createdAt])
+  @@index([source, createdAt])
+  @@map("error_logs")
+}

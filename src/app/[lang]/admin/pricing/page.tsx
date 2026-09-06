@@ -319,15 +319,21 @@ export default function AdminPricingPage() {
   };
 
   const deactivatePlan = async (plan: SubscriptionPlan) => {
-    const confirmed = window.confirm(`پلن «${plan.name}» غیرفعال شود؟`);
+    const confirmed = window.confirm(`پلن «${plan.name}» حذف شود؟`);
     if (!confirmed) return;
 
     try {
-      await apiDelete(`/api/subscription-plans/${plan.id}`, true);
-      setStatus('پلن غیرفعال شد.');
-      await loadData();
+      const result = await apiDelete<{ plan: SubscriptionPlan; deleted: boolean }>(`/api/subscription-plans/${plan.id}`, true);
+      if (result.deleted) {
+        setPlans((current) => current.filter((item) => item.id !== plan.id));
+        if (form.id === plan.id) resetForm();
+        setStatus('پلن حذف شد.');
+      } else {
+        setStatus('این پلن دارای اشتراک ثبت‌شده است؛ به‌جای حذف، غیرفعال شد.');
+        await loadData();
+      }
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'غیرفعال‌سازی پلن ناموفق بود.');
+      setStatus(error instanceof Error ? error.message : 'حذف پلن ناموفق بود.');
     }
   };
 
@@ -724,7 +730,7 @@ function PlanCard({
         <div className="flex gap-1">
           <IconButton label="ویرایش" onClick={onEdit}><Edit3 className="h-4 w-4" /></IconButton>
           <IconButton label="کپی" onClick={onDuplicate}><Copy className="h-4 w-4" /></IconButton>
-          <IconButton label="غیرفعال‌سازی" onClick={onDeactivate} danger><Trash2 className="h-4 w-4" /></IconButton>
+          <IconButton label="حذف پلن" onClick={onDeactivate} danger><Trash2 className="h-4 w-4" /></IconButton>
         </div>
       </div>
 
