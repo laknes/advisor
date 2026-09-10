@@ -127,8 +127,8 @@ const siteSettings = [
   { key: 'otp_ttl_minutes', value: 5, group: 'otp', label: 'OTP expiry minutes', description: 'مدت اعتبار کد یکبار مصرف به دقیقه.', type: 'number', isPublic: false },
   { key: 'otp_resend_seconds', value: 60, group: 'otp', label: 'OTP resend delay seconds', description: 'حداقل فاصله بین دو درخواست کد برای یک شماره.', type: 'number', isPublic: false },
   { key: 'otp_max_attempts', value: 5, group: 'otp', label: 'OTP max attempts', description: 'حداکثر دفعات تلاش برای وارد کردن هر کد.', type: 'number', isPublic: false },
-  { key: 'otp_dev_show_code', value: true, group: 'otp', label: 'Show OTP code in development', description: 'برای تست بدون سرویس پیامک، کد را در پاسخ API و لاگ سرور نشان می‌دهد.', type: 'boolean', isPublic: false },
-  { key: 'otp_sms_provider', value: 'manual', group: 'otp', label: 'SMS provider', description: 'نام سرویس پیامک. فعلا حالت manual برای تست و اتصال بعدی استفاده می‌شود.', type: 'text', isPublic: false },
+  { key: 'otp_dev_show_code', value: false, group: 'otp', label: 'Show OTP code in development', description: 'این گزینه فقط برای محیط توسعه است و در production باید غیرفعال بماند.', type: 'boolean', isPublic: false },
+  { key: 'otp_sms_provider', value: 'kavenegar', group: 'otp', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای production یکی از سرویس‌های واقعی را همراه با کلید API تنظیم کنید.', type: 'select', isPublic: false },
   { key: 'otp_sms_api_key', value: '', group: 'otp', label: 'SMS API key', description: null, type: 'password', isPublic: false },
   { key: 'otp_sms_sender', value: '', group: 'otp', label: 'SMS sender number', description: null, type: 'text', isPublic: false },
 ];
@@ -185,6 +185,7 @@ async function main() {
       prisma.siteSetting.upsert({
         where: { key: setting.key },
         update: {
+          ...(setting.key === 'otp_dev_show_code' || setting.key === 'otp_sms_provider' ? { value: setting.value } : {}),
           group: setting.group,
           label: setting.label,
           description: setting.description,

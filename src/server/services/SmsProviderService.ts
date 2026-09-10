@@ -80,9 +80,13 @@ export class SmsProviderService {
    * always succeeds; delivery failures are logged for the admin to investigate.
    */
   static async send(phone: string, code: string, settings: Record<string, unknown>) {
-    const provider = asString(settings.otp_sms_provider) || 'manual';
+    const provider = asString(settings.otp_sms_provider) || (process.env.NODE_ENV === 'production' ? 'kavenegar' : 'manual');
 
     if (provider === 'manual') {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[otp:manual] Manual OTP delivery is disabled in production. Configure a real SMS provider.');
+        return;
+      }
       console.info(`[otp:manual] ${phone} -> ${code}`);
       return;
     }

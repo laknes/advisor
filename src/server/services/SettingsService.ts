@@ -24,8 +24,8 @@ export const defaultSiteSettings = [
   { key: 'otp_ttl_minutes', value: 5, group: 'otp', label: 'OTP expiry minutes', description: 'مدت اعتبار کد یکبار مصرف به دقیقه.', type: 'number', isPublic: false },
   { key: 'otp_resend_seconds', value: 60, group: 'otp', label: 'OTP resend delay seconds', description: 'حداقل فاصله بین دو درخواست کد برای یک شماره.', type: 'number', isPublic: false },
   { key: 'otp_max_attempts', value: 5, group: 'otp', label: 'OTP max attempts', description: 'حداکثر دفعات تلاش برای وارد کردن هر کد.', type: 'number', isPublic: false },
-  { key: 'otp_dev_show_code', value: true, group: 'otp', label: 'Show OTP code in development', description: 'برای تست بدون سرویس پیامک، کد را در پاسخ API و لاگ سرور نشان می‌دهد.', type: 'boolean', isPublic: false },
-  { key: 'otp_sms_provider', value: 'manual', group: 'otp', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای manual، کد فقط در لاگ سرور نمایش داده می‌شود.', type: 'select', isPublic: false },
+  { key: 'otp_dev_show_code', value: false, group: 'otp', label: 'Show OTP code in development', description: 'این گزینه فقط برای محیط توسعه است و در production باید غیرفعال بماند.', type: 'boolean', isPublic: false },
+  { key: 'otp_sms_provider', value: 'kavenegar', group: 'otp', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای production یکی از سرویس‌های واقعی را همراه با کلید API تنظیم کنید.', type: 'select', isPublic: false },
   { key: 'otp_sms_api_key', value: '', group: 'otp', label: 'SMS API key (legacy)', description: 'فقط برای سازگاری با نسخه‌های قدیمی؛ تنظیمات هر سرویس در بخش مربوط به همان سرویس در پایین انجام می‌شود.', type: 'password', isPublic: false },
   { key: 'otp_sms_sender', value: '', group: 'otp', label: 'SMS sender number (legacy)', description: 'فقط برای سازگاری با نسخه‌های قدیمی؛ تنظیمات هر سرویس در بخش مربوط به همان سرویس در پایین انجام می‌شود.', type: 'text', isPublic: false },
   { key: 'kavenegar_api_key', value: '', group: 'otp', label: 'Kavenegar API key', description: 'کلید API پنل کاوه‌نگار. مستندات: https://kavenegar.com/rest.html', type: 'password', isPublic: false },
@@ -43,7 +43,7 @@ export const defaultSiteSettings = [
   { key: 'payment_callback_url', value: '', group: 'payments', label: 'Payment callback URL', description: 'Public callback URL used after payment verification.', type: 'text', isPublic: false },
   { key: 'zarinpal_enabled', value: true, group: 'payments', label: 'Zarinpal enabled', type: 'boolean', isPublic: false },
   { key: 'zarinpal_merchant_id', value: '', group: 'payments', label: 'Zarinpal merchant ID', type: 'password', isPublic: false },
-  { key: 'zarinpal_sandbox', value: true, group: 'payments', label: 'Zarinpal sandbox', type: 'boolean', isPublic: false },
+  { key: 'zarinpal_sandbox', value: false, group: 'payments', label: 'Zarinpal sandbox', description: 'برای پرداخت واقعی باید غیرفعال باشد.', type: 'boolean', isPublic: false },
   { key: 'zibal_enabled', value: false, group: 'payments', label: 'Zibal enabled', type: 'boolean', isPublic: false },
   { key: 'zibal_merchant', value: '', group: 'payments', label: 'Zibal merchant', type: 'password', isPublic: false },
   { key: 'idpay_enabled', value: false, group: 'payments', label: 'IDPay enabled', type: 'boolean', isPublic: false },
@@ -70,9 +70,9 @@ export const defaultSiteSettings = [
   { key: 'polygon_base_url', value: 'https://api.polygon.io', group: 'market_data_free', label: 'Polygon / Massive base URL', type: 'text', isPublic: false },
   { key: 'polygon_api_key', value: '', group: 'market_data_free', label: 'Polygon / Massive API key', type: 'password', isPublic: false },
   { key: 'polygon_docs_url', value: 'https://polygon.io/docs', group: 'market_data_free', label: 'Polygon / Massive docs URL', type: 'text', isPublic: false },
-  { key: 'coingecko_enabled', value: false, group: 'market_data_free', label: 'CoinGecko Demo API enabled', description: 'Free demo API for crypto market data with limited endpoints and rate limits. Docs: https://docs.coingecko.com/', type: 'boolean', isPublic: false },
+  { key: 'coingecko_enabled', value: false, group: 'market_data_free', label: 'CoinGecko API enabled', description: 'CoinGecko market data API for crypto prices. Docs: https://docs.coingecko.com/', type: 'boolean', isPublic: false },
   { key: 'coingecko_base_url', value: 'https://api.coingecko.com/api/v3', group: 'market_data_free', label: 'CoinGecko base URL', type: 'text', isPublic: false },
-  { key: 'coingecko_api_key', value: '', group: 'market_data_free', label: 'CoinGecko API key', description: 'Optional for demo/pro setups depending on plan.', type: 'password', isPublic: false },
+  { key: 'coingecko_api_key', value: '', group: 'market_data_free', label: 'CoinGecko API key', description: 'Configure when your CoinGecko plan requires authenticated calls.', type: 'password', isPublic: false },
   { key: 'coingecko_docs_url', value: 'https://docs.coingecko.com/', group: 'market_data_free', label: 'CoinGecko docs URL', type: 'text', isPublic: false },
   { key: 'tsetmc_enabled', value: true, group: 'market_data', label: 'TSETMC / Tehran market enabled', type: 'boolean', isPublic: false },
   { key: 'tsetmc_prices_url', value: '', group: 'market_data', label: 'TSETMC prices API URL', description: 'Expected JSON: an array, or { prices: [...] }, with symbol/currentPrice fields.', type: 'text', isPublic: false },
@@ -155,7 +155,32 @@ export class SettingsService {
 
     await prisma.siteSetting.updateMany({
       where: { key: 'otp_sms_provider', type: { not: 'select' } },
-      data: { type: 'select', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای manual، کد فقط در لاگ سرور نمایش داده می‌شود.' },
+      data: { type: 'select', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای production یکی از سرویس‌های واقعی را همراه با کلید API تنظیم کنید.' },
+    });
+
+    await prisma.siteSetting.updateMany({
+      where: { key: 'otp_dev_show_code', value: { equals: true } },
+      data: { value: false, label: 'Show OTP code in development', description: 'این گزینه فقط برای محیط توسعه است و در production باید غیرفعال بماند.' },
+    });
+
+    await prisma.siteSetting.updateMany({
+      where: { key: 'otp_sms_provider', value: { equals: 'manual' } },
+      data: { value: 'kavenegar', type: 'select', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای production یکی از سرویس‌های واقعی را همراه با کلید API تنظیم کنید.' },
+    });
+
+    await prisma.siteSetting.updateMany({
+      where: { key: 'zarinpal_sandbox', value: { equals: true } },
+      data: { value: false, label: 'Zarinpal sandbox', description: 'برای پرداخت واقعی باید غیرفعال باشد.' },
+    });
+
+    await prisma.siteSetting.updateMany({
+      where: { key: 'coingecko_enabled' },
+      data: { label: 'CoinGecko API enabled', description: 'CoinGecko market data API for crypto prices. Docs: https://docs.coingecko.com/' },
+    });
+
+    await prisma.siteSetting.updateMany({
+      where: { key: 'coingecko_api_key' },
+      data: { description: 'Configure when your CoinGecko plan requires authenticated calls.' },
     });
   }
 

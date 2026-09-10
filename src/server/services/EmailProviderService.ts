@@ -116,9 +116,13 @@ async function sendViaBrevo(payload: PasswordResetPayload): Promise<SendResult> 
 
 export class EmailProviderService {
   static async sendPasswordReset(payload: PasswordResetPayload) {
-    const provider = asString(process.env.EMAIL_PROVIDER).toLowerCase() || 'manual';
+    const provider = asString(process.env.EMAIL_PROVIDER).toLowerCase() || (process.env.NODE_ENV === 'production' ? 'resend' : 'manual');
 
     if (provider === 'manual') {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[password-reset:manual] Manual password reset delivery is disabled in production. Configure EMAIL_PROVIDER.');
+        return;
+      }
       console.info(`[password-reset:manual] ${payload.to} -> ${payload.token}`);
       return;
     }

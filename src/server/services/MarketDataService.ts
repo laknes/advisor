@@ -31,7 +31,7 @@ const freeMarketDataProviders = [
   { key: 'finnhub', label: 'Finnhub', docsKey: 'finnhub_docs_url' },
   { key: 'twelve_data', label: 'Twelve Data', docsKey: 'twelve_data_docs_url' },
   { key: 'polygon', label: 'Polygon / Massive', docsKey: 'polygon_docs_url' },
-  { key: 'coingecko', label: 'CoinGecko Demo API', docsKey: 'coingecko_docs_url' },
+  { key: 'coingecko', label: 'CoinGecko API', docsKey: 'coingecko_docs_url' },
 ];
 
 function toNumber(value: unknown) {

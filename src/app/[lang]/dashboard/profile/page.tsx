@@ -33,6 +33,7 @@ const identityStatusLabel: Record<string, string> = {
 
 export default function ProfilePage() {
   const { locale } = useLocale();
+  const canShowDevCode = process.env.NODE_ENV !== 'production';
   const currentUser = getStoredUser();
   const [profile, setProfile] = useState({
     name: currentUser?.name || '',
@@ -136,7 +137,7 @@ export default function ProfilePage() {
         phone: profile.phone,
         purpose: 'verify_phone',
       }, true);
-      setPhoneDevCode(data.otp.devCode || '');
+      setPhoneDevCode(canShowDevCode ? data.otp.devCode || '' : '');
       setMessage('کد تایید شماره موبایل ارسال شد.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'ارسال کد تایید ناموفق بود.');
@@ -286,7 +287,7 @@ export default function ProfilePage() {
                       </Button>
                     </div>
                   </div>
-                  {phoneDevCode && <p className="mt-2 text-xs font-bold text-cyan-200">کد تست: {phoneDevCode}</p>}
+                  {canShowDevCode && phoneDevCode && <p className="mt-2 text-xs font-bold text-cyan-200">کد توسعه: {phoneDevCode}</p>}
                 </div>
               </FormGroup>
 

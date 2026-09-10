@@ -13,7 +13,8 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { locale } = useLocale();
-  const isEnglish = locale === 'en';
+const isEnglish = locale === 'en';
+  const canShowDevCode = process.env.NODE_ENV !== 'production';
   const settings = usePublicSettings();
   const otpEnabled = settings.otp_enabled !== false;
   const [mode, setMode] = useState<'password' | 'otp'>('password');
@@ -145,7 +146,7 @@ export default function LoginPage() {
       }
 
       setOtpSent(true);
-      setDevCode(payload.data?.otp?.devCode || '');
+      setDevCode(canShowDevCode ? payload.data?.otp?.devCode || '' : '');
       setResendCooldown(payload.data?.otp?.resendAfterSeconds || 60);
       setOtpMessage(
         isEnglish
@@ -315,10 +316,10 @@ export default function LoginPage() {
                 />
               </div>
 
-              {(otpMessage || devCode) && (
+              {(otpMessage || (canShowDevCode && devCode)) && (
                 <div className="rounded-lg border border-white/10 bg-white/[0.08] p-3 text-sm font-bold text-slate-200">
                   {otpMessage}
-                  {devCode && <span className="block pt-1 text-cyan-200">{isEnglish ? 'Test code:' : 'کد تست:'} {devCode}</span>}
+                  {canShowDevCode && devCode && <span className="block pt-1 text-cyan-200">{isEnglish ? 'Development code:' : 'کد توسعه:'} {devCode}</span>}
                 </div>
               )}
 
