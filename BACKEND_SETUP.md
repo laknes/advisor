@@ -39,10 +39,14 @@ JWT_SECRET="your-jwt-secret-key"
 JWT_EXPIRY="7d"
 
 # Email (Optional)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="your-email@gmail.com"
-SMTP_PASSWORD="your-app-password"
+EMAIL_PROVIDER="manual" # manual | resend | brevo
+EMAIL_FROM="no-reply@yourdomain.com"
+EMAIL_FROM_NAME="Portfolio Advisor"
+RESEND_API_KEY="re_..."   # Required when EMAIL_PROVIDER=resend
+BREVO_API_KEY="xkeysib-..." # Required when EMAIL_PROVIDER=brevo
+
+# Optional app URL for reset links (falls back to NEXTAUTH_URL)
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # Stripe (Optional)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."

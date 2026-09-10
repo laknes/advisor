@@ -25,6 +25,7 @@ export class AnalysisService {
         exitZone: true,
         accuracy: true,
         isLocked: true,
+        requiredSubscription: true,
         accessLevel: true,
         publishedAt: true,
       },
@@ -36,7 +37,7 @@ export class AnalysisService {
   /**
    * Get analyses by market
    */
-  static async getAnalysesByMarket(marketId: string, timeframe?: string, analysisType?: string) {
+  static async getAnalysesByMarket(marketId: string, timeframe?: string, analysisType?: string, userId?: string) {
     const where: { marketId: string; timeframe?: string; analysisType?: string } = { marketId };
 
     if (timeframe) where.timeframe = timeframe;
@@ -65,7 +66,7 @@ export class AnalysisService {
       },
     });
 
-    return analyses;
+    return Promise.all(analyses.map((analysis) => this.applyAccess(analysis, userId)));
   }
 
   /**
@@ -119,7 +120,7 @@ export class AnalysisService {
   /**
    * Get all analyses
    */
-  static async getAllAnalyses(limit = 20, offset = 0) {
+  static async getAllAnalyses(limit = 20, offset = 0, userId?: string) {
     const analyses = await prisma.analysis.findMany({
       orderBy: { publishedAt: 'desc' },
       skip: offset,
@@ -146,7 +147,19 @@ export class AnalysisService {
 
     const total = await prisma.analysis.count();
 
-    return { analyses, total, limit, offset };
+    return { analyses: await Promise.all(analyses.map((analysis) => this.applyAccess(analysis, userId))), total, limit, offset };
+  }
+
+  private static async applyAccess<T extends { accessLevel: string; marketId: string; requiredSubscription?: string | null }>(analysis: T, userId?: string) {
+    if (analysis.accessLevel === 'public' || (analysis.accessLevel === 'login' && userId)) {
+      return { ...analysis, isLocked: false };
+    }
+
+    if (analysis.accessLevel === 'subscription' && userId && await SubscriptionService.hasAccessToMarketAnalysis(userId, analysis.marketId, analysis.requiredSubscription)) {
+      return { ...analysis, isLocked: false };
+    }
+
+    return { ...analysis, isLocked: true };
   }
 
   static async updateAnalysis(analysisId: string, input: UpdateAnalysisInput) {

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { NotFoundError } from '@/lib/errors';
+import { SubscriptionService } from './SubscriptionService';
 
 export class MarketService {
   /**
@@ -22,7 +23,7 @@ export class MarketService {
   /**
    * Get market by slug
    */
-  static async getMarketBySlug(slug: string) {
+  static async getMarketBySlug(slug: string, userId?: string) {
     const market = await prisma.market.findUnique({
       where: { slug },
       include: {
@@ -59,7 +60,17 @@ export class MarketService {
       throw new NotFoundError('Market');
     }
 
-    return market;
+    const analyses = await Promise.all(market.analyses.map(async (analysis) => {
+      const hasAccess = analysis.accessLevel === 'public'
+        || (analysis.accessLevel === 'login' && Boolean(userId))
+        || (analysis.accessLevel === 'subscription' && userId
+          ? await SubscriptionService.hasAccessToMarketAnalysis(userId, analysis.marketId, analysis.requiredSubscription)
+          : false);
+
+      return hasAccess ? { ...analysis, isLocked: false } : { ...analysis, isLocked: true };
+    }));
+
+    return { ...market, analyses };
   }
 
   /**

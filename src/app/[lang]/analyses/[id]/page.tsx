@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { Badge, Button, Card, CardContent, Header, useLocale } from '@/components';
 import { apiGet } from '@/lib/apiClient';
-import { getStoredToken } from '@/lib/clientAuth';
+import { useAuthState } from '@/hooks/useAuthState';
 import type { Analysis } from '@/lib/types';
 
 interface AnalysisDetailPageProps {
@@ -15,18 +15,19 @@ interface AnalysisDetailPageProps {
 export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDetailPageProps) {
   const params = use(paramsPromise);
   const { locale } = useLocale();
+  const { isAuthenticated, revision } = useAuthState();
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    apiGet<{ analysis: Analysis }>(`/api/analyses/${params.id}`, Boolean(getStoredToken()))
+    apiGet<{ analysis: Analysis }>(`/api/analyses/${params.id}`, isAuthenticated)
       .then((data) => setAnalysis(data.analysis))
       .catch((requestError) => setError(requestError instanceof Error ? requestError.message : 'تحلیل پیدا نشد.'));
-  }, [params.id]);
+  }, [params.id, isAuthenticated, revision]);
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header />
+      <Header isAuthenticated={isAuthenticated} />
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <Link href={`/${locale}/analyses`} className="mb-8 inline-flex items-center gap-2 font-bold text-primary-700">
           <ArrowRight className="h-4 w-4" />
@@ -60,10 +61,10 @@ export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDe
                 <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
                   <LockKeyhole className="mx-auto mb-3 h-8 w-8 text-amber-600" />
                   <p className="font-bold text-amber-900">
-                    {analysis.accessLevel === 'login' ? 'برای مشاهده متن کامل، ابتدا وارد حساب کاربری شوید.' : 'برای مشاهده متن کامل، اشتراک مورد نیاز است.'}
+                    {analysis.accessLevel === 'login' && !isAuthenticated ? 'برای مشاهده متن کامل، ابتدا وارد حساب کاربری شوید.' : 'برای مشاهده متن کامل، اشتراک مورد نیاز است.'}
                   </p>
-                  <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/pricing`} className="mt-5 inline-block">
-                    <Button>{analysis.accessLevel === 'login' ? 'ورود به حساب' : 'مشاهده پلن‌ها'}</Button>
+                  <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/pricing`} className="mt-5 inline-block">
+                    <Button>{analysis.accessLevel === 'login' && !isAuthenticated ? 'ورود به حساب' : 'مشاهده پلن‌ها'}</Button>
                   </Link>
                 </div>
               )}

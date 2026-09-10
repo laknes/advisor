@@ -5,11 +5,12 @@ import { useLocale } from '@/components/LocaleProvider';
 import { evaluatePasswordPolicy } from '@/lib/passwordPolicy';
 import { Mail, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { locale } = useLocale();
   const isEnglish = locale === 'en';
   const [email, setEmail] = useState('');
@@ -50,6 +51,26 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [hydratedFromQuery, setHydratedFromQuery] = useState(false);
+  useEffect(() => {
+    if (hydratedFromQuery) return;
+
+    const emailFromQuery = searchParams.get('email');
+    const tokenFromQuery = searchParams.get('token');
+
+    if (emailFromQuery && !email) {
+      setEmail(emailFromQuery);
+    }
+
+    if (tokenFromQuery) {
+      setToken(tokenFromQuery);
+      setResetSent(true);
+      setMessage(isEnglish ? 'Reset code loaded from the link.' : 'کد بازیابی از لینک بارگذاری شد.');
+    }
+
+    setHydratedFromQuery(true);
+  }, [searchParams, email, isEnglish, hydratedFromQuery]);
+
   const passwordPolicy = evaluatePasswordPolicy(password);
   const strengthLabel = isEnglish
     ? (passwordPolicy.score <= 1 ? 'Weak' : passwordPolicy.score === 2 ? 'Fair' : passwordPolicy.score === 3 ? 'Good' : 'Strong')

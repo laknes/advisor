@@ -19,6 +19,7 @@ import { Badge, Button, Card, Footer, Header, MarketOrbitScene, PriceChange, use
 import { apiGet } from '@/lib/apiClient';
 import type { Analysis, Market, Price } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useAuthState } from '@/hooks/useAuthState';
 
 type MarketWithPrices = Market & { prices?: Price[] };
 
@@ -66,6 +67,7 @@ const riskLabel = {
 
 export default function MarketsPage() {
   const { locale } = useLocale();
+  const { isAuthenticated, revision } = useAuthState();
   const isEnglish = locale === 'en';
   const tabs = isEnglish ? marketTabsEn : marketTabsFa;
   const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(isEnglish ? 'en-US' : 'fa-IR', options).format(value);
@@ -84,7 +86,7 @@ export default function MarketsPage() {
 
     Promise.all([
       apiGet<{ markets: MarketWithPrices[] }>('/api/markets'),
-      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=20'),
+      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=20', isAuthenticated),
     ])
       .then(([marketData, analysisData]) => {
         if (!mounted) return;
@@ -102,7 +104,7 @@ export default function MarketsPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isAuthenticated, revision]);
 
   const filteredMarkets = useMemo(() => {
     if (activeTab === 'all') return markets;
@@ -124,7 +126,7 @@ export default function MarketsPage() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#160022] text-white">
-      <Header isAuthenticated={false} />
+      <Header isAuthenticated={isAuthenticated} />
 
       <main>
         {loadError && (
@@ -374,9 +376,9 @@ export default function MarketsPage() {
                             {formatDate(analysis.publishedAt)}
                           </div>
                         </div>
-                        <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/analyses/${analysis.id}`} className="mt-6">
+                        <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/analyses/${analysis.id}`} className="mt-6">
                           <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                            {analysis.accessLevel === 'login' ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'View details' : 'مشاهده کامل')}
+                            {analysis.accessLevel === 'login' && !isAuthenticated ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'View details' : 'مشاهده کامل')}
                           </Button>
                         </Link>
                       </Card>

@@ -10,6 +10,7 @@ import { apiGet } from '@/lib/apiClient';
 import { formatFaDate, formatFaNumber } from '@/lib/format';
 import type { Analysis, Market } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useAuthState } from '@/hooks/useAuthState';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 18 },
@@ -47,6 +48,7 @@ type SignalFilter = (typeof signalTabs)[number]['id'];
 
 export default function AnalysesPage() {
   const { locale } = useLocale();
+  const { isAuthenticated, revision } = useAuthState();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loadError, setLoadError] = useState('');
@@ -57,7 +59,7 @@ export default function AnalysesPage() {
     let mounted = true;
 
     Promise.all([
-      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=50'),
+      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=50', isAuthenticated),
       apiGet<{ markets: Market[] }>('/api/markets'),
     ])
       .then(([analysisData, marketData]) => {
@@ -76,7 +78,7 @@ export default function AnalysesPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isAuthenticated, revision]);
 
   const marketById = useMemo(() => new Map(markets.map((market) => [market.id, market])), [markets]);
   const filteredAnalyses = useMemo(() => {
@@ -89,7 +91,7 @@ export default function AnalysesPage() {
 
   return (
     <div className="min-h-screen bg-[#160022] text-white">
-      <Header isAuthenticated={false} />
+      <Header isAuthenticated={isAuthenticated} />
 
       <main>
         {loadError && (
@@ -168,9 +170,9 @@ export default function AnalysesPage() {
                         </div>
 
                         <div className="mt-6">
-                          <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/dashboard/analyses`}>
+                          <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/analyses/${analysis.id}`}>
                             <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                              {analysis.accessLevel === 'login' ? 'ورود برای مشاهده' : analysis.isLocked ? 'باز کردن تحلیل' : 'مشاهده کامل'}
+                              {analysis.accessLevel === 'login' && !isAuthenticated ? 'ورود برای مشاهده' : analysis.isLocked ? 'باز کردن تحلیل' : 'مشاهده کامل'}
                             </Button>
                           </Link>
                         </div>

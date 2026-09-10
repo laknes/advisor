@@ -6,6 +6,7 @@ import type { RegisterInput, LoginInput, RequestOtpInput, UpdateProfileInput, Ve
 import { SettingsService } from './SettingsService';
 import { SmsProviderService } from './SmsProviderService';
 import { createPasswordResetToken, consumePasswordResetToken } from '@/lib/passwordReset';
+import { EmailProviderService } from './EmailProviderService';
 
 function normalizePhone(phone: string) {
   const normalized = phone
@@ -398,6 +399,11 @@ export class UserService {
     }
 
     const reset = createPasswordResetToken(user.id, email);
+    await EmailProviderService.sendPasswordReset({
+      to: user.email,
+      name: user.name,
+      token: reset.token,
+    });
 
     if (process.env.NODE_ENV !== 'production') {
       console.info(`[password-reset] ${email} -> ${reset.token}`);

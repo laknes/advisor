@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, LineChart, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthState } from '@/hooks/useAuthState';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 24 },
@@ -81,6 +82,7 @@ const getMarketWatchTab = (price: Price): MarketWatchTabId => {
 
 export default function Home() {
   const { locale } = useLocale();
+  const { isAuthenticated, revision } = useAuthState();
   const isEnglish = locale === 'en';
   const hasPersianText = (value: string) => /[\u0600-\u06FF]/.test(value);
   const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(isEnglish ? 'en-US' : 'fa-IR', options).format(value);
@@ -134,7 +136,7 @@ export default function Home() {
 
     Promise.allSettled([
       apiGet<{ markets: Array<Market & { prices?: Price[] }> }>('/api/markets'),
-      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=6'),
+      apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=6', isAuthenticated),
       apiGet<{ plans: SubscriptionPlan[] }>('/api/subscription-plans'),
       apiGet<{ settings: Record<string, any> }>('/api/settings'),
     ])
@@ -177,7 +179,7 @@ export default function Home() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isAuthenticated, revision]);
 
   const tabs = useMemo(() => getMarketWatchTabs(locale), [locale]);
   const prices = useMemo(() => markets.flatMap((market) => market.prices ?? []), [markets]);
@@ -202,7 +204,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#160022] text-slate-100">
-      <Header isAuthenticated={false} />
+      <Header isAuthenticated={isAuthenticated} />
 
       <main>
         {loadError && (
@@ -336,8 +338,8 @@ export default function Home() {
                         </div>
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm font-bold text-slate-300">{formatNumber(analysis.accuracy ?? 0)}{isEnglish ? '% accuracy' : '٪ دقت'}</span>
-                          <ButtonLink href={`/${locale}/analyses/${analysis.id}`} size="sm" variant={analysis.isLocked ? 'secondary' : 'primary'}>
-                            {analysis.accessLevel === 'login' ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
+                          <ButtonLink href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses/${analysis.id}`} size="sm" variant={analysis.isLocked ? 'secondary' : 'primary'}>
+                            {analysis.accessLevel === 'login' && !isAuthenticated ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
                           </ButtonLink>
                         </div>
                       </div>

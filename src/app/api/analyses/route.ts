@@ -3,6 +3,7 @@ import { AnalysisService } from '@/server/services/AnalysisService';
 import { CreateAnalysisSchema } from '@/lib/validations';
 import { handleError, requireAdmin, successResponse } from '@/server/middleware';
 import { formatZodError } from '@/lib/errors';
+import { verifyToken } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,17 +12,20 @@ export async function GET(req: NextRequest) {
     const analysisType = req.nextUrl.searchParams.get('type');
     const limit = parseInt(req.nextUrl.searchParams.get('limit') || '20');
     const offset = parseInt(req.nextUrl.searchParams.get('offset') || '0');
+    const token = req.headers.get('authorization')?.replace('Bearer ', '');
+    const userId = token ? verifyToken(token)?.userId : undefined;
 
     if (marketId) {
       const analyses = await AnalysisService.getAnalysesByMarket(
         marketId,
         timeframe || undefined,
-        analysisType || undefined
+        analysisType || undefined,
+        userId,
       );
       return successResponse({ analyses });
     }
 
-    const result = await AnalysisService.getAllAnalyses(limit, offset);
+    const result = await AnalysisService.getAllAnalyses(limit, offset, userId);
     return successResponse(result);
   } catch (error) {
     return handleError(error);

@@ -22,6 +22,7 @@ import {
   Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthState } from '@/hooks/useAuthState';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -46,6 +47,7 @@ interface MarketPageProps {
 export default function MarketDetailPage({ params: paramsPromise }: MarketPageProps) {
   const params = use(paramsPromise);
   const { locale } = useLocale();
+  const { isAuthenticated, revision } = useAuthState();
   const [market, setMarket] = useState<(Market & { prices?: Price[]; analyses?: Analysis[] }) | null>(null);
   const [notFound, setNotFound] = useState(false);
   const marketPrice = market?.prices?.[0];
@@ -68,7 +70,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
 
   useEffect(() => {
     let mounted = true;
-    apiGet<{ market: Market & { prices?: Price[]; analyses?: Analysis[] } }>(`/api/markets/${params.slug}`)
+    apiGet<{ market: Market & { prices?: Price[]; analyses?: Analysis[] } }>(`/api/markets/${params.slug}`, isAuthenticated)
       .then((data) => {
         if (!mounted) return;
         setMarket(data.market);
@@ -83,12 +85,12 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
     return () => {
       mounted = false;
     };
-  }, [params.slug]);
+  }, [params.slug, isAuthenticated, revision]);
 
   if (notFound) {
     return (
       <div className="min-h-screen bg-white">
-        <Header isAuthenticated={false} />
+        <Header isAuthenticated={isAuthenticated} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h1 className="text-4xl font-extrabold text-secondary-900 mb-4">Market Not Found</h1>
@@ -105,7 +107,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
   if (!market) {
     return (
       <div className="min-h-screen bg-white">
-        <Header isAuthenticated={false} />
+        <Header isAuthenticated={isAuthenticated} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-3xl font-extrabold text-secondary-900">Loading market data...</h1>
         </div>
@@ -115,7 +117,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <Header isAuthenticated={false} />
+      <Header isAuthenticated={isAuthenticated} />
 
       {/* Page Header & Live Price */}
       <section className="glass-surface border-b pt-12 pb-8">

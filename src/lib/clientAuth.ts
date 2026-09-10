@@ -44,4 +44,5 @@ export function clearStoredAuth() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_USER_KEY);
+  window.dispatchEvent(new Event('auth-changed'));
 }

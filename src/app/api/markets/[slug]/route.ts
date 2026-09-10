@@ -3,6 +3,7 @@ import { MarketService } from '@/server/services/MarketService';
 import { UpdateMarketSchema } from '@/lib/validations';
 import { formatZodError } from '@/lib/errors';
 import { handleError, requireAdmin, successResponse } from '@/server/middleware';
+import { verifyToken } from '@/lib/auth';
 
 export async function GET(
   req: NextRequest,
@@ -10,7 +11,9 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const market = await MarketService.getMarketBySlug(slug);
+    const token = req.headers.get('authorization')?.replace('Bearer ', '');
+    const userId = token ? verifyToken(token)?.userId : undefined;
+    const market = await MarketService.getMarketBySlug(slug, userId);
     return successResponse({ market });
   } catch (error) {
     return handleError(error);
