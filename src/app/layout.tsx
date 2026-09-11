@@ -119,7 +119,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fa" dir="rtl" data-theme="night" className="scroll-smooth theme-night" suppressHydrationWarning>
+    <html lang="fa" dir="rtl" data-theme="light" className="scroll-smooth theme-light" suppressHydrationWarning>
       <head>
         <Script id="disable-injected-wallets" strategy="beforeInteractive">
           {disableInjectedWalletsScript}

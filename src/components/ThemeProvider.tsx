@@ -12,7 +12,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const THEME_STORAGE_KEY = 'portfolio_advisor_theme';
-const DEFAULT_THEME: ThemeMode = 'night';
+const DEFAULT_THEME: ThemeMode = 'light';
 
 function applyTheme(theme: ThemeMode) {
   document.documentElement.dataset.theme = theme;
@@ -38,7 +38,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY) === 'light' ? 'light' : DEFAULT_THEME;
+    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    const storedTheme = savedTheme === 'night' || savedTheme === 'light' ? savedTheme : DEFAULT_THEME;
     setThemeState(storedTheme);
     applyTheme(storedTheme);
   }, []);
