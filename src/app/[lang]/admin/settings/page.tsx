@@ -73,7 +73,7 @@ export default function AdminSettingsPage() {
     } catch (error) { setStatus(error instanceof Error ? error.message : (isFa ? 'ذخیره تنظیمات انجام نشد.' : 'Failed to save settings.')); }
   };
 
-  return <div className="platform-settings-page min-h-screen bg-secondary-50">
+  return <div className="admin-page platform-settings-page min-h-screen bg-secondary-50">
     <Header isAuthenticated userName={isFa ? 'مدیر' : 'Admin'} />
     <main className="py-12 md:py-20"><form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end"><div>
@@ -102,3 +102,4 @@ export default function AdminSettingsPage() {
     </form></main><Footer />
   </div>;
 }
+

@@ -85,7 +85,7 @@ export default function DashboardPage() {
   }, [portfolio]);
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="site-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated userName={userName} />
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -270,3 +270,4 @@ function KpiCard({ icon, label, value, change }: { icon: React.ReactNode; label:
     </Card>
   );
 }
+

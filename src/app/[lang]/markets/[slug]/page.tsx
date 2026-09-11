@@ -89,7 +89,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="site-page min-h-screen bg-white">
         <Header isAuthenticated={isAuthenticated} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -106,7 +106,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
 
   if (!market) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="site-page min-h-screen bg-white">
         <Header isAuthenticated={isAuthenticated} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-3xl font-extrabold text-secondary-900">Loading market data...</h1>
@@ -116,7 +116,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="site-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={isAuthenticated} />
 
       {/* Page Header & Live Price */}
@@ -428,3 +428,4 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
     </div>
   );
 }
+

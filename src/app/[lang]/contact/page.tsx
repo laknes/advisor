@@ -88,7 +88,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="site-page min-h-screen bg-[#160022] text-white">
       <Header />
 
       <main className="relative overflow-hidden py-12 md:py-18">
@@ -280,3 +280,4 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
     </label>
   );
 }
+

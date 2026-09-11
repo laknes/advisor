@@ -338,7 +338,7 @@ export default function AdminPricingPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#160022] text-white">
+    <div className="admin-page min-h-screen overflow-hidden bg-[#160022] text-white">
       <Header isAuthenticated userName="Admin" />
 
       <main className="relative py-10 md:py-16">
@@ -811,3 +811,4 @@ function FormField({ label, children }: { label: string; children: ReactNode }) 
     </label>
   );
 }
+

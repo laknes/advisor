@@ -57,7 +57,7 @@ export default function UsersManagementPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="admin-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -167,3 +167,4 @@ export default function UsersManagementPage() {
     </div>
   );
 }
+

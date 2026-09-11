@@ -64,7 +64,7 @@ export default function AlertsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="site-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -186,3 +186,4 @@ export default function AlertsPage() {
     </div>
   );
 }
+

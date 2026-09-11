@@ -71,7 +71,7 @@ export default function SubscriptionsPage() {
   const activeSubscriptions = subscriptions.filter((sub) => sub.isActive && new Date(sub.endDate) > new Date());
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="site-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={true} userName={currentUser?.name || 'حساب کاربری'} />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -166,3 +166,4 @@ export default function SubscriptionsPage() {
     </div>
   );
 }
+

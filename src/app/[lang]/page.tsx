@@ -203,7 +203,7 @@ export default function Home() {
   if (!dict) return null;
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#160022] text-slate-100">
+    <div className="site-page min-h-screen overflow-hidden bg-[#160022] text-slate-100">
       <Header isAuthenticated={isAuthenticated} />
 
       <main>
@@ -709,4 +709,5 @@ function ButtonLink({
     </Link>
   );
 }
+
 

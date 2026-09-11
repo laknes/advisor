@@ -155,7 +155,7 @@ export default function NewAnalysisPage() {
   if (!dict) return null;
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="admin-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <main className="py-12 md:py-20">
@@ -346,3 +346,4 @@ export default function NewAnalysisPage() {
     </div>
   );
 }
+

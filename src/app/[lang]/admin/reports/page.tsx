@@ -165,7 +165,7 @@ export default function AdminReportsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="admin-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={true} userName={t.userName} />
 
       <main className="py-12 md:py-20">
@@ -286,3 +286,4 @@ export default function AdminReportsPage() {
     </div>
   );
 }
+

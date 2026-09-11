@@ -132,7 +132,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="admin-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated userName="مدیر سیستم" />
 
       <div className="mx-auto flex max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -400,3 +400,4 @@ function IntegrationRow({ label, enabled, configured }: { label: string; enabled
     </div>
   );
 }
+

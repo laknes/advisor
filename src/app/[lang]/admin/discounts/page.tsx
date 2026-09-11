@@ -97,7 +97,7 @@ export default function AdminDiscountsPage() {
   const filteredDiscounts = discounts.filter((discount) => discount.code.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="admin-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={true} userName="Admin" />
 
       <main className="py-12 md:py-20">
@@ -275,3 +275,4 @@ export default function AdminDiscountsPage() {
     </div>
   );
 }
+

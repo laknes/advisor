@@ -112,7 +112,7 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
   };
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="admin-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -210,3 +210,4 @@ export default function EditAdminUserPage({ params: paramsPromise }: Params) {
     </div>
   );
 }
+

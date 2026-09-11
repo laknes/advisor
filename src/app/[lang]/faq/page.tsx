@@ -58,7 +58,7 @@ export default function FAQPage() {
   const faqs = isEnglish ? faqsEn : faqsFa;
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="site-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <main className="py-20 md:py-32">
@@ -128,3 +128,4 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     </motion.div>
   );
 }
+

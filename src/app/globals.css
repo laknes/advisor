@@ -90,13 +90,9 @@ select option { color: #1c1917; background: #ffffff; }
 .card-light .text-secondary-700 { color: #44403c !important; }
 .card-light .text-secondary-800 { color: #292524 !important; }
 .card-light .text-secondary-900 { color: #1c1917 !important; }
-.admin-analyses-page.admin-analyses-page { background: #eef4f3 !important; color: #1c1917 !important; }
-.admin-analyses-page .card-light { background: rgba(255, 255, 255, 0.94) !important; border-color: #d7e2df !important; }
-.admin-analyses-page .card-light [data-card-title], .admin-analyses-page .card-light .text-white { color: #1c1917 !important; }
-.admin-analyses-page .card-light [data-card-header] { border-color: #d7e2df !important; }
-.admin-analyses-page .card-light .text-secondary-400, .admin-analyses-page .card-light .text-secondary-500, .admin-analyses-page .card-light .text-secondary-600, .admin-analyses-page .card-light .text-secondary-700 { color: #57534e !important; }
-.admin-analyses-page .text-secondary-900 { color: #1c1917 !important; }
-.admin-analyses-page .text-secondary-500, .admin-analyses-page .text-secondary-600, .admin-analyses-page .text-secondary-700 { color: #57534e !important; }
+.admin-analyses-page.admin-analyses-page { background: linear-gradient(140deg, var(--theme-bg) 0%, var(--theme-bg-soft) 52%, var(--theme-bg-deep) 100%) !important; color: var(--theme-text) !important; }
+.admin-analyses-page [data-card-header] { border-color: var(--theme-border) !important; }
+.admin-analyses-page input { color: var(--theme-input-text) !important; }
 .platform-settings-page.platform-settings-page { background: linear-gradient(135deg, #e8f2f0 0%, #f7fbfa 48%, #e2ecea 100%) !important; color: #1c1917 !important; }
 .platform-settings-page .glass-surface { background: rgba(255, 255, 255, 0.68) !important; border: 1px solid rgba(255, 255, 255, 0.8) !important; box-shadow: 0 24px 70px -42px rgba(15, 45, 48, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9); }
 .platform-settings-page .glass-surface h2, .platform-settings-page .glass-surface .text-secondary-900 { color: #1c1917 !important; }
@@ -126,3 +122,183 @@ select option { color: #1c1917; background: #ffffff; }
 .logs-page .text-secondary-500 { color: #57534e !important; }
 .logs-page .glass-surface [data-card-header] { border-color: rgba(112, 145, 143, 0.22) !important; }
 .logs-page .glass-surface .text-secondary-400, .logs-page .glass-surface .text-secondary-500 { color: #57534e !important; }
+
+/* Admin surfaces must stay readable in the default dark theme. */
+.admin-page.admin-page { background: linear-gradient(140deg, var(--theme-bg) 0%, var(--theme-bg-soft) 52%, var(--theme-bg-deep) 100%) !important; color: var(--theme-text) !important; }
+.admin-page .card-light,
+.admin-page .glass-surface,
+.admin-page .bg-white,
+.admin-page .bg-white\/70,
+.admin-page .bg-white\/80,
+.admin-page .bg-secondary-50,
+.admin-page .bg-secondary-100 {
+  background: color-mix(in srgb, var(--theme-surface) 88%, transparent) !important;
+  border-color: var(--theme-border) !important;
+  box-shadow: 0 24px 70px -46px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+.admin-page .bg-green-50,
+.admin-page .bg-red-50,
+.admin-page .bg-blue-50,
+.admin-page .bg-orange-50,
+.admin-page .bg-yellow-50,
+.admin-page .bg-primary-50 {
+  background: color-mix(in srgb, var(--theme-accent) 14%, transparent) !important;
+}
+.admin-page .border-secondary-100,
+.admin-page .border-secondary-200,
+.admin-page .border-secondary-300,
+.admin-page .border-primary-200,
+.admin-page .border-red-200,
+.admin-page [data-card-header] {
+  border-color: var(--theme-border) !important;
+}
+.admin-page .text-secondary-900,
+.admin-page .text-secondary-800,
+.admin-page .text-white,
+.admin-page [data-card-title] {
+  color: var(--theme-text) !important;
+}
+.admin-page .text-secondary-700,
+.admin-page .text-secondary-600,
+.admin-page .text-secondary-500,
+.admin-page .text-secondary-400,
+.admin-page .text-slate-300,
+.admin-page .text-slate-400,
+.admin-page [data-card-subtitle] {
+  color: var(--theme-muted) !important;
+}
+.admin-page .text-primary-100,
+.admin-page .text-primary-200,
+.admin-page .text-primary-600,
+.admin-page .text-cyan-200 {
+  color: var(--theme-accent) !important;
+}
+.admin-page input:not([type='checkbox']),
+.admin-page textarea,
+.admin-page select,
+.admin-page .admin-input {
+  background: var(--theme-input-bg) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-input-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+.admin-page input::placeholder,
+.admin-page textarea::placeholder {
+  color: var(--theme-muted) !important;
+  opacity: 0.8;
+}
+.admin-page table thead,
+.admin-page tr.bg-secondary-50,
+.admin-page tr.bg-white,
+.admin-page .hover\:bg-secondary-50\/50:hover,
+.admin-page .hover\:bg-secondary-100:hover,
+.admin-page .hover\:bg-white:hover {
+  background: rgba(255, 255, 255, 0.055) !important;
+}
+.admin-page tbody,
+.admin-page .divide-secondary-50 > :not([hidden]) ~ :not([hidden]),
+.admin-page .divide-secondary-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--theme-border) !important;
+}
+.admin-page .rounded-lg.bg-secondary-100,
+.admin-page .rounded-xl.bg-secondary-100 {
+  background: rgba(255, 255, 255, 0.075) !important;
+}
+
+/* Public and dashboard pages share the same dark product shell. */
+.site-page.site-page { background: linear-gradient(140deg, var(--theme-bg) 0%, var(--theme-bg-soft) 52%, var(--theme-bg-deep) 100%) !important; color: var(--theme-text) !important; }
+.site-page .card-light,
+.site-page .glass-surface,
+.site-page .bg-white,
+.site-page .bg-white\/70,
+.site-page .bg-white\/80,
+.site-page .bg-white\/90,
+.site-page .bg-white\/95,
+.site-page .bg-secondary-50,
+.site-page .bg-secondary-100 {
+  background: color-mix(in srgb, var(--theme-surface) 88%, transparent) !important;
+  border-color: var(--theme-border) !important;
+  box-shadow: 0 24px 70px -46px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+.site-page .bg-green-50,
+.site-page .bg-red-50,
+.site-page .bg-blue-50,
+.site-page .bg-orange-50,
+.site-page .bg-yellow-50,
+.site-page .bg-primary-50 {
+  background: color-mix(in srgb, var(--theme-accent) 14%, transparent) !important;
+}
+.site-page .border-secondary-100,
+.site-page .border-secondary-200,
+.site-page .border-secondary-300,
+.site-page .border-primary-200,
+.site-page .border-white\/60,
+.site-page [data-card-header] {
+  border-color: var(--theme-border) !important;
+}
+.site-page .text-secondary-950,
+.site-page .text-secondary-900,
+.site-page .text-secondary-800,
+.site-page .text-white,
+.site-page .text-slate-950,
+.site-page [data-card-title],
+.site-page .prose h1,
+.site-page .prose h2,
+.site-page .prose h3,
+.site-page .prose strong {
+  color: var(--theme-text) !important;
+}
+.site-page .text-secondary-700,
+.site-page .text-secondary-600,
+.site-page .text-secondary-500,
+.site-page .text-secondary-400,
+.site-page .text-slate-300,
+.site-page .text-slate-400,
+.site-page .text-slate-500,
+.site-page [data-card-subtitle],
+.site-page .prose,
+.site-page .prose p,
+.site-page .prose li {
+  color: var(--theme-muted) !important;
+}
+.site-page .text-primary-100,
+.site-page .text-primary-200,
+.site-page .text-primary-600,
+.site-page .text-cyan-200 {
+  color: var(--theme-accent) !important;
+}
+.site-page input:not([type='checkbox']),
+.site-page textarea,
+.site-page select,
+.site-page .admin-input,
+.site-page .form-input {
+  background: var(--theme-input-bg) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-input-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+.site-page input::placeholder,
+.site-page textarea::placeholder {
+  color: var(--theme-muted) !important;
+  opacity: 0.8;
+}
+.site-page table thead,
+.site-page tr.bg-secondary-50,
+.site-page tr.bg-white,
+.site-page .hover\:bg-secondary-50:hover,
+.site-page .hover\:bg-secondary-50\/50:hover,
+.site-page .hover\:bg-secondary-100:hover,
+.site-page .hover\:bg-white:hover {
+  background: rgba(255, 255, 255, 0.055) !important;
+}
+.site-page tbody,
+.site-page .divide-secondary-50 > :not([hidden]) ~ :not([hidden]),
+.site-page .divide-secondary-100 > :not([hidden]) ~ :not([hidden]),
+.site-page .border-b.border-secondary-100 {
+  border-color: var(--theme-border) !important;
+}
+.site-page .profile-page,
+.site-page.profile-page {
+  background: linear-gradient(140deg, var(--theme-bg) 0%, var(--theme-bg-soft) 52%, var(--theme-bg-deep) 100%) !important;
+  color: var(--theme-text) !important;
+}

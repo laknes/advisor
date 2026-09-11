@@ -26,7 +26,7 @@ export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDe
   }, [params.id, isAuthenticated, revision]);
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="site-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={isAuthenticated} />
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <Link href={`/${locale}/analyses`} className="mb-8 inline-flex items-center gap-2 font-bold text-primary-700">
@@ -75,3 +75,4 @@ export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDe
     </div>
   );
 }
+

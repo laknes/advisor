@@ -96,7 +96,7 @@ export default function AdminLogsPage() {
   const logs = useMemo(() => data?.logs || [], [data]);
 
   return (
-    <div className="logs-page min-h-screen bg-secondary-50">
+    <div className="admin-page logs-page min-h-screen bg-secondary-50">
       <Header isAuthenticated userName="مدیر" />
 
       <main className="py-12 md:py-20">
@@ -239,3 +239,4 @@ function LogStat({ icon, label, value, tone = 'default' }: { icon: React.ReactNo
     </Card>
   );
 }
+

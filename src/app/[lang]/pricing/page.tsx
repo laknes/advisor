@@ -514,7 +514,7 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="site-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <main>
@@ -625,3 +625,4 @@ export default function PricingPage() {
     </div>
   );
 }
+

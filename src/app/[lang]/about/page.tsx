@@ -181,7 +181,7 @@ export default function AboutPage() {
     : ['معامله‌گر کوتاه‌مدت', 'سرمایه‌گذار بلندمدت', 'کاربر علاقه‌مند به تحلیل', 'مدیر پورتفوی شخصی'];
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#160022] text-white">
+    <div className="site-page min-h-screen overflow-hidden bg-[#160022] text-white">
       <Header isAuthenticated={false} />
 
       <main>
@@ -414,3 +414,4 @@ function ProcessCard({ icon: Icon, title, text, index }: { icon: React.ElementTy
     </motion.div>
   );
 }
+

@@ -90,7 +90,7 @@ export default function AnalysesPage() {
   }, [analyses, analysisType, signal]);
 
   return (
-    <div className="min-h-screen bg-[#160022] text-white">
+    <div className="site-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated={isAuthenticated} />
 
       <main>
@@ -252,3 +252,4 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
     </div>
   );
 }
+

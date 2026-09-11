@@ -125,7 +125,7 @@ export default function MarketsPage() {
     : 0;
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#160022] text-white">
+    <div className="site-page min-h-screen overflow-hidden bg-[#160022] text-white">
       <Header isAuthenticated={isAuthenticated} />
 
       <main>
@@ -503,3 +503,4 @@ function SmallMetric({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

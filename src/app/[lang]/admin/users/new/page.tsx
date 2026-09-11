@@ -63,7 +63,7 @@ export default function CreateAdminUserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="admin-page min-h-screen bg-secondary-50">
       <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -127,3 +127,4 @@ export default function CreateAdminUserPage() {
     </div>
   );
 }
+

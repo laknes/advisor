@@ -85,7 +85,7 @@ export default function AnalysesManagementPage() {
   };
 
   return (
-    <div className="admin-analyses-page min-h-screen bg-secondary-50">
+    <div className="admin-page admin-analyses-page min-h-screen">
       <Header isAuthenticated={true} userName={currentUser?.name || 'مدیر'} />
 
       <main className="py-12 md:py-20">
@@ -103,92 +103,92 @@ export default function AnalysesManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-10">
-            <Card className="card-light border-none shadow-md bg-white p-4 flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-primary-600" />
+            <Card className="border border-white/10 bg-white/[0.07] p-4 flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary-400/15 rounded-xl flex items-center justify-center">
+                <FileText className="w-6 h-6 text-primary-200" />
               </div>
               <div>
-                <p className="text-xs font-black text-secondary-400 uppercase tracking-widest">کل تحلیل‌ها</p>
-                <p className="text-xl font-black text-secondary-900">{analyses.length}</p>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">کل تحلیل‌ها</p>
+                <p className="text-xl font-black text-white">{analyses.length}</p>
               </div>
             </Card>
-            <Card className="card-light border-none shadow-md bg-white p-4 flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-green-600" />
+            <Card className="border border-white/10 bg-white/[0.07] p-4 flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-400/15 rounded-xl flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-emerald-200" />
               </div>
               <div>
-                <p className="text-xs font-black text-secondary-400 uppercase tracking-widest">منتشرشده</p>
-                <p className="text-xl font-black text-secondary-900">{analyses.length}</p>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">منتشرشده</p>
+                <p className="text-xl font-black text-white">{analyses.length}</p>
               </div>
             </Card>
-            <Card className="card-light border-none shadow-md bg-white p-4 flex items-center gap-4">
-              <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-orange-600" />
+            <Card className="border border-white/10 bg-white/[0.07] p-4 flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-300/15 rounded-xl flex items-center justify-center">
+                <Clock className="w-6 h-6 text-amber-200" />
               </div>
               <div>
-                <p className="text-xs font-black text-secondary-400 uppercase tracking-widest">زمان‌بندی‌شده</p>
-                <p className="text-xl font-black text-secondary-900">{analyses.filter(a => new Date(a.publishedAt) > new Date()).length}</p>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">زمان‌بندی‌شده</p>
+                <p className="text-xl font-black text-white">{analyses.filter(a => new Date(a.publishedAt) > new Date()).length}</p>
               </div>
             </Card>
-            <Card className="card-light border-none shadow-md bg-white p-4 flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                <Lock className="w-6 h-6 text-blue-600" />
+            <Card className="border border-white/10 bg-white/[0.07] p-4 flex items-center gap-4">
+              <div className="w-12 h-12 bg-cyan-300/15 rounded-xl flex items-center justify-center">
+                <Lock className="w-6 h-6 text-cyan-200" />
               </div>
               <div>
-                <p className="text-xs font-black text-secondary-400 uppercase tracking-widest">ویژه</p>
-                <p className="text-xl font-black text-secondary-900">{analyses.filter(a => a.isLocked).length}</p>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">ویژه</p>
+                <p className="text-xl font-black text-white">{analyses.filter(a => a.isLocked).length}</p>
               </div>
             </Card>
           </div>
 
-          <Card className="card-light border-none shadow-xl bg-white overflow-hidden">
+          <Card className="border border-white/10 bg-white/[0.07] overflow-hidden">
             <CardHeader 
               title="فهرست تحلیل‌ها" 
               action={
                 <div className="flex gap-2">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary-400" />
-                    <input type="text" placeholder="جست‌وجو..." className="pl-10 pr-4 py-2 bg-secondary-50 border border-secondary-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-64" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input type="text" placeholder="جست‌وجو..." className="admin-input h-10 w-64 pl-10 pr-4" />
                   </div>
                   <Button variant="outline" size="sm" leftIcon={<Filter className="w-4 h-4" />}>فیلتر</Button>
                 </div>
               }
             />
             {error ? (
-              <div className="border-b border-red-100 bg-red-50 px-6 py-4 text-sm font-bold text-red-800">{error}</div>
+              <div className="border-b border-red-400/20 bg-red-400/10 px-6 py-4 text-sm font-bold text-red-100">{error}</div>
             ) : null}
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-secondary-50 border-b border-secondary-100">
-                      <th className="text-right py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">تحلیل</th>
-                      <th className="text-right py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">بازار / بازه</th>
-                      <th className="text-center py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">سیگنال</th>
-                      <th className="text-right py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">تاریخ</th>
-                      <th className="text-center py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">دسترسی</th>
-                      <th className="text-center py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">وضعیت</th>
-                      <th className="text-left py-4 px-6 text-xs font-black text-secondary-400 uppercase tracking-widest">عملیات</th>
+                    <tr className="border-b border-white/10 bg-white/[0.05]">
+                      <th className="text-right py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">تحلیل</th>
+                      <th className="text-right py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">بازار / بازه</th>
+                      <th className="text-center py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">سیگنال</th>
+                      <th className="text-right py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">تاریخ</th>
+                      <th className="text-center py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">دسترسی</th>
+                      <th className="text-center py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">وضعیت</th>
+                      <th className="text-left py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">عملیات</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-secondary-50">
+                  <tbody className="divide-y divide-white/10">
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="py-10 text-center text-secondary-500">در حال بارگذاری تحلیل‌ها...</td>
+                        <td colSpan={7} className="py-10 text-center text-slate-300">در حال بارگذاری تحلیل‌ها...</td>
                       </tr>
                     ) : analyses.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="py-10 text-center text-secondary-500">تحلیلی پیدا نشد.</td>
+                        <td colSpan={7} className="py-10 text-center text-slate-300">تحلیلی پیدا نشد.</td>
                       </tr>
                     ) : analyses.map((analysis) => (
-                      <tr key={analysis.id} className="hover:bg-secondary-50/50 transition-colors group">
+                      <tr key={analysis.id} className="hover:bg-white/[0.055] transition-colors group">
                         <td className="py-4 px-6">
-                          <p className="font-bold text-secondary-900 group-hover:text-primary-600 transition-colors">{analysis.title}</p>
+                          <p className="font-bold text-white group-hover:text-primary-200 transition-colors">{analysis.title}</p>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-secondary-700">{analysis.market?.name || 'بازار نامشخص'}</span>
-                            <span className="text-[10px] font-bold text-secondary-400 uppercase tracking-tighter">{analysis.timeframe}</span>
+                            <span className="text-sm font-bold text-slate-200">{analysis.market?.name || 'بازار نامشخص'}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{analysis.timeframe}</span>
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
@@ -196,14 +196,14 @@ export default function AnalysesManagementPage() {
                             {analysis.signal}
                           </Badge>
                         </td>
-                        <td className="py-4 px-6 text-sm text-secondary-600 font-medium">
+                        <td className="py-4 px-6 text-sm text-slate-300 font-medium">
                           {new Date(analysis.publishedAt).toLocaleDateString()}
                         </td>
                         <td className="py-4 px-6 text-center">
                           <div className="flex justify-center">
                             {analysis.isLocked ? <Lock className="w-4 h-4 text-orange-500" /> : <Unlock className="w-4 h-4 text-green-500" />}
                           </div>
-                          <span className="text-[10px] font-bold text-secondary-400 uppercase mt-1 block">{analysis.requiredSubscription || 'رایگان'}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 block">{analysis.requiredSubscription || 'رایگان'}</span>
                         </td>
                         <td className="py-4 px-6 text-center">
                           <Badge variant={new Date(analysis.publishedAt) <= new Date() ? 'info' : 'warning'}>
@@ -213,12 +213,12 @@ export default function AnalysesManagementPage() {
                         <td className="py-4 px-6 text-right">
                           <div className="flex justify-end gap-2">
                             <Link href={`/${locale}/admin/analyses/${analysis.id}`}>
-                              <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-primary-600"><Eye className="w-4 h-4" /></Button>
+                              <Button size="sm" variant="ghost" className="p-2 h-auto text-slate-400 hover:text-primary-200"><Eye className="w-4 h-4" /></Button>
                             </Link>
                             <Link href={`/${locale}/admin/analyses/${analysis.id}`}>
-                              <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-blue-600"><Edit3 className="w-4 h-4" /></Button>
+                              <Button size="sm" variant="ghost" className="p-2 h-auto text-slate-400 hover:text-cyan-200"><Edit3 className="w-4 h-4" /></Button>
                             </Link>
-                            <Button size="sm" variant="ghost" className="p-2 h-auto text-secondary-400 hover:text-red-600" onClick={() => deleteAnalysis(analysis.id)}>
+                            <Button size="sm" variant="ghost" className="p-2 h-auto text-slate-400 hover:text-red-200" onClick={() => deleteAnalysis(analysis.id)}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -237,3 +237,4 @@ export default function AnalysesManagementPage() {
     </div>
   );
 }
+
