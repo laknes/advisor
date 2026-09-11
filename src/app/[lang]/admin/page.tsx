@@ -10,37 +10,15 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Activity,
-  BarChart3,
   Bell,
-  Bug,
   CreditCard,
   FileText,
   Gauge,
-  LayoutDashboard,
-  LifeBuoy,
-  Percent,
   Plus,
-  Settings,
-  ShieldCheck,
   RefreshCw,
   Users,
   WalletCards,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from 'lucide-react';
-
-const adminLinks = [
-  { href: '', label: 'مرکز مدیریت', icon: LayoutDashboard },
-  { href: '/users', label: 'کاربران', icon: Users },
-  { href: '/subscriptions', label: 'اشتراک‌ها', icon: CreditCard },
-  { href: '/analyses', label: 'تحلیل‌ها', icon: FileText },
-  { href: '/pricing', label: 'پلن‌ها', icon: WalletCards },
-  { href: '/discounts', label: 'تخفیف‌ها', icon: Percent },
-  { href: '/support', label: 'پشتیبانی', icon: LifeBuoy },
-  { href: '/reports', label: 'گزارش‌ها', icon: BarChart3 },
-  { href: '/logs', label: 'لاگ‌ها و خطاها', icon: Bug },
-  { href: '/settings', label: 'تنظیمات', icon: Settings },
-];
 
 interface AdminStats {
   totals: {
@@ -85,7 +63,6 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [integrations, setIntegrations] = useState<IntegrationStatus | null>(null);
   const [syncStatus, setSyncStatus] = useState('');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -135,62 +112,7 @@ export default function AdminDashboard() {
     <div className="admin-page min-h-screen bg-[#160022] text-white">
       <Header isAuthenticated userName="مدیر سیستم" />
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <aside className={cn(
-          'sticky top-24 hidden h-[calc(100vh-7rem)] shrink-0 transition-[width] duration-300 lg:block',
-          isSidebarCollapsed ? 'w-20' : 'w-72',
-        )}>
-          <div className="glass-panel flex h-full min-h-0 flex-col rounded-lg p-3">
-            <div className={cn('mb-4 flex items-center rounded-lg bg-white p-3 text-primary-900', isSidebarCollapsed ? 'justify-center' : 'justify-between gap-3')}>
-              {!isSidebarCollapsed && (
-                <div className="min-w-0">
-                  <p className="text-xs font-black">پنل مدیریت</p>
-                  <p className="mt-1 truncate text-lg font-black">مدیریتی حرفه‌ای</p>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-primary-900 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-300"
-                aria-label={isSidebarCollapsed ? 'باز کردن منو' : 'جمع کردن منو'}
-                title={isSidebarCollapsed ? 'باز کردن منو' : 'جمع کردن منو'}
-                aria-expanded={!isSidebarCollapsed}
-              >
-                {isSidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
-              </button>
-            </div>
-            <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden py-1 pr-1">
-              {adminLinks.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={`/${locale}/admin${item.href}`}
-                    className={cn(
-                      'flex min-h-11 items-center rounded-lg py-3 text-sm font-bold transition',
-                      isSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
-                      index === 0 ? 'bg-white text-primary-900' : 'text-slate-300 hover:bg-white/10 hover:text-white',
-                    )}
-                    title={isSidebarCollapsed ? item.label : undefined}
-                  >
-                    <Icon className="h-5 w-5" />
-                    {!isSidebarCollapsed && <span className="whitespace-nowrap">{item.label}</span>}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className={cn('mt-3 shrink-0 rounded-lg border border-white/10 bg-white/[0.06] p-3', isSidebarCollapsed ? 'flex justify-center' : '')}>
-              <ShieldCheck className={cn('h-6 w-6', !isSidebarCollapsed && 'mb-3')} />
-              {!isSidebarCollapsed && (
-                <>
-                  <p className="font-black">دسترسی ادمین</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">APIهای مدیریتی با فهرست مجاز ایمیل ادمین محافظت می‌شوند.</p>
-                </>
-              )}
-            </div>
-          </div>
-        </aside>
-
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <main className="min-w-0 flex-1">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
             <div>

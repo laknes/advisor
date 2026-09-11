@@ -136,6 +136,18 @@ select option { color: #1c1917; background: #ffffff; }
   border-color: var(--theme-border) !important;
   box-shadow: 0 24px 70px -46px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
+
+@media (min-width: 1024px) {
+  .admin-shell-content {
+    padding-right: 17rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .admin-shell-content {
+    padding-bottom: 5.5rem;
+  }
+}
 .admin-page .bg-green-50,
 .admin-page .bg-red-50,
 .admin-page .bg-blue-50,
