@@ -131,6 +131,18 @@ const siteSettings = [
   { key: 'otp_sms_provider', value: 'kavenegar', group: 'otp', label: 'SMS provider', description: 'سرویس ارسال پیامک کد یکبار مصرف. برای production یکی از سرویس‌های واقعی را همراه با کلید API تنظیم کنید.', type: 'select', isPublic: false },
   { key: 'otp_sms_api_key', value: '', group: 'otp', label: 'SMS API key', description: null, type: 'password', isPublic: false },
   { key: 'otp_sms_sender', value: '', group: 'otp', label: 'SMS sender number', description: null, type: 'text', isPublic: false },
+  { key: 'market_data_enabled', value: true, group: 'market_data', label: 'Market data sync enabled', description: null, type: 'boolean', isPublic: false },
+  { key: 'market_data_refresh_seconds', value: '300', group: 'market_data', label: 'Refresh interval seconds', description: null, type: 'number', isPublic: false },
+  { key: 'market_data_default_free_provider', value: 'alpha_vantage', group: 'market_data_free', label: 'Default free market data provider', description: 'Supported values: alpha_vantage, finnhub, twelve_data, polygon, coingecko, frankfurter, metals_api.', type: 'text', isPublic: false },
+  { key: 'market_data_provider_priority', value: 'alpha_vantage,finnhub,twelve_data,polygon,coingecko,frankfurter,metals_api', group: 'market_data_free', label: 'Provider priority order', description: 'Comma-separated fallback order for real market data providers.', type: 'text', isPublic: false },
+  { key: 'frankfurter_enabled', value: false, group: 'market_data_free', label: 'Frankfurter enabled', description: 'Free, no-key exchange-rate API for 205 currencies from central-bank sources. Not intended for live trading. Docs: https://frankfurter.dev/', type: 'boolean', isPublic: false },
+  { key: 'frankfurter_base_url', value: 'https://api.frankfurter.dev/v2', group: 'market_data_free', label: 'Frankfurter base URL', description: null, type: 'text', isPublic: false },
+  { key: 'frankfurter_api_key', value: '', group: 'market_data_free', label: 'Frankfurter API key', description: 'Not required for the public Frankfurter API; keep empty unless using a private/self-hosted instance.', type: 'password', isPublic: false },
+  { key: 'frankfurter_docs_url', value: 'https://frankfurter.dev/', group: 'market_data_free', label: 'Frankfurter docs URL', description: null, type: 'text', isPublic: false },
+  { key: 'metals_api_enabled', value: false, group: 'market_data_free', label: 'Metals-API enabled', description: 'Precious metals price API for gold, silver, palladium, and platinum. Free tier requires an API key. Docs: https://metals-api.com/documentation', type: 'boolean', isPublic: false },
+  { key: 'metals_api_base_url', value: 'https://metals-api.com/api', group: 'market_data_free', label: 'Metals-API base URL', description: null, type: 'text', isPublic: false },
+  { key: 'metals_api_api_key', value: '', group: 'market_data_free', label: 'Metals-API API key', description: 'Required access key from Metals-API.', type: 'password', isPublic: false },
+  { key: 'metals_api_docs_url', value: 'https://metals-api.com/documentation', group: 'market_data_free', label: 'Metals-API docs URL', description: null, type: 'text', isPublic: false },
 ];
 
 async function main() {

@@ -32,6 +32,8 @@ const freeMarketDataProviders = [
   { key: 'twelve_data', label: 'Twelve Data', docsKey: 'twelve_data_docs_url' },
   { key: 'polygon', label: 'Polygon / Massive', docsKey: 'polygon_docs_url' },
   { key: 'coingecko', label: 'CoinGecko API', docsKey: 'coingecko_docs_url' },
+  { key: 'frankfurter', label: 'Frankfurter FX API', docsKey: 'frankfurter_docs_url' },
+  { key: 'metals_api', label: 'Metals-API', docsKey: 'metals_api_docs_url' },
 ];
 
 function toNumber(value: unknown) {
@@ -79,7 +81,7 @@ export class MarketDataService {
       key: provider.key,
       label: provider.label,
       enabled: Boolean(settingsMap[`${provider.key}_enabled`]),
-      configured: provider.key === 'coingecko'
+      configured: provider.key === 'coingecko' || provider.key === 'frankfurter'
         ? Boolean(settingsMap[`${provider.key}_base_url`])
         : Boolean(settingsMap[`${provider.key}_api_key`]),
       baseUrl: settingsMap[`${provider.key}_base_url`] || '',
