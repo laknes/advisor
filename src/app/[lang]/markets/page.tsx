@@ -175,7 +175,7 @@ export default function MarketsPage() {
                 <MarketOrbitScene density="compact" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,transparent_0%,rgba(22,0,34,0.22)_48%,rgba(22,0,34,0.76)_100%)]" />
 
-                <div className="absolute left-4 top-4 w-[min(18rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#11051f]/78 p-4 shadow-2xl shadow-cyan-950/40 backdrop-blur-2xl sm:left-6 sm:top-6">
+                <div className="absolute left-4 top-4 w-[min(18rem,calc(100%-2rem))] rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] p-4 shadow-2xl shadow-[color:var(--theme-shadow)] backdrop-blur-2xl sm:left-6 sm:top-6">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <p className="text-xs font-black text-cyan-100">{isEnglish ? 'Live monitor' : 'رصد زنده'}</p>
@@ -201,7 +201,7 @@ export default function MarketsPage() {
                   </div>
                 </div>
 
-                <div className="absolute bottom-4 right-4 w-[min(17rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#120720]/82 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl sm:bottom-6 sm:right-6">
+                <div className="absolute bottom-4 right-4 w-[min(17rem,calc(100%-2rem))] rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] p-4 shadow-2xl shadow-[color:var(--theme-shadow)] backdrop-blur-2xl sm:bottom-6 sm:right-6">
                   <p className="text-xs font-black text-primary-100">{isEnglish ? 'Reference index' : 'شاخص مرجع'}</p>
                   <div className="mt-3 flex items-end justify-between gap-4">
                     <div>

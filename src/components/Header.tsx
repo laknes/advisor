@@ -109,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
   return (
     <header className={cn(
       "sticky top-0 z-50 transition-all duration-300",
-      scrolled ? "bg-[#160022]/92 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/20 py-2" : "bg-[#160022]/96 backdrop-blur-xl border-b border-white/10 py-4"
+      scrolled ? "bg-[color:var(--theme-header)] backdrop-blur-2xl border-b border-[color:var(--theme-border)] shadow-2xl shadow-[color:var(--theme-shadow)] py-2" : "bg-[color:var(--theme-header)] backdrop-blur-xl border-b border-[color:var(--theme-border)] py-4"
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">

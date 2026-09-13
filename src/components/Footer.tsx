@@ -31,7 +31,7 @@ export const Footer = () => {
   if (!dict) return null;
 
   return (
-    <footer className="bg-[#160022]/92 border-t border-white/10 pt-16 pb-8 text-slate-200">
+    <footer className="bg-[color:var(--theme-header)] border-t border-[color:var(--theme-border)] pt-16 pb-8 text-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}

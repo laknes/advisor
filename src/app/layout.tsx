@@ -125,7 +125,7 @@ export default function RootLayout({
           {disableInjectedWalletsScript}
         </Script>
       </head>
-      <body className="min-h-full flex flex-col bg-[#160022] text-secondary-100">
+      <body className="min-h-full flex flex-col bg-[color:var(--theme-bg)] text-[color:var(--theme-text)]">
         <ExtensionErrorFilter />
         <LoadingProvider>
           <LoadingInitializer />

@@ -574,7 +574,7 @@ function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices
       <motion.div
         animate={{ y: [0, -8, 0], rotateX: [0, 2, 0] }}
         transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute left-4 top-4 w-[min(18rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#11051f]/75 p-4 shadow-2xl shadow-cyan-950/40 backdrop-blur-2xl sm:left-6 sm:top-6"
+        className="absolute left-4 top-4 w-[min(18rem,calc(100%-2rem))] rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] p-4 shadow-2xl shadow-[color:var(--theme-shadow)] backdrop-blur-2xl sm:left-6 sm:top-6"
       >
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -610,7 +610,7 @@ function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.25 }}
-        className="absolute right-4 top-4 hidden w-[min(15rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#130520]/70 p-3 shadow-2xl shadow-black/20 backdrop-blur-2xl sm:right-6 sm:top-6 md:block"
+        className="absolute right-4 top-4 hidden w-[min(15rem,calc(100%-2rem))] rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] p-3 shadow-2xl shadow-[color:var(--theme-shadow)] backdrop-blur-2xl sm:right-6 sm:top-6 md:block"
       >
         <p className="mb-3 text-xs font-black text-primary-100">{locale === 'en' ? '3D view guide' : 'راهنمای نمای سه‌بعدی'}</p>
         <div className="grid gap-2">
@@ -626,7 +626,7 @@ function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices
       <motion.div
         animate={{ y: [0, 10, 0], rotateY: [0, -3, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-        className="absolute bottom-4 right-4 w-[min(17rem,calc(100%-2rem))] rounded-lg border border-white/15 bg-[#120720]/80 p-4 shadow-2xl shadow-black/30 backdrop-blur-2xl sm:bottom-6 sm:right-6"
+        className="absolute bottom-4 right-4 w-[min(17rem,calc(100%-2rem))] rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] p-4 shadow-2xl shadow-[color:var(--theme-shadow)] backdrop-blur-2xl sm:bottom-6 sm:right-6"
       >
         <div className="mb-4 flex items-center justify-between">
           <div>
