@@ -5,7 +5,7 @@ import { Header, Footer, Card, Button } from '@/components';
 import { apiGet, apiPut } from '@/lib/apiClient';
 import { useLocale } from '@/components/LocaleProvider';
 import Link from 'next/link';
-import { ArrowRight, Bug, CheckCircle2, Save, Settings } from 'lucide-react';
+import { ArrowRight, Bug, CheckCircle2, ChevronLeft, Save, Settings } from 'lucide-react';
 
 interface SiteSetting { id: string; key: string; value: unknown; group: string; label: string; description?: string | null; type: string; isPublic: boolean; }
 type Locale = 'fa' | 'en';
@@ -36,7 +36,7 @@ const selectOptions: Record<string, Array<{ value: string; fa: string; en: strin
 const isPersian = (value: string) => /[\u0600-\u06FF]/.test(value);
 const fallbackLabel = (key: string) => key.split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 
-export default function AdminSettingsPage() {
+export function AdminSettingsPage({ groupFilter }: { groupFilter?: string }) {
   const { locale } = useLocale();
   const language: Locale = locale === 'fa' ? 'fa' : 'en';
   const isFa = language === 'fa';
@@ -59,6 +59,11 @@ export default function AdminSettingsPage() {
     result[setting.group].push(setting);
     return result;
   }, {}), [settings]);
+  const filteredSettings = groupFilter ? settings.filter((setting) => setting.group === groupFilter) : settings;
+  const activeGroup = groupFilter ?? '';
+  const filteredGroups = groupFilter
+    ? { [groupFilter]: groupedSettings[groupFilter] ?? [] }
+    : groupedSettings;
   const labelFor = (setting: SiteSetting) => (isFa ? faLabels[setting.key] : enLabels[setting.key]) || (isFa ? (isPersian(setting.label) ? setting.label : fallbackLabel(setting.key)) : (isPersian(setting.label) ? fallbackLabel(setting.key) : setting.label));
   const descriptionFor = (setting: SiteSetting) => setting.description && isPersian(setting.description) === isFa ? setting.description : null;
 
@@ -66,34 +71,35 @@ export default function AdminSettingsPage() {
     event.preventDefault();
     setStatus(isFa ? 'در حال ذخیره تنظیمات...' : 'Saving settings...');
     try {
-      const data = await apiPut<{ settings: SiteSetting[] }>('/api/admin/settings', { settings: settings.map((setting) => ({ key: setting.key, value: values[setting.key] })) }, true);
+      const data = await apiPut<{ settings: SiteSetting[] }>('/api/admin/settings', { settings: filteredSettings.map((setting) => ({ key: setting.key, value: values[setting.key] })) }, true);
       setSettings(data.settings);
       setValues(Object.fromEntries(data.settings.map((setting) => [setting.key, setting.value])));
       setStatus(isFa ? 'تنظیمات با موفقیت ذخیره شد.' : 'Settings saved successfully.');
     } catch (error) { setStatus(error instanceof Error ? error.message : (isFa ? 'ذخیره تنظیمات انجام نشد.' : 'Failed to save settings.')); }
   };
 
+  if (!groupFilter) return <div className="admin-page platform-settings-page min-h-screen bg-secondary-50">
+    <Header isAuthenticated userName={isFa ? 'مدیر' : 'Admin'} />
+    <main className="py-12 md:py-20"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end"><div>
+        <div className="mb-4 inline-flex rounded-lg border border-primary-200/60 bg-white/70 p-3 text-primary-700 shadow-lg shadow-primary-900/5 backdrop-blur-xl"><Settings className="h-6 w-6" /></div>
+        <h1 className="text-4xl font-black tracking-tight text-secondary-900">{isFa ? <>تنظیمات <span className="text-primary-600">پلتفرم</span></> : <>Platform <span className="text-primary-600">Settings</span></>}</h1>
+        <p className="mt-2 max-w-3xl text-lg font-medium text-secondary-500">{isFa ? 'هر بخش را جداگانه باز کنید تا تنظیمات مرتبط را سریع‌تر و با تمرکز بیشتر مدیریت کنید.' : 'Open a section to manage its related settings in a focused workspace.'}</p>
+      </div><div className="flex flex-wrap items-center gap-3">{status && <span className="text-sm font-bold text-secondary-500">{status}</span>}<Link href={`/${locale}/admin`} className="inline-flex items-center gap-2 rounded-lg border border-primary-200 bg-white/70 px-4 py-3 text-sm font-black text-primary-800 shadow-sm backdrop-blur-xl transition hover:border-primary-400 hover:bg-white"><ArrowRight className="h-4 w-4" />{isFa ? 'بازگشت به مدیریت' : 'Back to admin'}</Link></div></div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{Object.entries(groupedSettings).map(([group, items]) => <Link key={group} href={`/${locale}/admin/settings/${group}`} className="group"><Card className="glass-surface h-full border-none p-6 shadow-lg transition group-hover:-translate-y-1 group-hover:shadow-xl"><div className="flex items-start justify-between gap-4"><div className="rounded-lg bg-primary-50 p-3 text-primary-600"><Settings className="h-5 w-5" /></div><ChevronLeft className="h-5 w-5 text-secondary-400 transition group-hover:-translate-x-1 group-hover:text-primary-600" /></div><h2 className="mt-6 text-xl font-black text-secondary-900">{groups[language][group] || (isFa ? 'سایر تنظیمات' : 'Other settings')}</h2><p className="mt-2 min-h-10 text-sm font-medium leading-6 text-secondary-500">{descriptions[language][group] || (isFa ? 'گزینه‌های مرتبط با این بخش را مشاهده و مدیریت کنید.' : 'Review and manage settings related to this section.')}</p><div className="mt-5 border-t border-secondary-100 pt-4 text-sm font-black text-primary-600">{items.length} {isFa ? 'گزینه برای تنظیم' : 'settings'}</div></Card></Link>)}</div>
+      <Card className="glass-surface mt-6 flex flex-col items-start justify-between gap-4 border-none p-5 shadow-lg sm:flex-row sm:items-center"><div className="flex items-center gap-4"><div className="rounded-lg bg-primary-50 p-3 text-primary-600"><Bug className="h-5 w-5" /></div><div><h2 className="font-black text-secondary-900">{isFa ? 'لاگ‌ها و خطاهای سایت' : 'Site logs and errors'}</h2><p className="text-sm font-medium text-secondary-500">{isFa ? 'خطاهای سرور، مرورگر و پردازش پس‌زمینه را بررسی کنید.' : 'Review server, browser, and background process errors.'}</p></div></div><Link href={`/${locale}/admin/logs`} className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-primary-200 bg-white px-4 py-2.5 text-sm font-black text-primary-700 shadow-sm transition hover:border-primary-400">{isFa ? 'مشاهده لاگ‌ها' : 'View logs'}</Link></Card>
+    </div></main><Footer />
+  </div>;
+
   return <div className="admin-page platform-settings-page min-h-screen bg-secondary-50">
     <Header isAuthenticated userName={isFa ? 'مدیر' : 'Admin'} />
     <main className="py-12 md:py-20"><form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end"><div>
         <div className="mb-4 inline-flex rounded-2xl border border-primary-200/60 bg-white/70 p-3 text-primary-700 shadow-lg shadow-primary-900/5 backdrop-blur-xl"><Settings className="h-6 w-6" /></div>
-        <h1 className="text-4xl font-black tracking-tight text-secondary-900">{isFa ? <>تنظیمات <span className="text-primary-600">پلتفرم</span></> : <>Platform <span className="text-primary-600">Settings</span></>}</h1>
-        <p className="mt-2 max-w-3xl text-lg font-medium text-secondary-500">{isFa ? 'محتوای عمومی، سئو، اطلاعات پشتیبانی، تنظیمات مالی، ثبت‌نام و وضعیت سرویس‌ها را مدیریت کنید.' : 'Manage public content, SEO, support details, billing, sign-up, and service status.'}</p>
-      </div><div className="flex flex-wrap items-center gap-3">{status && <span className="text-sm font-bold text-secondary-500">{status}</span>}<Link href={`/${locale}/admin`} className="inline-flex items-center gap-2 rounded-xl border border-primary-200 bg-white/70 px-4 py-3 text-sm font-black text-primary-800 shadow-sm backdrop-blur-xl transition hover:border-primary-400 hover:bg-white"><ArrowRight className="h-4 w-4" />{isFa ? 'بازگشت به منوی مدیریت' : 'Back to admin menu'}</Link><Button type="submit" size="lg" leftIcon={<Save className="h-5 w-5" />}>{isFa ? 'ذخیره تنظیمات' : 'Save settings'}</Button></div></div>
-      <Card className="glass-surface mb-6 flex flex-col items-start justify-between gap-4 border-none p-5 shadow-lg sm:flex-row sm:items-center">
-        <div className="flex items-center gap-4">
-          <div className="rounded-xl bg-red-50 p-3 text-red-600"><Bug className="h-5 w-5" /></div>
-          <div>
-            <h2 className="font-black text-secondary-900">{isFa ? 'لاگ‌ها و خطاهای سایت' : 'Site logs and errors'}</h2>
-            <p className="text-sm font-medium text-secondary-500">{isFa ? 'خطاهای سرور، مرورگر و پردازش پس‌زمینه را بررسی و پاک‌سازی کنید.' : 'Review and clear server, browser, and background process errors.'}</p>
-          </div>
-        </div>
-        <Link href={`/${locale}/admin/logs`} className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-black text-red-700 shadow-sm transition hover:border-red-400">
-          {isFa ? 'مشاهده لاگ‌ها' : 'View logs'}
-        </Link>
-      </Card>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">{Object.entries(groupedSettings).map(([group, items]) => <Card key={group} className="glass-surface border-none p-6 shadow-xl">
+        <h1 className="text-4xl font-black tracking-tight text-secondary-900">{groups[language][activeGroup] || (isFa ? 'تنظیمات' : 'Settings')}</h1>
+        <p className="mt-2 max-w-3xl text-lg font-medium text-secondary-500">{descriptions[language][activeGroup] || (isFa ? 'گزینه‌های این بخش را مدیریت کنید.' : 'Manage settings for this section.')}</p>
+      </div><div className="flex flex-wrap items-center gap-3">{status && <span className="text-sm font-bold text-secondary-500">{status}</span>}<Link href={`/${locale}/admin/settings`} className="inline-flex items-center gap-2 rounded-lg border border-primary-200 bg-white/70 px-4 py-3 text-sm font-black text-primary-800 shadow-sm backdrop-blur-xl transition hover:border-primary-400 hover:bg-white"><ArrowRight className="h-4 w-4" />{isFa ? 'همه تنظیمات' : 'All settings'}</Link><Button type="submit" size="lg" leftIcon={<Save className="h-5 w-5" />}>{isFa ? 'ذخیره تغییرات' : 'Save changes'}</Button></div></div>
+      <div className="grid grid-cols-1 gap-6">{Object.entries(filteredGroups).map(([group, items]) => <Card key={group} className="glass-surface border-none p-6 shadow-xl">
         <div className="mb-6 flex items-center justify-between border-b border-secondary-100/70 pb-4"><div><h2 className="text-2xl font-black text-secondary-900">{groups[language][group] || (isFa ? 'سایر تنظیمات' : 'Other settings')}</h2>{descriptions[language][group] && <p className="mt-1 text-sm font-medium text-secondary-500">{descriptions[language][group]}</p>}</div><span className="rounded-xl border border-secondary-200/70 bg-white/60 px-3 py-1 text-xs font-black text-secondary-500 shadow-sm">{items.length} {isFa ? 'مورد' : 'items'}</span></div>
         <div className="space-y-5">{items.map((setting) => <label key={setting.key} className="block"><div className="mb-2 flex items-center justify-between gap-4"><span className="font-bold text-secondary-900">{labelFor(setting)}</span>{setting.isPublic && <span className="inline-flex items-center gap-1 rounded-lg bg-green-50 px-2 py-1 text-xs font-black text-green-700"><CheckCircle2 className="h-3 w-3" />{isFa ? 'عمومی' : 'Public'}</span>}</div>
           {setting.type === 'boolean' ? <select value={String(Boolean(values[setting.key]))} onChange={(event) => setValues((current) => ({ ...current, [setting.key]: event.target.value === 'true' }))} className="w-full rounded-lg border border-secondary-200 bg-white px-4 py-3 font-medium text-secondary-900 outline-none focus:border-primary-500"><option value="true">{isFa ? 'فعال' : 'Enabled'}</option><option value="false">{isFa ? 'غیرفعال' : 'Disabled'}</option></select> : setting.type === 'select' && selectOptions[setting.key] ? <select value={String(values[setting.key] ?? '')} onChange={(event) => setValues((current) => ({ ...current, [setting.key]: event.target.value }))} className="w-full rounded-lg border border-secondary-200 bg-white px-4 py-3 font-medium text-secondary-900 outline-none focus:border-primary-500">{selectOptions[setting.key].map((option) => <option key={option.value} value={option.value}>{isFa ? option.fa : option.en}</option>)}</select> : setting.type === 'textarea' ? <textarea value={String(values[setting.key] ?? '')} onChange={(event) => setValues((current) => ({ ...current, [setting.key]: event.target.value }))} rows={4} className="w-full rounded-lg border border-secondary-200 bg-white px-4 py-3 font-medium text-secondary-900 outline-none focus:border-primary-500" /> : <input type={setting.type === 'email' ? 'email' : setting.type === 'password' ? 'password' : setting.type === 'number' ? 'number' : setting.type === 'url' ? 'url' : 'text'} value={String(values[setting.key] ?? '')} onChange={(event) => setValues((current) => ({ ...current, [setting.key]: event.target.value }))} className="w-full rounded-lg border border-secondary-200 bg-white px-4 py-3 font-medium text-secondary-900 outline-none focus:border-primary-500" />}
@@ -102,4 +108,6 @@ export default function AdminSettingsPage() {
     </form></main><Footer />
   </div>;
 }
+
+export default AdminSettingsPage;
 

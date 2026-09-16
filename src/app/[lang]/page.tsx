@@ -6,8 +6,9 @@ import { useDictionary } from '@/components/useDictionary';
 import { apiGet } from '@/lib/apiClient';
 import { Analysis, Market, Price, SubscriptionPlan } from '@/lib/types';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, LineChart, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { Activity, ArrowLeft, CheckCircle2, LineChart, ShieldCheck, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthState } from '@/hooks/useAuthState';
 
@@ -511,14 +512,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-20 md:py-28">
-          <div className="absolute inset-x-6 inset-y-0 rounded-lg bg-gradient-to-l from-white/20 via-white/10 to-primary-200/20 blur-2xl" />
-          <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-4xl font-black leading-tight text-white md:text-6xl">{isEnglish ? 'Make sharper investment decisions starting today' : 'از امروز تصمیم‌های سرمایه‌گذاری را دقیق‌تر بگیرید'}</h2>
-            <p className="mx-auto mt-7 max-w-2xl text-lg leading-9 text-slate-300">
-              {isEnglish ? 'Join investors who trust Mousavi Investment for expert market analysis, instant alerts and portfolio management.' : 'به سرمایه‌گذارانی بپیوندید که برای تحلیل حرفه‌ای بازار، هشدارهای سریع و مدیریت پورتفو به سرمایه گذاری موسوی اعتماد می‌کنند.'}
-            </p>
-            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+        <section className="py-16 md:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="overflow-hidden rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] shadow-xl shadow-[color:var(--theme-shadow)]">
+              <Image
+                src="/images/investment-cta-clean.png"
+                alt={isEnglish ? 'Investment platform market overview' : 'نمای بازار و ابزارهای سرمایه‌گذاری'}
+                width={2163}
+                height={727}
+                className="h-auto w-full object-cover"
+                sizes="(min-width: 1280px) 1280px, 100vw"
+              />
+            </div>
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <ButtonLink href={`/${locale}/auth/signup`} size="lg" className="h-14 px-10">{isEnglish ? 'Sign up free' : 'ثبت‌نام رایگان'}</ButtonLink>
               <ButtonLink href={`/${locale}/faq`} size="lg" variant="outline" className="h-14 px-10">{isEnglish ? 'FAQ' : 'سوالات متداول'}</ButtonLink>
             </div>
@@ -557,12 +563,40 @@ function HomeMarketStage({ markets, locale }: { markets: Array<Market & { prices
   };
 
   const featuredMarkets = markets.slice(0, 4);
+  const referencePrice = featuredMarkets[0]?.prices?.[0];
   const sceneLegend = [
     { label: locale === 'en' ? 'Portfolio core' : 'هسته پورتفو', color: 'bg-primary-100' },
     { label: locale === 'en' ? 'Market orbit' : 'مدار بازارها', color: 'bg-cyan-200' },
     { label: locale === 'en' ? 'Risk ring' : 'رینگ ریسک', color: 'bg-amber-300' },
     { label: locale === 'en' ? 'Signal flow' : 'جریان سیگنال', color: 'bg-emerald-300' },
   ];
+
+  return (
+    <section className="overflow-hidden rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] shadow-xl shadow-[color:var(--theme-shadow)]">
+      <div className="flex flex-col gap-4 border-b border-[color:var(--theme-border)] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--theme-accent-soft)] text-[color:var(--theme-accent)]"><LineChart className="h-5 w-5" /></span>
+          <div><h2 className="text-xl font-black text-[color:var(--theme-text)]">{locale === 'en' ? 'Market overview' : 'نمای بازار'}</h2><p className="mt-1 text-sm font-medium text-[color:var(--theme-muted)]">{locale === 'en' ? 'Latest movement across selected markets' : 'آخرین تغییرات بازارهای منتخب'}</p></div>
+        </div>
+        <div className="inline-flex items-center gap-2 self-start rounded-lg border border-[color:var(--theme-border)] px-3 py-2 text-xs font-black text-[color:var(--theme-accent)] sm:self-auto"><Activity className="h-4 w-4" />{locale === 'en' ? 'Updated now' : 'به‌روزرسانی لحظه‌ای'}</div>
+      </div>
+      <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {featuredMarkets.map((market) => {
+            const price = market.prices?.[0];
+            return <div key={market.id} className="min-h-32 rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-input-bg)] p-4">
+              <div className="flex items-start justify-between gap-3"><div><p className="font-black text-[color:var(--theme-text)]">{localizeLabel(market.name)}</p><p className="mt-1 text-xs font-bold text-[color:var(--theme-muted)]">{market.symbol || (locale === 'en' ? 'Market' : 'بازار')}</p></div><PriceChange value={price?.changePercent || 0} format="percent" className="text-xs" /></div>
+              <p className="mt-5 font-mono text-xl font-black text-[color:var(--theme-text)]">{formatNumber(price?.currentPrice || 0, { maximumFractionDigits: 4 })}</p>
+            </div>;
+          })}
+        </div>
+        <aside className="flex min-h-64 flex-col justify-between rounded-lg border border-[color:var(--theme-border)] bg-[color:var(--theme-bg-soft)] p-5">
+          <div><div className="flex items-center justify-between"><p className="text-sm font-black text-[color:var(--theme-accent)]">{locale === 'en' ? 'Reference index' : 'شاخص مرجع'}</p><TrendingUp className="h-5 w-5 text-[color:var(--theme-accent)]" /></div><p className="mt-5 font-mono text-3xl font-black text-[color:var(--theme-text)]">{formatNumber(referencePrice?.currentPrice || 0, { maximumFractionDigits: 2 })}</p><PriceChange value={referencePrice?.changePercent || 0} format="percent" className="mt-2 text-sm" /></div>
+          <div className="border-t border-[color:var(--theme-border)] pt-4"><div className="flex items-center gap-2 text-sm font-bold text-[color:var(--theme-text)]"><ShieldCheck className="h-4 w-4 text-[color:var(--theme-accent)]" />{locale === 'en' ? 'Risk level: moderate' : 'سطح ریسک: متوسط'}</div><p className="mt-2 text-xs leading-6 text-[color:var(--theme-muted)]">{locale === 'en' ? 'Review changes before making a decision.' : 'پیش از تصمیم‌گیری، تغییرات بازار را بررسی کنید.'}</p></div>
+        </aside>
+      </div>
+    </section>
+  );
 
   return (
     <div className="relative min-h-[620px] rounded-lg border border-white/10 bg-white/[0.055] shadow-2xl shadow-primary-950/40 backdrop-blur-md sm:min-h-[580px]">

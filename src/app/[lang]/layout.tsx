@@ -1,4 +1,4 @@
-import { DocumentLocale, LocaleProvider, PageTransition } from "@/components";
+import { DocumentLocale, LocaleProvider, PageTransition, PersianUiTranslator } from "@/components";
 import { use } from "react";
 
 export default function LocaleLayout({
@@ -14,6 +14,7 @@ export default function LocaleLayout({
   return (
     <LocaleProvider initialLocale={lang}>
       <DocumentLocale lang={lang} />
+      <PersianUiTranslator enabled={lang === 'fa'} />
       <PageTransition>{children}</PageTransition>
     </LocaleProvider>
   );

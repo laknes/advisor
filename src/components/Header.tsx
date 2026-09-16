@@ -131,9 +131,9 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href={`/${locale}/markets`}>{dict.common.markets}</NavLink>
+            <NavLink href={`/${locale}/education`}>{dict.common.education}</NavLink>
             <NavLink href={`/${locale}/analyses`}>{dict.common.analyses}</NavLink>
-            <NavLink href={`/${locale}/pricing`}>{dict.common.pricing}</NavLink>
+            <NavLink href={`/${locale}/economic-news`}>{dict.common.economic_news}</NavLink>
             <NavLink href={`/${locale}/about`}>{dict.common.about}</NavLink>
             {contactEnabled && (
               <NavLink href={`/${locale}/contact`}>{dict.common.contact}</NavLink>
@@ -253,9 +253,9 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
               id="header-mobile-menu"
               className="md:hidden border-t border-white/10 py-4 space-y-2 overflow-hidden"
             >
-              <MobileNavLink href={`/${locale}/markets`} onClick={() => setIsMenuOpen(false)}>{dict.common.markets}</MobileNavLink>
+              <MobileNavLink href={`/${locale}/education`} onClick={() => setIsMenuOpen(false)}>{dict.common.education}</MobileNavLink>
               <MobileNavLink href={`/${locale}/analyses`} onClick={() => setIsMenuOpen(false)}>{dict.common.analyses}</MobileNavLink>
-              <MobileNavLink href={`/${locale}/pricing`} onClick={() => setIsMenuOpen(false)}>{dict.common.pricing}</MobileNavLink>
+              <MobileNavLink href={`/${locale}/economic-news`} onClick={() => setIsMenuOpen(false)}>{dict.common.economic_news}</MobileNavLink>
               <MobileNavLink href={`/${locale}/about`} onClick={() => setIsMenuOpen(false)}>{dict.common.about}</MobileNavLink>
               {contactEnabled && <MobileNavLink href={`/${locale}/contact`} onClick={() => setIsMenuOpen(false)}>{dict.common.contact}</MobileNavLink>}
               {authenticated ? (

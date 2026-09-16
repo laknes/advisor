@@ -47,6 +47,7 @@ interface MarketPageProps {
 export default function MarketDetailPage({ params: paramsPromise }: MarketPageProps) {
   const params = use(paramsPromise);
   const { locale } = useLocale();
+  const isEnglish = locale === 'en';
   const { isAuthenticated, revision } = useAuthState();
   const [market, setMarket] = useState<(Market & { prices?: Price[]; analyses?: Analysis[] }) | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -57,14 +58,14 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
   const [timeframe, setTimeframe] = useState<string>('daily');
 
   const shortTermFrames = [
-    { id: 'daily', label: 'Daily' },
-    { id: 'weekly', label: 'Weekly' },
-    { id: 'monthly', label: 'Monthly' }
+    { id: 'daily', label: isEnglish ? 'Daily' : 'روزانه' },
+    { id: 'weekly', label: isEnglish ? 'Weekly' : 'هفتگی' },
+    { id: 'monthly', label: isEnglish ? 'Monthly' : 'ماهانه' }
   ];
   const longTermFrames = [
-    { id: '3month', label: '3 Months' },
-    { id: '1year', label: '1 Year' },
-    { id: '3year', label: '3 Years' }
+    { id: '3month', label: isEnglish ? '3 Months' : 'سه‌ماهه' },
+    { id: '1year', label: isEnglish ? '1 Year' : 'یک‌ساله' },
+    { id: '3year', label: isEnglish ? '3 Years' : 'سه‌ساله' }
   ];
   const frames = analysisType === 'short_term' ? shortTermFrames : longTermFrames;
 
@@ -93,10 +94,10 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
         <Header isAuthenticated={isAuthenticated} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h1 className="text-4xl font-extrabold text-secondary-900 mb-4">Market Not Found</h1>
-            <p className="text-secondary-600 mb-8">The market you are looking for does not exist or has been removed.</p>
+            <h1 className="text-4xl font-extrabold text-secondary-900 mb-4">{isEnglish ? 'Market Not Found' : 'بازار پیدا نشد'}</h1>
+            <p className="text-secondary-600 mb-8">{isEnglish ? 'The market you are looking for does not exist or has been removed.' : 'بازار موردنظر وجود ندارد یا حذف شده است.'}</p>
             <Link href={`/${locale}/markets`}>
-              <Button variant="primary">Back to Markets</Button>
+              <Button variant="primary">{isEnglish ? 'Back to Markets' : 'بازگشت به بازارها'}</Button>
             </Link>
           </motion.div>
         </div>
@@ -109,7 +110,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
       <div className="site-page min-h-screen bg-white">
         <Header isAuthenticated={isAuthenticated} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-3xl font-extrabold text-secondary-900">Loading market data...</h1>
+          <h1 className="text-3xl font-extrabold text-secondary-900">{isEnglish ? 'Loading market data...' : 'در حال دریافت اطلاعات بازار...'}</h1>
         </div>
       </div>
     );
@@ -152,10 +153,10 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                 className="bg-secondary-900/80 backdrop-blur-2xl text-white p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center gap-8 min-w-[300px] border border-white/10"
               >
                 <div className="text-center md:text-left">
-                  <p className="text-secondary-400 text-xs font-bold uppercase tracking-widest mb-1">Live Price</p>
+                  <p className="text-secondary-400 text-xs font-bold uppercase tracking-widest mb-1">{isEnglish ? 'Live Price' : 'قیمت لحظه‌ای'}</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-black font-mono">
-                      {marketPrice.currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {marketPrice.currentPrice.toLocaleString(isEnglish ? undefined : 'fa-IR', { minimumFractionDigits: 2 })}
                     </span>
                     <PriceChange value={marketPrice.changePercent || 0} format="percent" className="text-lg" />
                   </div>
@@ -163,11 +164,11 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                 <div className="h-px md:h-12 w-full md:w-px bg-secondary-700" />
                 <div className="flex gap-6">
                   <div className="text-center">
-                    <p className="text-secondary-400 text-[10px] font-bold uppercase mb-1">High</p>
+                    <p className="text-secondary-400 text-[10px] font-bold uppercase mb-1">{isEnglish ? 'High' : 'بیشترین'}</p>
                     <p className="font-bold text-green-400 font-mono">{marketPrice.dayHigh?.toFixed(2)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-secondary-400 text-[10px] font-bold uppercase mb-1">Low</p>
+                    <p className="text-secondary-400 text-[10px] font-bold uppercase mb-1">{isEnglish ? 'Low' : 'کمترین'}</p>
                     <p className="font-bold text-red-400 font-mono">{marketPrice.dayLow?.toFixed(2)}</p>
                   </div>
                 </div>
@@ -177,24 +178,24 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatBlock 
-              label="Volume (24h)" 
+              label={isEnglish ? 'Volume (24h)' : 'حجم (۲۴ ساعت)'}
               value={(marketPrice?.volume ? marketPrice.volume / 1000000 : 0).toFixed(1)} 
-              unit="M"
+              unit={isEnglish ? 'M' : 'میلیون'}
               icon={<Activity className="w-4 h-4 text-primary-500" />}
             />
             <StatBlock 
-              label="Volatility" 
-              value="Moderate" 
+              label={isEnglish ? 'Volatility' : 'نوسان‌پذیری'}
+              value={isEnglish ? 'Moderate' : 'متوسط'}
               icon={<TrendingUp className="w-4 h-4 text-orange-500" />}
             />
             <StatBlock 
-              label="Active Analyses" 
+              label={isEnglish ? 'Active Analyses' : 'تحلیل‌های فعال'}
               value={analyses.length.toString()} 
               icon={<BarChart3 className="w-4 h-4 text-blue-500" />}
             />
             <StatBlock 
-              label="Market Status" 
-              value="Open" 
+              label={isEnglish ? 'Market Status' : 'وضعیت بازار'}
+              value={isEnglish ? 'Open' : 'باز'}
               icon={<Clock className="w-4 h-4 text-green-500" />}
             />
           </div>
@@ -206,8 +207,8 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-12 gap-8">
             <div className="space-y-2">
-              <h2 className="text-3xl font-black text-secondary-900 tracking-tight">Market Insights</h2>
-              <p className="text-secondary-500 text-lg">Select a timeframe to view expert analysis and trading signals</p>
+              <h2 className="text-3xl font-black text-secondary-900 tracking-tight">{isEnglish ? 'Market Insights' : 'دیدگاه بازار'}</h2>
+              <p className="text-secondary-500 text-lg">{isEnglish ? 'Select a timeframe to view expert analysis and trading signals' : 'بازه زمانی را برای مشاهده تحلیل تخصصی و سیگنال‌های معاملاتی انتخاب کنید.'}</p>
             </div>
 
             {/* Analysis Type Tabs */}
@@ -225,7 +226,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                 )}
               >
                 <Zap className={cn("w-4 h-4", analysisType === 'short_term' ? "text-white" : "text-primary-500")} />
-                Short-term
+                {isEnglish ? 'Short-term' : 'کوتاه‌مدت'}
               </button>
               <button
                 onClick={() => {
@@ -240,7 +241,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                 )}
               >
                 <TrendingUp className={cn("w-4 h-4", analysisType === 'long_term' ? "text-white" : "text-primary-500")} />
-                Long-term
+                {isEnglish ? 'Long-term' : 'بلندمدت'}
               </button>
             </div>
           </div>
@@ -284,7 +285,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-secondary-400" />
                                 <span className="text-xs font-bold text-secondary-400 uppercase tracking-widest">
-                                  {new Date(analysis.publishedAt).toLocaleDateString()}
+                                  {new Date(analysis.publishedAt).toLocaleDateString(isEnglish ? 'en-US' : 'fa-IR')}
                                 </span>
                               </div>
                               <h3 className="text-2xl font-black text-secondary-900 leading-tight group-hover:text-primary-600 transition-colors">
@@ -297,7 +298,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                               }
                               className="px-4 py-1.5 rounded-full text-xs font-black shadow-sm"
                             >
-                              {analysis.signal}
+                              {isEnglish ? analysis.signal : analysis.signal === 'BUY' ? 'خرید' : analysis.signal === 'SELL' ? 'فروش' : 'نگهداری'}
                             </Badge>
                           </div>
 
@@ -311,8 +312,8 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                                 <ShieldAlert className="w-5 h-5 text-orange-500" />
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase">Risk Level</p>
-                                <p className="font-bold text-secondary-900">{analysis.riskLevel}</p>
+                                <p className="text-[10px] font-black text-secondary-400 uppercase">{isEnglish ? 'Risk Level' : 'سطح ریسک'}</p>
+                                <p className="font-bold text-secondary-900">{isEnglish ? analysis.riskLevel : analysis.riskLevel === 'HIGH' ? 'زیاد' : analysis.riskLevel === 'LOW' ? 'کم' : 'متوسط'}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -320,7 +321,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                                 <Target className="w-5 h-5 text-blue-500" />
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase">Success Rate</p>
+                                <p className="text-[10px] font-black text-secondary-400 uppercase">{isEnglish ? 'Success Rate' : 'نرخ موفقیت'}</p>
                                 <p className="font-bold text-secondary-900">{analysis.accuracy}%</p>
                               </div>
                             </div>
@@ -329,29 +330,29 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                           {!analysis.isLocked ? (
                             <div className="bg-secondary-50 p-6 rounded-2xl grid grid-cols-2 gap-6 border border-secondary-100">
                               <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Entry Zone</p>
-                                <p className="text-xl font-black text-primary-600">{analysis.entryZone || 'ثبت نشده'}</p>
+                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">{isEnglish ? 'Entry Zone' : 'محدوده ورود'}</p>
+                                <p className="text-xl font-black text-primary-600">{analysis.entryZone || (isEnglish ? 'Not set' : 'ثبت نشده')}</p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Exit Zone</p>
-                                <p className="text-xl font-black text-red-500">{analysis.exitZone || 'ثبت نشده'}</p>
+                                <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">{isEnglish ? 'Exit Zone' : 'محدوده خروج'}</p>
+                                <p className="text-xl font-black text-red-500">{analysis.exitZone || (isEnglish ? 'Not set' : 'ثبت نشده')}</p>
                               </div>
                             </div>
                           ) : (
                             <div className="relative group/lock">
                               <div className="bg-secondary-50 p-6 rounded-2xl grid grid-cols-2 gap-6 border border-secondary-100 blur-sm select-none">
                                 <div>
-                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Entry Zone</p>
-                                  <p className="text-base font-black text-primary-600">مخصوص اعضا</p>
+                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">{isEnglish ? 'Entry Zone' : 'محدوده ورود'}</p>
+                                  <p className="text-base font-black text-primary-600">{isEnglish ? 'Members only' : 'مخصوص اعضا'}</p>
                                 </div>
                                 <div>
-                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">Exit Zone</p>
-                                  <p className="text-base font-black text-red-500">مخصوص اعضا</p>
+                                  <p className="text-[10px] font-black text-secondary-400 uppercase mb-1">{isEnglish ? 'Exit Zone' : 'محدوده خروج'}</p>
+                                  <p className="text-base font-black text-red-500">{isEnglish ? 'Members only' : 'مخصوص اعضا'}</p>
                                 </div>
                               </div>
                               <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[2px] rounded-2xl transition-all group-hover/lock:backdrop-blur-none">
                                 <Lock className="w-8 h-8 text-secondary-900 mb-2" />
-                                <p className="text-xs font-black text-secondary-900 uppercase tracking-widest">Premium Content</p>
+                                <p className="text-xs font-black text-secondary-900 uppercase tracking-widest">{isEnglish ? 'Premium Content' : 'محتوای ویژه'}</p>
                               </div>
                             </div>
                           )}
@@ -361,20 +362,24 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4 text-secondary-400" />
                             <span className="text-xs font-bold text-secondary-500">
-                              {analysis.expiresAt ? `Valid until ${new Date(analysis.expiresAt).toLocaleDateString()}` : 'Active Analysis'}
+                              {analysis.expiresAt
+                                ? isEnglish
+                                  ? `Valid until ${new Date(analysis.expiresAt).toLocaleDateString('en-US')}`
+                                  : `معتبر تا ${new Date(analysis.expiresAt).toLocaleDateString('fa-IR')}`
+                                : isEnglish ? 'Active Analysis' : 'تحلیل فعال'}
                             </span>
                           </div>
                           
                           {analysis.accessLevel === 'login' || analysis.isLocked ? (
                             <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/pricing`}>
                               <Button size="md" className="shadow-lg shadow-primary-100 font-bold px-6">
-                                {analysis.accessLevel === 'login' ? 'Login to view' : 'Unlock Now'}
+                                {analysis.accessLevel === 'login' ? (isEnglish ? 'Login to view' : 'برای مشاهده وارد شوید') : (isEnglish ? 'Unlock Now' : 'باز کردن دسترسی')}
                               </Button>
                             </Link>
                           ) : (
                             <Link href={`/${locale}/analyses/${analysis.id}`}>
                               <Button variant="ghost" size="md" className="font-bold text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-4" rightIcon={<ChevronRight className="w-4 h-4" />}>
-                                View Full
+                                {isEnglish ? 'View Full' : 'مشاهده کامل'}
                               </Button>
                             </Link>
                           )}
@@ -388,9 +393,9 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                     <div className="w-20 h-20 bg-secondary-50 rounded-full flex items-center justify-center mx-auto mb-6">
                       <BarChart3 className="w-10 h-10 text-secondary-200" />
                     </div>
-                    <h3 className="text-2xl font-black text-secondary-900 mb-2">No Analysis Available</h3>
+                    <h3 className="text-2xl font-black text-secondary-900 mb-2">{isEnglish ? 'No Analysis Available' : 'تحلیلی موجود نیست'}</h3>
                     <p className="text-secondary-500 max-w-md mx-auto">
-                      Our experts are currently working on new insights for this timeframe. Please check back later or explore other markets.
+                      {isEnglish ? 'Our experts are currently working on new insights for this timeframe. Please check back later or explore other markets.' : 'کارشناسان ما در حال آماده‌سازی تحلیل‌های جدید برای این بازه هستند. کمی بعد دوباره مراجعه کنید یا بازارهای دیگر را ببینید.'}
                     </p>
                   </Card>
                 </motion.div>
@@ -410,15 +415,15 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">
-              Unlock Professional Analysis & Signals
+              {isEnglish ? 'Unlock Professional Analysis & Signals' : 'تحلیل‌ها و سیگنال‌های حرفه‌ای را باز کنید'}
             </h2>
             <p className="text-xl text-primary-100 mb-12 max-w-2xl mx-auto font-medium">
-              Don't trade blindly. Get access to entry points, targets, and stop-loss levels for all markets.
+              {isEnglish ? "Don't trade blindly. Get access to entry points, targets, and stop-loss levels for all markets." : 'بدون آگاهی معامله نکنید. به نقاط ورود، اهداف و سطوح حد ضرر همه بازارها دسترسی داشته باشید.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link href={`/${locale}/pricing`}>
                 <Button size="lg" variant="secondary" className="h-16 px-12 text-lg shadow-2xl hover:shadow-primary-700/50">
-                  View Subscription Plans
+                  {isEnglish ? 'View Subscription Plans' : 'مشاهده پلن‌های اشتراک'}
                 </Button>
               </Link>
             </div>

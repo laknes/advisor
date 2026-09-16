@@ -9,6 +9,7 @@ export { PageTransition } from './PageTransition';
 export { LocaleProvider, useLocale } from './LocaleProvider';
 export { LanguageSwitcher } from './LanguageSwitcher';
 export { DocumentLocale } from './DocumentLocale';
+export { PersianUiTranslator } from './PersianUiTranslator';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { SocialAuthButtons } from './SocialAuthButtons';
 export { AuthExperience } from './AuthExperience';
