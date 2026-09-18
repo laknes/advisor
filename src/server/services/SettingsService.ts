@@ -99,6 +99,7 @@ export const defaultSiteSettings = [
   { key: 'crypto_api_key', value: '', group: 'market_data', label: 'Crypto API key', type: 'password', isPublic: false },
   { key: 'hero_title', value: 'مشاوره سرمایه‌گذاری هوشمند', group: 'content', label: 'Hero title', type: 'text', isPublic: true },
   { key: 'hero_subtitle', value: 'تحلیل‌های تخصصی، مدیریت پورتفو و دیدبان زنده بازار را در یک تجربه فارسی، سریع و شفاف دنبال کنید.', group: 'content', label: 'Hero subtitle', type: 'textarea', isPublic: true },
+  { key: 'hero_banner_url', value: '', group: 'content', label: 'Hero banner URL', description: 'آدرس تصویر بنر صفحه اصلی را وارد کنید. برای فایل‌های داخل public از مسیرهایی مثل /images/hero-banner.png استفاده کنید.', type: 'url', isPublic: true },
   { key: 'seo_title', value: 'سرمایه گذاری موسوی | mousavi invest', group: 'seo', label: 'SEO title', type: 'text', isPublic: true },
   { key: 'seo_description', value: 'Investment advisory, portfolio management, market analysis, and alerts.', group: 'seo', label: 'SEO description', type: 'textarea', isPublic: true },
 ] as const;

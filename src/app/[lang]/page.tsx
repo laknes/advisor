@@ -183,6 +183,7 @@ export default function Home() {
   }, [isAuthenticated, revision]);
 
   const tabs = useMemo(() => getMarketWatchTabs(locale), [locale]);
+  const heroBannerUrl = String(settings.hero_banner_url || '').trim();
   const prices = useMemo(() => markets.flatMap((market) => market.prices ?? []), [markets]);
   const filteredPrices = useMemo(() => {
     if (activeMarketWatchTab === 'all') return prices;
@@ -269,7 +270,14 @@ export default function Home() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: -42 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.12 }} className="lg:order-1">
-              <HomeMarketStage markets={markets} locale={locale} />
+              {heroBannerUrl ? (
+                <HeroBannerImage
+                  src={heroBannerUrl}
+                  alt={isEnglish ? 'Investment advisory platform banner' : 'بنر پلتفرم مشاوره سرمایه‌گذاری'}
+                />
+              ) : (
+                <HomeMarketStage markets={markets} locale={locale} />
+              )}
             </motion.div>
           </div>
         </section>
@@ -543,6 +551,35 @@ function SectionTitle({ title, subtitle, align = 'center' }: { title: string; su
       <h2 className="text-3xl font-black leading-tight text-white md:text-5xl">{title}</h2>
       <p className={cn('mt-4 text-base leading-8 text-slate-300 md:text-lg', align === 'center' && 'mx-auto max-w-3xl')}>{subtitle}</p>
     </motion.div>
+  );
+}
+
+function HeroBannerImage({ src, alt }: { src: string; alt: string }) {
+  const isLocalImage = src.startsWith('/');
+  const className = 'h-full min-h-[320px] w-full rounded-lg border border-white/10 bg-white/5 object-cover shadow-2xl shadow-black/30 md:min-h-[520px]';
+
+  if (!isLocalImage) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        loading="eager"
+        decoding="async"
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={1200}
+      height={900}
+      className={className}
+      sizes="(min-width: 1024px) 48vw, 100vw"
+      loading="eager"
+    />
   );
 }
 
