@@ -30,12 +30,17 @@ export function useAuthState() {
         return;
       }
 
-      setState((current) => ({
-        token,
-        user: getStoredUser(),
-        isAuthenticated: Boolean(token),
-        revision: current.revision + 1,
-      }));
+      const user = getStoredUser();
+      setState((current) => {
+        const changed = token !== current.token || JSON.stringify(user) !== JSON.stringify(current.user);
+
+        return {
+          token,
+          user,
+          isAuthenticated: Boolean(token),
+          revision: changed ? current.revision + 1 : current.revision,
+        };
+      });
     };
 
     sync();

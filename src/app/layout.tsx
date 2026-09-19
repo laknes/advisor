@@ -3,7 +3,6 @@ import Script from "next/script";
 import { ExtensionErrorFilter } from "@/components/ExtensionErrorFilter";
 import { GlobalLoadingOverlay } from "@/components/GlobalLoadingOverlay";
 import { LoadingProvider } from "@/context/LoadingContext";
-import { LoadingInitializer } from "@/components/LoadingInitializer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SettingsService } from "@/server/services/SettingsService";
 import "./globals.css";
@@ -128,7 +127,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[color:var(--theme-bg)] text-[color:var(--theme-text)]">
         <ExtensionErrorFilter />
         <LoadingProvider>
-          <LoadingInitializer />
           <GlobalLoadingOverlay />
           <ThemeProvider>{children}</ThemeProvider>
         </LoadingProvider>
