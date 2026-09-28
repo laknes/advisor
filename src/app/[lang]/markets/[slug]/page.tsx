@@ -14,7 +14,6 @@ import {
   TrendingUp, 
   Clock, 
   ShieldAlert, 
-  Target, 
   ChevronRight,
   BarChart3,
   Calendar,
@@ -306,7 +305,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                             {analysis.summary}
                           </p>
 
-                          <div className="grid grid-cols-2 gap-6 pt-4">
+                          <div className="pt-4">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
                                 <ShieldAlert className="w-5 h-5 text-orange-500" />
@@ -314,15 +313,6 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                               <div>
                                 <p className="text-[10px] font-black text-secondary-400 uppercase">{isEnglish ? 'Risk Level' : 'سطح ریسک'}</p>
                                 <p className="font-bold text-secondary-900">{isEnglish ? analysis.riskLevel : analysis.riskLevel === 'HIGH' ? 'زیاد' : analysis.riskLevel === 'LOW' ? 'کم' : 'متوسط'}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                                <Target className="w-5 h-5 text-blue-500" />
-                              </div>
-                              <div>
-                                <p className="text-[10px] font-black text-secondary-400 uppercase">{isEnglish ? 'Success Rate' : 'نرخ موفقیت'}</p>
-                                <p className="font-bold text-secondary-900">{analysis.accuracy}%</p>
                               </div>
                             </div>
                           </div>
@@ -371,7 +361,7 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
                           </div>
                           
                           {analysis.accessLevel === 'login' || analysis.isLocked ? (
-                            <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/pricing`}>
+                            <Link href={analysis.accessLevel === 'login' ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses/${analysis.id}`}>
                               <Button size="md" className="shadow-lg shadow-primary-100 font-bold px-6">
                                 {analysis.accessLevel === 'login' ? (isEnglish ? 'Login to view' : 'برای مشاهده وارد شوید') : (isEnglish ? 'Unlock Now' : 'باز کردن دسترسی')}
                               </Button>
@@ -421,11 +411,11 @@ export default function MarketDetailPage({ params: paramsPromise }: MarketPagePr
               {isEnglish ? "Don't trade blindly. Get access to entry points, targets, and stop-loss levels for all markets." : 'بدون آگاهی معامله نکنید. به نقاط ورود، اهداف و سطوح حد ضرر همه بازارها دسترسی داشته باشید.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href={`/${locale}/pricing`}>
+              <a href="https://t.me/mousavi_investment" target="_blank" rel="noreferrer">
                 <Button size="lg" variant="secondary" className="h-16 px-12 text-lg shadow-2xl hover:shadow-primary-700/50">
-                  {isEnglish ? 'View Subscription Plans' : 'مشاهده پلن‌های اشتراک'}
+                  {isEnglish ? 'Request premium access' : 'درخواست اشتراک ویژه'}
                 </Button>
-              </Link>
+              </a>
             </div>
           </motion.div>
         </div>

@@ -6,8 +6,7 @@ import { useLocale } from '@/components/LocaleProvider';
 import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import { formatFaDate, formatMoney } from '@/lib/format';
 import type { Subscription } from '@/lib/types';
-import Link from 'next/link';
-import { CreditCard, ShieldCheck, Sparkles } from 'lucide-react';
+import { CreditCard, ShieldCheck } from 'lucide-react';
 
 const billingPeriodLabel: Record<string, string> = {
   monthly: 'ماهیانه',
@@ -89,9 +88,6 @@ export default function SubscriptionsPage() {
               </p>
             ) : null}
           </div>
-          <Link href={`/${locale}/pricing`}>
-            <Button rightIcon={<Sparkles className="h-4 w-4" />}>ارتقا پلن</Button>
-          </Link>
         </div>
 
         <Card className="p-6">
@@ -104,10 +100,10 @@ export default function SubscriptionsPage() {
             {activeSubscriptions.length === 0 ? (
               <div className="rounded-lg border border-white/10 bg-white/[0.05] p-8 text-center">
                 <p className="text-lg font-black text-white">در حال حاضر اشتراک فعالی ندارید.</p>
-                <p className="mt-2 text-sm leading-6 text-slate-300">برای دسترسی به تحلیل‌های ویژه و امکانات حرفه‌ای، یکی از پلن‌ها را فعال کنید.</p>
-                <Link href={`/${locale}/pricing`}>
-                  <Button className="mt-5">مشاهده پلن‌ها</Button>
-                </Link>
+                <p className="mt-2 text-sm leading-6 text-slate-300">اشتراک ویژه پس از بررسی نوع دارایی‌ها، نوع فعالیت و داده‌های شما فعال می‌شود.</p>
+                <a href="https://t.me/mousavi_investment" target="_blank" rel="noreferrer">
+                  <Button className="mt-5">درخواست از تلگرام</Button>
+                </a>
               </div>
             ) : (
               activeSubscriptions.map((sub) => {
@@ -156,12 +152,6 @@ export default function SubscriptionsPage() {
             )}
           </CardContent>
         </Card>
-
-        <div className="mt-8">
-          <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">بازگشت به داشبورد</Button>
-          </Link>
-        </div>
       </div>
     </div>
   );

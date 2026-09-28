@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BarChart3, Calendar, Filter, LockKeyhole, ShieldAlert, Target } from 'lucide-react';
+import { ArrowLeft, BarChart3, Calendar, Filter, LockKeyhole, Target } from 'lucide-react';
 import { Badge, Button, Card, Header, useLocale } from '@/components';
 import { apiGet } from '@/lib/apiClient';
 import { formatFaDate, formatFaNumber } from '@/lib/format';
@@ -158,9 +158,8 @@ export default function AnalysesPage() {
                             <Badge variant="neutral">ریسک {riskLabel[analysis.riskLevel]}</Badge>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
+                          <div className="border-y border-white/10 py-4">
                             <Metric icon={<Target className="h-4 w-4" />} label="ناحیه خروج" value={analysis.exitZone || 'نامشخص'} />
-                            <Metric icon={<ShieldAlert className="h-4 w-4" />} label="دقت" value={`${formatFaNumber(analysis.accuracy ?? 0)}٪`} />
                           </div>
 
                           <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
@@ -170,9 +169,9 @@ export default function AnalysesPage() {
                         </div>
 
                         <div className="mt-6">
-                          <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/analyses/${analysis.id}`}>
+                          <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses/${analysis.id}`}>
                             <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                              {analysis.accessLevel === 'login' && !isAuthenticated ? 'ورود برای مشاهده' : analysis.isLocked ? 'باز کردن تحلیل' : 'مشاهده کامل'}
+                              {analysis.accessLevel === 'login' && !isAuthenticated ? 'ورود برای مشاهده' : 'مشاهده کامل'}
                             </Button>
                           </Link>
                         </div>

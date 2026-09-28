@@ -77,7 +77,7 @@ export const CreatePositionSchema = z.object({
   symbol: z.string().min(1, 'Symbol is required'),
   quantity: z.number().positive('Quantity must be positive'),
   entryPrice: z.number().positive('Entry price must be positive'),
-  type: z.enum(['stock', 'forex', 'gold', 'currency']),
+  type: z.enum(['stock', 'forex', 'gold', 'currency', 'crypto']),
 });
 
 export const UpdatePositionSchema = z.object({

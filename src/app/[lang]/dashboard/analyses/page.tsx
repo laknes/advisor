@@ -19,7 +19,6 @@ export default function AnalysesPage() {
     riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
     publishedAt: string;
     exitZone?: string | null;
-    accuracy?: number | null;
   }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -53,27 +52,24 @@ export default function AnalysesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">تحلیل‌های من</h1>
-          <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">بازگشت به داشبورد</Button>
-          </Link>
         </div>
 
         {/* Filters */}
         <div className="mb-8 flex gap-3 flex-wrap">
           <Button variant="outline" size="sm">
-            All Markets
+            همه بازارها
           </Button>
           <Button variant="outline" size="sm">
-            Iran Stocks
+            بورس ایران
           </Button>
           <Button variant="outline" size="sm">
-            Forex
+            جفت ارزها
           </Button>
           <Button variant="outline" size="sm">
-            Gold
+            طلا ریال
           </Button>
           <Button variant="outline" size="sm">
-            Currency
+            رمز ارز و ارز
           </Button>
         </div>
 
@@ -99,30 +95,28 @@ export default function AnalysesPage() {
                     <p className="text-secondary-600 mb-3">{analysis.summary}</p>
                     <div className="flex flex-wrap gap-4 text-sm">
                       <div>
-                        <span className="text-secondary-600">Market:</span>
+                        <span className="text-secondary-600">بازار:</span>
                         <span className="ml-2 font-semibold text-secondary-900">{analysis.market?.name || 'All markets'}</span>
                       </div>
                       <div>
-                        <span className="text-secondary-600">Risk Level:</span>
+                        <span className="text-secondary-600">ریسک:</span>
                         <Badge className="ml-2" variant={analysis.riskLevel === 'LOW' ? 'success' : analysis.riskLevel === 'MEDIUM' ? 'warning' : 'danger'}>
                           {analysis.riskLevel}
                         </Badge>
                       </div>
                       <div>
-                        <span className="text-secondary-600">Exit zone:</span>
+                        <span className="text-secondary-600">ناحیه خروج:</span>
                         <span className="ml-2 font-semibold text-secondary-900">{analysis.exitZone || '—'}</span>
                       </div>
                       <div>
-                        <span className="text-secondary-600">Accuracy:</span>
-                        <span className="ml-2 font-semibold text-secondary-900">{analysis.accuracy ?? 0}%</span>
-                      </div>
-                      <div>
-                        <span className="text-secondary-600">Published:</span>
+                        <span className="text-secondary-600">انتشار:</span>
                         <span className="ml-2 font-semibold text-secondary-900">{formatDate(analysis.publishedAt, 'short')}</span>
                       </div>
                     </div>
                   </div>
-                  <Button variant="primary">View Full Analysis</Button>
+                  <Link href={`/${locale}/analyses/${analysis.id}`}>
+                    <Button variant="primary">مشاهده تحلیل</Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

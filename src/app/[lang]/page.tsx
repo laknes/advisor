@@ -189,18 +189,11 @@ export default function Home() {
     if (activeMarketWatchTab === 'all') return prices;
     return prices.filter((price) => getMarketWatchTab(price) === activeMarketWatchTab);
   }, [activeMarketWatchTab, prices]);
-  const performanceStats = useMemo(() => {
-    const accuracyValues = analyses.map((analysis) => analysis.accuracy ?? 0).filter(Boolean);
-    const accuracy = accuracyValues.length
-      ? accuracyValues.reduce((sum, value) => sum + value, 0) / accuracyValues.length
-      : 0;
-
-    return {
-      accuracy,
-      totalAnalyses: analyses.length,
-      winRate: accuracy,
-    };
-  }, [analyses]);
+  const performanceStats = useMemo(() => ({
+    totalAnalyses: analyses.length,
+    activeMarkets: markets.length,
+    livePrices: prices.length,
+  }), [analyses.length, markets.length, prices.length]);
 
   if (!dict) return null;
 
@@ -346,7 +339,7 @@ export default function Home() {
                           <Metric label={isEnglish ? 'Exit zone' : 'ناحیه خروج'} value={analysis.exitZone || '—'} accent />
                         </div>
                         <div className="flex items-center justify-between gap-3">
-                          <span className="text-sm font-bold text-slate-300">{formatNumber(analysis.accuracy ?? 0)}{isEnglish ? '% accuracy' : '٪ دقت'}</span>
+                          <span className="text-sm font-bold text-slate-300">{formatDate(analysis.publishedAt)}</span>
                           <ButtonLink href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses/${analysis.id}`} size="sm" variant={analysis.isLocked ? 'secondary' : 'primary'}>
                             {analysis.accessLevel === 'login' && !isAuthenticated ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
                           </ButtonLink>
@@ -496,7 +489,9 @@ export default function Home() {
               )}
             </motion.div>
             <div className="mt-10 text-center">
-              <ButtonLink href={`/${locale}/pricing`} variant="outline" size="lg">{isEnglish ? 'View all plans' : 'مشاهده همه پلن‌ها'}</ButtonLink>
+              <a href="https://t.me/mousavi_investment" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-lg border border-white/70 px-8 py-3 text-lg font-bold text-white transition-all duration-300 hover:bg-white/10">
+                {isEnglish ? 'Request premium access' : 'درخواست اشتراک ویژه'}
+              </a>
             </div>
           </div>
         </section>
@@ -506,9 +501,9 @@ export default function Home() {
             <SectionTitle title={isEnglish ? 'Proven performance' : 'سابقه عملکرد قابل اتکا'} subtitle={isEnglish ? 'Performance indicators to measure decision quality and risk management.' : 'شاخص‌های عملکرد تحلیل‌ها برای سنجش کیفیت تصمیم‌سازی و مدیریت ریسک.'} />
             <motion.div variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {[
-                { label: isEnglish ? 'Analysis accuracy' : 'دقت تحلیل', value: `${formatNumber(performanceStats.accuracy)}${isEnglish ? '%' : '٪'}` },
                 { label: isEnglish ? 'Total analyses' : 'کل تحلیل‌ها', value: formatNumber(performanceStats.totalAnalyses) },
-                { label: isEnglish ? 'Success rate' : 'نرخ موفقیت', value: `${formatNumber(performanceStats.winRate)}${isEnglish ? '%' : '٪'}` },
+                { label: isEnglish ? 'Active markets' : 'بازارهای فعال', value: formatNumber(performanceStats.activeMarkets) },
+                { label: isEnglish ? 'Live prices' : 'نرخ‌های زنده', value: formatNumber(performanceStats.livePrices) },
               ].map((stat) => (
                 <motion.div key={stat.label} variants={fadeInUp}>
                   <Card className="h-full p-5">

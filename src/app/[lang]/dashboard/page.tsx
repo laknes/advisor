@@ -7,16 +7,14 @@ import { apiGet } from '@/lib/apiClient';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/components/LocaleProvider';
 import { getStoredUser } from '@/lib/clientAuth';
-import type { Analysis, Market, Notification, Portfolio, Price, PriceAlert, Subscription } from '@/lib/types';
+import type { Analysis, Market, Portfolio, Price, Subscription } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   AlertTriangle,
-  Bell,
   BriefcaseBusiness,
   ChevronLeft,
-  CreditCard,
   Eye,
   FileText,
   Gauge,
@@ -33,8 +31,6 @@ const dashboardLinks = [
   { href: '/portfolio', label: 'پورتفو', icon: BriefcaseBusiness },
   { href: '/watchlist', label: 'دیدبان', icon: Eye },
   { href: '/analyses', label: 'تحلیل‌ها', icon: FileText },
-  { href: '/subscriptions', label: 'اشتراک‌ها', icon: CreditCard },
-  { href: '/alerts', label: 'هشدارها', icon: Bell },
 ];
 
 export default function DashboardPage() {
@@ -45,7 +41,6 @@ export default function DashboardPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [prices, setPrices] = useState<Price[]>([]);
-  const [alerts, setAlerts] = useState<PriceAlert[]>([]);
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -61,15 +56,13 @@ export default function DashboardPage() {
       apiGet<{ subscriptions: Subscription[] }>('/api/subscriptions', true),
       apiGet<{ analyses: Analysis[] }>('/api/analyses?limit=6'),
       apiGet<{ markets: Array<Market & { prices?: Price[] }> }>('/api/markets'),
-      apiGet<{ alerts: PriceAlert[] }>('/api/alerts', true),
     ]).then((results) => {
       if (!mounted) return;
-      const [portfolioResult, subscriptionsResult, analysesResult, marketsResult, alertsResult] = results;
+      const [portfolioResult, subscriptionsResult, analysesResult, marketsResult] = results;
       if (portfolioResult.status === 'fulfilled') setPortfolio(portfolioResult.value.portfolio);
       if (subscriptionsResult.status === 'fulfilled') setSubscriptions(subscriptionsResult.value.subscriptions);
       if (analysesResult.status === 'fulfilled') setAnalyses(analysesResult.value.analyses);
       if (marketsResult.status === 'fulfilled') setPrices(marketsResult.value.markets.flatMap((market) => market.prices ?? []));
-      if (alertsResult.status === 'fulfilled') setAlerts(alertsResult.value.alerts);
     });
 
     return () => {
@@ -116,10 +109,10 @@ export default function DashboardPage() {
             <div className="mt-auto rounded-lg border border-white/10 bg-white/[0.06] p-4">
               <Sparkles className="mb-3 h-6 w-6 text-primary-100" />
               <p className="font-black">بینش ویژه</p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">سیگنال‌های اختصاصی و بازبینی ماهانه پورتفو را فعال کنید.</p>
-              <Link href={`/${locale}/pricing`}>
-                <Button className="mt-4 w-full">ارتقا پلن</Button>
-              </Link>
+              <p className="mt-2 text-sm leading-6 text-slate-300">برای اشتراک ویژه نوع دارایی‌ها، نوع فعالیت و داده‌های شما بررسی می‌شود و در صورت نیاز، مراحل ورود باز خواهد شد.</p>
+              <a href="https://t.me/mousavi_investment" target="_blank" rel="noreferrer">
+                <Button className="mt-4 w-full">درخواست اشتراک ویژه</Button>
+              </a>
             </div>
           </div>
         </aside>
@@ -128,7 +121,7 @@ export default function DashboardPage() {
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <h1 className="text-4xl font-black leading-tight md:text-5xl">داشبورد حرفه‌ای سرمایه‌گذار</h1>
-              <p className="mt-3 max-w-2xl text-slate-300">نمای یکپارچه پورتفو، تحلیل‌های ذخیره‌شده، هشدارها و وضعیت اشتراک برای تصمیم‌گیری سریع‌تر.</p>
+              <p className="mt-3 max-w-2xl text-slate-300">نمای یکپارچه پورتفو، تحلیل‌های ذخیره‌شده و وضعیت اشتراک برای تصمیم‌گیری سریع‌تر.</p>
             </div>
             <div className="flex gap-3">
               <Link href={`/${locale}/dashboard/portfolio`}>
@@ -147,7 +140,7 @@ export default function DashboardPage() {
             <KpiCard icon={<ShieldCheck />} label="پلن فعال" value={activePlan?.name || 'بدون اشتراک فعال'} />
           </section>
 
-          <section className="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+          <section className="mb-6 grid grid-cols-1 gap-6">
             <Card className="p-0">
               <div className="border-b border-white/10 p-5">
                 <div className="flex items-center justify-between gap-4">
@@ -185,26 +178,6 @@ export default function DashboardPage() {
                 </table>
               </div>
             </Card>
-
-            <Card className="p-5">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-2xl font-black">اعلان‌های مهم</h2>
-                <Bell className="h-5 w-5 text-primary-100" />
-              </div>
-              <div className="space-y-3">
-                {alerts.slice(0, 5).map((item) => (
-                  <div key={item.id} className="rounded-lg border border-white/10 bg-white/[0.05] p-4">
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <span className="font-black">{item.symbol}</span>
-                      <span className="rounded-lg bg-white px-2 py-1 text-xs font-black text-primary-900">{item.condition === 'above' ? 'بالاتر از' : 'پایین‌تر از'}</span>
-                    </div>
-                    <p className="text-sm leading-6 text-slate-300">{item.market} در قیمت {formatFaNumber(item.price)}</p>
-                    <p className="mt-2 text-xs text-slate-500">{item.isTriggered ? 'فعال شده' : 'در انتظار'}</p>
-                  </div>
-                ))}
-                {!alerts.length && <p className="rounded-lg border border-white/10 bg-white/[0.05] p-4 text-sm text-slate-300">هنوز هشدار قیمتی ثبت نشده است.</p>}
-              </div>
-            </Card>
           </section>
 
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -220,7 +193,7 @@ export default function DashboardPage() {
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {analyses.map((analysis) => (
-                  <div key={analysis.id} className="rounded-lg border border-white/10 bg-white/[0.05] p-4">
+                  <Link key={analysis.id} href={`/${locale}/analyses/${analysis.id}`} className="rounded-lg border border-white/10 bg-white/[0.05] p-4 transition hover:bg-white/[0.09]">
                     <div className="mb-3 flex items-center justify-between">
                       <span className="rounded-lg bg-white/10 px-3 py-1 text-xs font-black">{analysis.timeframe}</span>
                       <span className="text-xs text-slate-400">{formatFaDate(analysis.publishedAt)}</span>
@@ -229,9 +202,9 @@ export default function DashboardPage() {
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-300">{analysis.summary}</p>
                     <div className="mt-4 flex items-center justify-between">
                       <span className="font-bold text-primary-100">سیگنال {analysis.signal}</span>
-                      <span className="text-sm text-slate-400">{formatFaNumber(analysis.accuracy ?? 0)}٪ دقت</span>
+                      <span className="text-sm text-slate-400">مشاهده تحلیل</span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </Card>

@@ -100,7 +100,7 @@ export interface Position {
   currentValue: number;
   profitLoss: number;
   profitLossPercent: number;
-  type: 'stock' | 'forex' | 'gold' | 'currency';
+  type: 'stock' | 'forex' | 'gold' | 'currency' | 'crypto';
 }
 
 export interface Price {

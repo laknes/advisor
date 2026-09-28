@@ -1,14 +1,11 @@
 'use client';
 
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
-import { useLocale } from '@/components/LocaleProvider';
 import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import { formatDate, formatTime } from '@/lib/utils';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function AlertsPage() {
-  const { locale } = useLocale();
   const currentUser = getStoredUser();
   const [alerts, setAlerts] = useState<Array<{
     id: string;
@@ -70,9 +67,6 @@ export default function AlertsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-secondary-900">Price & Market Alerts</h1>
-          <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">بازگشت به داشبورد</Button>
-          </Link>
         </div>
 
         {/* Alert Controls */}

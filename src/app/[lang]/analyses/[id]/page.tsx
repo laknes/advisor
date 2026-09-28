@@ -63,8 +63,8 @@ export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDe
                   <p className="font-bold text-amber-900">
                     {analysis.accessLevel === 'login' && !isAuthenticated ? 'برای مشاهده متن کامل، ابتدا وارد حساب کاربری شوید.' : 'برای مشاهده متن کامل، اشتراک مورد نیاز است.'}
                   </p>
-                  <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/pricing`} className="mt-5 inline-block">
-                    <Button>{analysis.accessLevel === 'login' && !isAuthenticated ? 'ورود به حساب' : 'مشاهده پلن‌ها'}</Button>
+                  <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses`} className="mt-5 inline-block">
+                    <Button>{analysis.accessLevel === 'login' && !isAuthenticated ? 'ورود به حساب' : 'بازگشت به تحلیل‌ها'}</Button>
                   </Link>
                 </div>
               )}

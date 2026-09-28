@@ -367,18 +367,17 @@ export default function MarketsPage() {
                             </Badge>
                           </div>
                           <p className="line-clamp-3 min-h-[84px] leading-7 text-slate-300">{analysis.summary}</p>
-                          <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
+                          <div className="border-y border-white/10 py-4">
                             <SmallMetric label={isEnglish ? 'Risk' : 'ریسک'} value={isEnglish ? riskLabel.en[analysis.riskLevel] : riskLabel.fa[analysis.riskLevel]} />
-                            <SmallMetric label={isEnglish ? 'Accuracy' : 'دقت'} value={`${formatNumber(analysis.accuracy ?? 0)}${isEnglish ? '%' : '٪'}`} />
                           </div>
                           <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
                             <Clock className="h-4 w-4" />
                             {formatDate(analysis.publishedAt)}
                           </div>
                         </div>
-                        <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : analysis.isLocked ? `/${locale}/pricing` : `/${locale}/analyses/${analysis.id}`} className="mt-6">
+                        <Link href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses/${analysis.id}`} className="mt-6">
                           <Button fullWidth rightIcon={<ArrowLeft className="h-4 w-4" />}>
-                            {analysis.accessLevel === 'login' && !isAuthenticated ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'View details' : 'مشاهده کامل')}
+                            {analysis.accessLevel === 'login' && !isAuthenticated ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : (isEnglish ? 'View details' : 'مشاهده کامل')}
                           </Button>
                         </Link>
                       </Card>
@@ -410,9 +409,9 @@ export default function MarketsPage() {
               <Link href={`/${locale}/auth/signup`}>
                 <Button size="lg" className="h-14 px-10">{isEnglish ? 'Start free' : 'شروع رایگان'}</Button>
               </Link>
-              <Link href={`/${locale}/pricing`}>
-                <Button size="lg" variant="outline" className="h-14 px-10">{isEnglish ? 'View plans' : 'مشاهده پلن‌ها'}</Button>
-              </Link>
+              <a href="https://t.me/mousavi_investment" target="_blank" rel="noreferrer">
+                <Button size="lg" variant="outline" className="h-14 px-10">{isEnglish ? 'Request premium' : 'درخواست اشتراک ویژه'}</Button>
+              </a>
             </div>
           </div>
         </section>

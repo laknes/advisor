@@ -201,11 +201,11 @@ export default function AboutPage() {
                   : 'سرمایه گذاری موسوی برای سرمایه‌گذارانی ساخته شده که می‌خواهند بین داده‌های پراکنده بازار، گزارش‌های طولانی و هیجان لحظه‌ای، یک مسیر روشن‌تر برای تصمیم‌گیری داشته باشند. ما تحلیل، مدیریت ریسک و ابزارهای پیگیری بازار را در یک تجربه فارسی و منظم کنار هم قرار می‌دهیم.'}
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col gap-4 sm:flex-row">
-                <Link href={`/${locale}/pricing`}>
+                <a href="https://t.me/mousavi_investment" target="_blank" rel="noreferrer">
                   <Button size="lg" className="h-14 w-full px-8 sm:w-auto" rightIcon={<ArrowLeft className="h-5 w-5" />}>
-                    {isEnglish ? 'View plans' : 'مشاهده پلن‌ها'}
+                    {isEnglish ? 'Request premium access' : 'درخواست اشتراک ویژه'}
                   </Button>
-                </Link>
+                </a>
                 <Link href={`/${locale}/markets`}>
                   <Button variant="outline" size="lg" className="h-14 w-full px-8 sm:w-auto">
                     {isEnglish ? 'Covered markets' : 'بازارهای تحت پوشش'}

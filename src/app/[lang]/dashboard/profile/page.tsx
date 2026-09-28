@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { Header, Card, CardHeader, CardContent, Button, Badge } from '@/components';
-import { useLocale } from '@/components/LocaleProvider';
 import { getStoredToken, getStoredUser, storeAuth } from '@/lib/clientAuth';
 import { apiGet, apiPost, apiPut } from '@/lib/apiClient';
 import { formatFaDate } from '@/lib/format';
 import { Input, Textarea, Select, FormGroup } from '@/components/Form';
-import Link from 'next/link';
 import { CheckCircle2, IdCard, Mail, Phone, ShieldCheck } from 'lucide-react';
 
 interface ProfileUser {
@@ -32,7 +30,6 @@ const identityStatusLabel: Record<string, string> = {
 };
 
 export default function ProfilePage() {
-  const { locale } = useLocale();
   const canShowDevCode = process.env.NODE_ENV !== 'production';
   const currentUser = getStoredUser();
   const [profile, setProfile] = useState({
@@ -192,9 +189,6 @@ export default function ProfilePage() {
             <h1 className="text-4xl font-black leading-tight md:text-5xl">تنظیمات پروفایل</h1>
             <p className="mt-3 text-slate-300">برای تهیه اشتراک، ایمیل، موبایل و مشخصات شناسایی باید تکمیل و تایید شوند.</p>
           </div>
-          <Link href={`/${locale}/dashboard`}>
-            <Button variant="outline">بازگشت به داشبورد</Button>
-          </Link>
         </div>
 
         {message && (

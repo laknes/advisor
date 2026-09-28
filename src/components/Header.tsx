@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, LayoutDashboard, User, CreditCard, LogOut, Moon, Sun } from 'lucide-react';
+import { Menu, X, ChevronDown, LayoutDashboard, User, LogOut, Moon, Sun } from 'lucide-react';
 import { Button } from './Button';
 import { cn } from '@/lib/utils';
 import { useLocale } from './LocaleProvider';
@@ -111,13 +111,13 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
       "sticky top-0 z-50 transition-all duration-300",
       scrolled ? "bg-[color:var(--theme-header)] backdrop-blur-2xl border-b border-[color:var(--theme-border)] shadow-2xl shadow-[color:var(--theme-shadow)] py-2" : "bg-[color:var(--theme-header)] backdrop-blur-xl border-b border-[color:var(--theme-border)] py-4"
     )}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center justify-between gap-2 h-16">
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity group">
+          <Link href={`/${locale}`} className="group flex min-w-0 shrink items-center gap-2 transition-opacity hover:opacity-80">
             <motion.div 
               whileHover={{ rotate: 10, scale: 1.1 }}
-              className="w-10 h-10 overflow-hidden bg-white rounded-lg flex items-center justify-center shadow-lg shadow-primary-900/30"
+              className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white shadow-lg shadow-primary-900/30"
             >
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                 <span className="text-primary-900 font-black text-lg">{locale === 'en' ? 'MI' : 'سم'}</span>
               )}
             </motion.div>
-            <span className="hidden md:block text-xl font-black text-white">{brandName}</span>
+            <span className="hidden truncate text-xl font-black text-white md:block">{brandName}</span>
           </Link>
 
           {/* Navigation - Desktop */}
@@ -141,15 +141,15 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
           </nav>
 
           {/* Auth Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-3">
             <button
               type="button"
               onClick={toggleTheme}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-slate-100 transition hover:bg-white/15"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-slate-100 transition hover:bg-white/15 sm:h-10 sm:w-10"
               aria-label={theme === 'night' ? (locale === 'en' ? 'Enable light mode' : 'فعال کردن لایت مد') : (locale === 'en' ? 'Enable dark mode' : 'فعال کردن نایت مد')}
               title={theme === 'night' ? (locale === 'en' ? 'Light mode' : 'لایت مد') : (locale === 'en' ? 'Dark mode' : 'نایت مد')}
             >
-              {theme === 'night' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {theme === 'night' ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
             <LanguageSwitcher />
             
@@ -167,12 +167,13 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                     variant="secondary"
                     size="sm"
                     rightIcon={<ChevronDown className="w-4 h-4" />}
+                    className="max-w-[8.5rem] px-2 sm:max-w-[12rem] sm:px-3"
                     aria-expanded={isAccountMenuOpen}
                     aria-haspopup="menu"
                     aria-controls="header-account-menu"
                     onClick={() => setIsAccountMenuOpen((open) => !open)}
                   >
-                    {displayName}
+                    <span className="truncate">{displayName}</span>
                   </Button>
                   <div
                     id="header-account-menu"
@@ -191,15 +192,6 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                       >
                         <User className="w-4 h-4 text-primary-200" />
                         <span>{dict.dashboard.settings}</span>
-                      </Link>
-                      <Link
-                        href={`/${locale}/dashboard/subscriptions`}
-                        role="menuitem"
-                        className="flex w-full items-center gap-3 border-b border-white/10 px-4 py-3 text-right text-slate-200 transition-colors hover:bg-white/10"
-                        onClick={() => setIsAccountMenuOpen(false)}
-                      >
-                        <CreditCard className="w-4 h-4 text-primary-200" />
-                        <span>{dict.dashboard.subscriptions}</span>
                       </Link>
                       <button
                         onClick={handleLogout}
@@ -223,7 +215,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
                 </Link>
                 <Link
                   href={`/${locale}/auth/signup`}
-                  className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-3 py-1.5 text-sm font-bold text-white shadow-lg shadow-primary-900/25 transition-colors duration-200 hover:bg-primary-700"
+                  className="hidden items-center justify-center rounded-lg bg-primary-600 px-3 py-1.5 text-sm font-bold text-white shadow-lg shadow-primary-900/25 transition-colors duration-200 hover:bg-primary-700 min-[380px]:inline-flex"
                 >
                   {dict.common.signup}
                 </Link>
@@ -233,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false, userNam
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+              className="p-2 text-white transition-colors hover:bg-white/10 rounded-lg md:hidden"
               aria-expanded={isMenuOpen}
               aria-controls="header-mobile-menu"
               aria-label={isMenuOpen ? (locale === 'fa' ? 'بستن منو' : 'Close menu') : (locale === 'fa' ? 'باز کردن منو' : 'Open menu')}

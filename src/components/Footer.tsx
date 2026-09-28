@@ -63,7 +63,6 @@ export const Footer = () => {
             <ul className="space-y-4">
               <FooterLink href={`/${locale}/markets`}>{dict.common.markets}</FooterLink>
               <FooterLink href={`/${locale}/analyses`}>{dict.common.analyses}</FooterLink>
-              <FooterLink href={`/${locale}/pricing`}>{dict.common.pricing}</FooterLink>
               <FooterLink href={`/${locale}/dashboard`}>{dict.common.dashboard}</FooterLink>
             </ul>
           </div>
