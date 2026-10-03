@@ -508,3 +508,66 @@ svg [stroke]:not([stroke="none"]) {
     white-space: normal;
   }
 }
+
+/* Shared React Button component: keep action controls readable after palette locks. */
+button[data-ui-button] {
+  min-height: 2.75rem;
+  border: 1px solid transparent !important;
+  box-shadow: 0 16px 34px -22px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+button[data-ui-button][data-variant="primary"] {
+  background: linear-gradient(180deg, #ffffff 0%, #e7d0ff 100%) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+  color: #1b012f !important;
+}
+
+button[data-ui-button][data-variant="primary"]:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #d8b2ff 100%) !important;
+}
+
+button[data-ui-button][data-variant="secondary"] {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+button[data-ui-button][data-variant="secondary"]:hover,
+button[data-ui-button][data-variant="ghost"]:hover,
+button[data-ui-button][data-variant="outline"]:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+button[data-ui-button][data-variant="outline"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 62%, transparent) !important;
+  color: var(--theme-accent) !important;
+}
+
+button[data-ui-button][data-variant="ghost"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--theme-text) !important;
+}
+
+button[data-ui-button][data-variant="danger"] {
+  background: linear-gradient(180deg, #fff1f2 0%, #fb7185 100%) !important;
+  border-color: rgba(255, 255, 255, 0.64) !important;
+  color: #3f0612 !important;
+}
+
+button[data-ui-button]:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+  opacity: 0.58 !important;
+}
+
+@media (max-width: 640px) {
+  button[data-ui-button] {
+    min-height: 2.625rem;
+    white-space: normal;
+  }
+}

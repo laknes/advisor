@@ -51,6 +51,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
+        data-ui-button
+        data-variant={variant}
         disabled={isLoading || disabled}
         whileHover={whileHover || { scale: 1.02, translateY: -1 }}
         whileTap={whileTap || { scale: 0.98 }}
