@@ -16,6 +16,7 @@ import {
 import { useLocale } from '@/components/LocaleProvider';
 import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
 import Link from 'next/link';
+import { Image as ImageIcon, Upload, Video, X } from 'lucide-react';
 
 interface Params {
   params: Promise<{
@@ -33,6 +34,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
     title: '',
     summary: '',
     fullContent: '',
+    mediaUrl: '',
+    mediaType: '',
     marketId: '',
     timeframe: 'daily',
     analysisType: 'short_term',
@@ -68,6 +71,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
           title: data.title || '',
           summary: data.summary || '',
           fullContent: data.fullContent || '',
+          mediaUrl: data.mediaUrl || '',
+          mediaType: data.mediaType || '',
           marketId: data.marketId || 'iran-stocks',
           timeframe: data.timeframe || 'daily',
           analysisType: data.analysisType || 'short_term',
@@ -129,6 +134,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
         },
         body: JSON.stringify({
           ...analysis,
+          mediaUrl: analysis.mediaUrl || null,
+          mediaType: analysis.mediaType || null,
           entryZone: analysis.entryZone.trim() || undefined,
           exitZone: analysis.exitZone.trim() || undefined,
         }),
@@ -148,6 +155,44 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
       setError('Unable to update analysis. Please try again.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setMessage('در حال آپلود فایل...');
+
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+
+    try {
+      const response = await fetch('/api/admin/uploads/analysis-media', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: uploadData,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'آپلود فایل انجام نشد.');
+        setMessage('');
+        return;
+      }
+
+      setAnalysis((prev) => ({
+        ...prev,
+        mediaUrl: result.data.url,
+        mediaType: result.data.mediaType,
+      }));
+      setMessage('فایل با موفقیت آپلود شد. برای ثبت نهایی، تغییرات را ذخیره کنید.');
+    } catch {
+      setError('آپلود فایل انجام نشد.');
+      setMessage('');
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -264,6 +309,46 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
                 <FormGroup label="Full Content">
                   <Textarea name="fullContent" value={analysis.fullContent} onChange={handleChange} rows={6} />
                 </FormGroup>
+
+                <div className="rounded-lg border border-dashed border-secondary-200 bg-secondary-50 p-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-primary-600 shadow-sm">
+                        {analysis.mediaType === 'video' ? <Video className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}
+                      </div>
+                      <div>
+                        <p className="font-black text-secondary-900">رسانه تحلیل</p>
+                        <p className="text-sm font-medium text-secondary-500">تصویر یا ویدیوی مرتبط با تحلیل را آپلود یا جایگزین کنید.</p>
+                      </div>
+                    </div>
+                    <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 text-sm font-black text-white transition-colors hover:bg-primary-700">
+                      <Upload className="h-4 w-4" />
+                      انتخاب فایل
+                      <input type="file" accept="image/*,video/*" className="sr-only" onChange={handleMediaUpload} />
+                    </label>
+                  </div>
+
+                  {analysis.mediaUrl ? (
+                    <div className="mt-4 overflow-hidden rounded-lg border border-secondary-100 bg-white">
+                      <div className="flex items-center justify-between border-b border-secondary-100 px-4 py-3">
+                        <span className="text-sm font-bold text-secondary-600">{analysis.mediaType === 'video' ? 'ویدیو آپلود شده' : 'تصویر آپلود شده'}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAnalysis((prev) => ({ ...prev, mediaUrl: '', mediaType: '' }))}
+                          className="rounded-lg p-1 text-secondary-400 transition-colors hover:bg-secondary-100 hover:text-red-600"
+                          aria-label="حذف رسانه"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                      {analysis.mediaType === 'video' ? (
+                        <video src={analysis.mediaUrl} controls className="max-h-80 w-full bg-black" />
+                      ) : (
+                        <img src={analysis.mediaUrl} alt="پیش‌نمایش رسانه تحلیل" className="max-h-80 w-full object-contain" />
+                      )}
+                    </div>
+                  ) : null}
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <FormGroup label="Signal">

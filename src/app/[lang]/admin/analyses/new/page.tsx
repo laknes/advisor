@@ -13,7 +13,11 @@ import {
   Target, 
   Globe,
   Lock,
-  Calendar
+  Calendar,
+  Image as ImageIcon,
+  Upload,
+  Video,
+  X
 } from 'lucide-react';
 
 export default function NewAnalysisPage() {
@@ -34,6 +38,8 @@ export default function NewAnalysisPage() {
     riskLevel: 'MEDIUM',
     summary: '',
     fullContent: '',
+    mediaUrl: '',
+    mediaType: '',
     entryZone: '',
     exitZone: '',
     accessLevel: 'premium',
@@ -110,6 +116,8 @@ export default function NewAnalysisPage() {
           title: formData.title,
           summary: formData.summary,
           fullContent: formData.fullContent,
+          mediaUrl: formData.mediaUrl || undefined,
+          mediaType: formData.mediaType || undefined,
           timeframe: formData.timeframe,
           analysisType: formData.analysisType,
           signal: formData.signal,
@@ -150,6 +158,44 @@ export default function NewAnalysisPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setMessage('در حال آپلود فایل...');
+
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+
+    try {
+      const response = await fetch('/api/admin/uploads/analysis-media', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: uploadData,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'آپلود فایل انجام نشد.');
+        setMessage('');
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        mediaUrl: result.data.url,
+        mediaType: result.data.mediaType,
+      }));
+      setMessage('فایل با موفقیت آپلود شد.');
+    } catch {
+      setError('آپلود فایل انجام نشد.');
+      setMessage('');
+    } finally {
+      e.target.value = '';
+    }
   };
 
   if (!dict) return null;
@@ -213,6 +259,45 @@ export default function NewAnalysisPage() {
                       onChange={handleChange}
                       required
                     />
+                    <div className="rounded-lg border border-dashed border-secondary-200 bg-secondary-50 p-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-primary-600 shadow-sm">
+                            {formData.mediaType === 'video' ? <Video className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}
+                          </div>
+                          <div>
+                            <p className="font-black text-secondary-900">رسانه تحلیل</p>
+                            <p className="text-sm font-medium text-secondary-500">تصویر یا ویدیوی مرتبط با تحلیل را آپلود کنید.</p>
+                          </div>
+                        </div>
+                        <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 text-sm font-black text-white transition-colors hover:bg-primary-700">
+                          <Upload className="h-4 w-4" />
+                          انتخاب فایل
+                          <input type="file" accept="image/*,video/*" className="sr-only" onChange={handleMediaUpload} />
+                        </label>
+                      </div>
+
+                      {formData.mediaUrl ? (
+                        <div className="mt-4 overflow-hidden rounded-lg border border-secondary-100 bg-white">
+                          <div className="flex items-center justify-between border-b border-secondary-100 px-4 py-3">
+                            <span className="text-sm font-bold text-secondary-600">{formData.mediaType === 'video' ? 'ویدیو آپلود شده' : 'تصویر آپلود شده'}</span>
+                            <button
+                              type="button"
+                              onClick={() => setFormData((prev) => ({ ...prev, mediaUrl: '', mediaType: '' }))}
+                              className="rounded-lg p-1 text-secondary-400 transition-colors hover:bg-secondary-100 hover:text-red-600"
+                              aria-label="حذف رسانه"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                          {formData.mediaType === 'video' ? (
+                            <video src={formData.mediaUrl} controls className="max-h-80 w-full bg-black" />
+                          ) : (
+                            <img src={formData.mediaUrl} alt="پیش‌نمایش رسانه تحلیل" className="max-h-80 w-full object-contain" />
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   </CardContent>
                 </Card>
 

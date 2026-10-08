@@ -64,6 +64,8 @@ model Analysis {
   title           String
   summary         String    @db.Text
   fullContent     String?   @db.Text
+  mediaUrl        String?
+  mediaType       String?   // "image" or "video"
   
   timeframe       String    // "daily", "weekly", "monthly", "3month", "1year", "3year"
   analysisType    String    // "short_term" or "long_term"

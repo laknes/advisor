@@ -32,6 +32,8 @@ export interface Analysis {
   title: string;
   summary: string;
   fullContent?: string;
+  mediaUrl?: string | null;
+  mediaType?: 'image' | 'video' | null;
   timeframe: 'daily' | 'weekly' | 'monthly' | '3month' | '1year' | '3year';
   analysisType: 'short_term' | 'long_term';
   signal: 'BUY' | 'SELL' | 'HOLD';

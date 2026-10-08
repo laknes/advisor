@@ -60,6 +60,8 @@ export const CreateAnalysisSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   summary: z.string().min(20, 'Summary must be at least 20 characters'),
   fullContent: z.string().min(50, 'Content must be at least 50 characters'),
+  mediaUrl: z.string().startsWith('/', 'Media URL must be a local path').nullable().optional(),
+  mediaType: z.enum(['image', 'video']).nullable().optional(),
   timeframe: z.enum(['daily', 'weekly', 'monthly', '3month', '1year', '3year']),
   analysisType: z.enum(['short_term', 'long_term']),
   signal: z.enum(['BUY', 'SELL', 'HOLD']),

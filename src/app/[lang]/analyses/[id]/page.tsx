@@ -53,6 +53,16 @@ export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDe
 
               <p className="leading-8 text-secondary-700">{analysis.summary}</p>
 
+              {analysis.mediaUrl ? (
+                <div className="overflow-hidden rounded-lg border border-secondary-100 bg-secondary-100">
+                  {analysis.mediaType === 'video' ? (
+                    <video src={analysis.mediaUrl} controls className="max-h-[520px] w-full bg-black" />
+                  ) : (
+                    <img src={analysis.mediaUrl} alt={analysis.title} className="max-h-[520px] w-full object-contain" />
+                  )}
+                </div>
+              ) : null}
+
               {analysis.fullContent ? (
                 <article className="whitespace-pre-wrap border-t border-secondary-100 pt-7 text-lg leading-9 text-secondary-800">
                   {analysis.fullContent}
