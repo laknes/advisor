@@ -324,21 +324,21 @@ export default function Home() {
               {analyses.length > 0 ? (
                 analyses.map((analysis: Analysis) => (
                   <motion.div key={analysis.id} variants={fadeInUp}>
-                    <Card hoverable className="h-full p-5">
-                      <div className="space-y-5">
-                        <div className="flex justify-between gap-4">
+                    <Card hoverable className="flex h-full flex-col p-5">
+                      <div className="flex h-full flex-col">
+                        <div className="flex min-h-10 justify-between gap-4">
                           <span className={cn('rounded-lg px-3 py-1 text-xs font-black', analysis.signal === 'BUY' ? 'bg-primary-100/15 text-primary-100' : analysis.signal === 'SELL' ? 'bg-red-300/15 text-red-200' : 'bg-primary-200/15 text-primary-100')}>
                             {isEnglish ? 'Signal' : 'سیگنال'} {signalLabel(locale, analysis.signal)}
                           </span>
                           <span className="text-sm font-bold text-slate-400">{formatDate(analysis.publishedAt)}</span>
                         </div>
-                        <h3 className="text-xl font-black leading-8 text-white">{localizeText(analysis.title, analysis.title)}</h3>
-                        <p className="line-clamp-2 leading-7 text-slate-300">{localizeText(analysis.summary, analysis.summary)}</p>
-                        <div className="grid grid-cols-2 gap-3 border-y border-white/10 py-4">
+                        <h3 className="mt-5 line-clamp-2 min-h-16 text-xl font-black leading-8 text-white">{localizeText(analysis.title, analysis.title)}</h3>
+                        <p className="mt-5 line-clamp-2 min-h-14 leading-7 text-slate-300">{localizeText(analysis.summary, analysis.summary)}</p>
+                        <div className="mt-5 grid grid-cols-2 gap-3 border-y border-white/10 py-4">
                           <Metric label={isEnglish ? 'Entry zone' : 'ناحیه ورود'} value={analysis.entryZone || '—'} />
                           <Metric label={isEnglish ? 'Exit zone' : 'ناحیه خروج'} value={analysis.exitZone || '—'} accent />
                         </div>
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="mt-auto flex min-h-16 items-center justify-between gap-3 pt-5">
                           <span className="text-sm font-bold text-slate-300">{formatDate(analysis.publishedAt)}</span>
                           <ButtonLink href={analysis.accessLevel === 'login' && !isAuthenticated ? `/${locale}/auth/login?redirect=/${locale}/analyses/${analysis.id}` : `/${locale}/analyses/${analysis.id}`} size="sm" variant={analysis.isLocked ? 'secondary' : 'primary'}>
                             {analysis.accessLevel === 'login' && !isAuthenticated ? (isEnglish ? 'Login to view' : 'ورود برای مشاهده') : analysis.isLocked ? (isEnglish ? 'Unlock analysis' : 'باز کردن تحلیل') : (isEnglish ? 'Read full' : 'مطالعه کامل')}
@@ -751,7 +751,7 @@ function ButtonLink({
   rightIcon?: ReactNode;
   fullWidth?: boolean;
 }) {
-  const baseStyles = 'inline-flex items-center justify-center gap-2 rounded-lg font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent';
+  const baseStyles = 'inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent';
   const variants = {
     primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-300 shadow-lg shadow-primary-900/25',
     secondary: 'bg-white/14 text-white hover:bg-white/20 border border-white/15 focus:ring-white/40 backdrop-blur-xl',
@@ -767,6 +767,8 @@ function ButtonLink({
   return (
     <Link
       href={href}
+      data-ui-button
+      data-variant={variant}
       className={cn(baseStyles, variants[variant], sizes[size], fullWidth && 'w-full', className)}
     >
       {leftIcon && <span>{leftIcon}</span>}

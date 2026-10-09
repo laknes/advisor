@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { Badge, Button, Card, CardContent, Header, useLocale } from '@/components';
 import { apiGet } from '@/lib/apiClient';
+import { getAnalysisMediaSrc } from '@/lib/media';
 import { useAuthState } from '@/hooks/useAuthState';
 import type { Analysis } from '@/lib/types';
 
@@ -56,9 +57,9 @@ export default function AnalysisDetailPage({ params: paramsPromise }: AnalysisDe
               {analysis.mediaUrl ? (
                 <div className="overflow-hidden rounded-lg border border-secondary-100 bg-secondary-100">
                   {analysis.mediaType === 'video' ? (
-                    <video src={analysis.mediaUrl} controls className="max-h-[520px] w-full bg-black" />
+                    <video src={getAnalysisMediaSrc(analysis.mediaUrl)} controls className="max-h-[520px] w-full bg-black" />
                   ) : (
-                    <img src={analysis.mediaUrl} alt={analysis.title} className="max-h-[520px] w-full object-contain" />
+                    <img src={getAnalysisMediaSrc(analysis.mediaUrl)} alt={analysis.title} className="max-h-[520px] w-full object-contain" />
                   )}
                 </div>
               ) : null}

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useLocale } from '@/components/LocaleProvider';
 import { useDictionary } from '@/components/useDictionary';
+import { getAnalysisMediaSrc, getValidationMessage } from '@/lib/media';
 import { 
   FilePlus, 
   Send, 
@@ -69,13 +70,6 @@ export default function NewAnalysisPage() {
 
     fetchMarkets();
   }, []);
-
-  const getValidationMessage = (errors: Record<string, string> | undefined) => {
-    if (!errors) return '';
-
-    const firstError = Object.values(errors).find((value) => typeof value === 'string' && value.trim().length > 0);
-    return firstError || '';
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -291,9 +285,9 @@ export default function NewAnalysisPage() {
                             </button>
                           </div>
                           {formData.mediaType === 'video' ? (
-                            <video src={formData.mediaUrl} controls className="max-h-80 w-full bg-black" />
+                            <video src={getAnalysisMediaSrc(formData.mediaUrl)} controls className="max-h-80 w-full bg-black" />
                           ) : (
-                            <img src={formData.mediaUrl} alt="پیش‌نمایش رسانه تحلیل" className="max-h-80 w-full object-contain" />
+                            <img src={getAnalysisMediaSrc(formData.mediaUrl)} alt="پیش‌نمایش رسانه تحلیل" className="max-h-80 w-full object-contain" />
                           )}
                         </div>
                       ) : null}
@@ -303,7 +297,7 @@ export default function NewAnalysisPage() {
 
                 <Card className="border-none shadow-xl bg-white">
                   <CardHeader title={dict.admin.trading_signals} icon={<Target className="w-5 h-5 text-green-600" />} />
-                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <CardContent className="grid grid-cols-1 gap-6 space-y-0 sm:grid-cols-2">
                     <Input 
                       label="ناحیه ورود"
                       name="entryZone"

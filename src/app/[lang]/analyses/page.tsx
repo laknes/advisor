@@ -8,6 +8,7 @@ import { ArrowLeft, BarChart3, Calendar, Filter, LockKeyhole, Target } from 'luc
 import { Badge, Button, Card, Header, useLocale } from '@/components';
 import { apiGet } from '@/lib/apiClient';
 import { formatFaDate, formatFaNumber } from '@/lib/format';
+import { getAnalysisMediaSrc } from '@/lib/media';
 import type { Analysis, Market } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -153,9 +154,9 @@ export default function AnalysesPage() {
                           {analysis.mediaUrl ? (
                             <div className="overflow-hidden rounded-lg border border-white/10 bg-black/30">
                               {analysis.mediaType === 'video' ? (
-                                <video src={analysis.mediaUrl} muted playsInline className="h-40 w-full object-cover" />
+                                <video src={getAnalysisMediaSrc(analysis.mediaUrl)} muted playsInline className="h-40 w-full object-cover" />
                               ) : (
-                                <img src={analysis.mediaUrl} alt={analysis.title} className="h-40 w-full object-cover" />
+                                <img src={getAnalysisMediaSrc(analysis.mediaUrl)} alt={analysis.title} className="h-40 w-full object-cover" />
                               )}
                             </div>
                           ) : null}

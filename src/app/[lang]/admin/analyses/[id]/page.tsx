@@ -15,6 +15,7 @@ import {
 } from '@/components';
 import { useLocale } from '@/components/LocaleProvider';
 import { getAuthHeaders, getStoredUser } from '@/lib/clientAuth';
+import { getAnalysisMediaSrc, getValidationMessage } from '@/lib/media';
 import Link from 'next/link';
 import { Image as ImageIcon, Upload, Video, X } from 'lucide-react';
 
@@ -144,7 +145,8 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Unable to update analysis');
+        const validationMessage = result.error === 'Validation failed' ? getValidationMessage(result.errors) : '';
+        setError(validationMessage || result.error || 'Unable to update analysis');
         setMessage('');
         return;
       }
@@ -342,9 +344,9 @@ export default function EditAnalysisPage({ params: paramsPromise }: Params) {
                         </button>
                       </div>
                       {analysis.mediaType === 'video' ? (
-                        <video src={analysis.mediaUrl} controls className="max-h-80 w-full bg-black" />
+                        <video src={getAnalysisMediaSrc(analysis.mediaUrl)} controls className="max-h-80 w-full bg-black" />
                       ) : (
-                        <img src={analysis.mediaUrl} alt="پیش‌نمایش رسانه تحلیل" className="max-h-80 w-full object-contain" />
+                        <img src={getAnalysisMediaSrc(analysis.mediaUrl)} alt="پیش‌نمایش رسانه تحلیل" className="max-h-80 w-full object-contain" />
                       )}
                     </div>
                   ) : null}

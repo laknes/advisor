@@ -509,8 +509,8 @@ svg [stroke]:not([stroke="none"]) {
   }
 }
 
-/* Shared React Button component: keep action controls readable after palette locks. */
-button[data-ui-button] {
+/* Shared button/link-button component: keep action controls readable after palette locks. */
+:where(button, a)[data-ui-button] {
   min-height: 2.75rem;
   border: 1px solid transparent !important;
   box-shadow: 0 16px 34px -22px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
@@ -518,42 +518,53 @@ button[data-ui-button] {
   white-space: nowrap;
 }
 
-button[data-ui-button][data-variant="primary"] {
-  background: linear-gradient(180deg, #ffffff 0%, #e7d0ff 100%) !important;
-  border-color: rgba(255, 255, 255, 0.72) !important;
+:where(button, a)[data-ui-button][data-variant="primary"] {
+  background: linear-gradient(180deg, #f6ecff 0%, #d8b2ff 100%) !important;
+  border-color: rgba(224, 195, 255, 0.78) !important;
   color: #1b012f !important;
 }
 
-button[data-ui-button][data-variant="primary"]:hover {
-  background: linear-gradient(180deg, #ffffff 0%, #d8b2ff 100%) !important;
+:where(button, a)[data-ui-button][data-variant="primary"]:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #c993ff 100%) !important;
 }
 
-button[data-ui-button][data-variant="secondary"] {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
+:root[data-theme="light"] :where(button, a)[data-ui-button][data-variant="primary"] {
+  background: linear-gradient(180deg, #6d18b8 0%, #4c0a87 100%) !important;
+  border-color: #4c0a87 !important;
   color: #ffffff !important;
+  box-shadow: 0 18px 38px -24px rgba(76, 10, 135, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 
-button[data-ui-button][data-variant="secondary"]:hover,
-button[data-ui-button][data-variant="ghost"]:hover,
-button[data-ui-button][data-variant="outline"]:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
+:root[data-theme="light"] :where(button, a)[data-ui-button][data-variant="primary"]:hover {
+  background: linear-gradient(180deg, #7d22c9 0%, #5b0ca3 100%) !important;
 }
 
-button[data-ui-button][data-variant="outline"] {
-  background: rgba(255, 255, 255, 0.06) !important;
+:where(button, a)[data-ui-button][data-variant="secondary"] {
+  background: color-mix(in srgb, var(--theme-accent) 14%, transparent) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 36%, transparent) !important;
+  color: var(--theme-accent) !important;
+}
+
+:where(button, a)[data-ui-button][data-variant="secondary"]:hover,
+:where(button, a)[data-ui-button][data-variant="ghost"]:hover,
+:where(button, a)[data-ui-button][data-variant="outline"]:hover {
+  background: color-mix(in srgb, var(--theme-accent) 18%, transparent) !important;
+}
+
+:where(button, a)[data-ui-button][data-variant="outline"] {
+  background: color-mix(in srgb, var(--theme-surface) 56%, transparent) !important;
   border-color: color-mix(in srgb, var(--theme-accent) 62%, transparent) !important;
   color: var(--theme-accent) !important;
 }
 
-button[data-ui-button][data-variant="ghost"] {
+:where(button, a)[data-ui-button][data-variant="ghost"] {
   background: transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;
-  color: var(--theme-text) !important;
+  color: var(--theme-accent) !important;
 }
 
-button[data-ui-button][data-variant="danger"] {
+:where(button, a)[data-ui-button][data-variant="danger"] {
   background: linear-gradient(180deg, #fff1f2 0%, #fb7185 100%) !important;
   border-color: rgba(255, 255, 255, 0.64) !important;
   color: #3f0612 !important;
@@ -566,7 +577,7 @@ button[data-ui-button]:disabled {
 }
 
 @media (max-width: 640px) {
-  button[data-ui-button] {
+  :where(button, a)[data-ui-button] {
     min-height: 2.625rem;
     white-space: normal;
   }

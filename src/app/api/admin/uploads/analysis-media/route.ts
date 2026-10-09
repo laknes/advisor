@@ -36,14 +36,14 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'حجم فایل نباید بیشتر از ۸۰ مگابایت باشد.' }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'analyses');
+    const uploadDir = path.join(process.cwd(), 'uploads', 'analyses');
     await mkdir(uploadDir, { recursive: true });
 
     const filename = `${Date.now()}-${randomUUID()}.${extension}`;
     await writeFile(path.join(uploadDir, filename), Buffer.from(await file.arrayBuffer()));
 
     return successResponse({
-      url: `/uploads/analyses/${filename}`,
+      url: `/api/uploads/analyses/${filename}`,
       mediaType: file.type.startsWith('video/') ? 'video' : 'image',
     }, 'Media uploaded successfully', 201);
   } catch (error) {
