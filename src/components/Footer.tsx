@@ -27,6 +27,26 @@ export const Footer = () => {
   const logoUrl = getBrandLogoUrl(publicSettings);
   const supportEmail = String(publicSettings.support_email || 'support@advisor.com');
   const supportPhone = String(publicSettings.support_phone || '');
+  const chatUrl = String(publicSettings.online_chat_url || publicSettings.whatsapp_url || '');
+  const externalUrl = String(publicSettings.telegram_url || publicSettings.linkedin_url || publicSettings.instagram_url || '');
+  const contactHref = `/${locale}/contact`;
+
+  const handleShare = async () => {
+    const shareUrl = window.location.origin;
+    const shareTitle = brandName;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, url: shareUrl });
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      window.alert(locale === 'fa' ? 'لینک سایت کپی شد.' : 'Site link copied.');
+    } catch {
+      window.alert(locale === 'fa' ? 'امکان اشتراک‌گذاری لینک وجود ندارد.' : 'Unable to share the link.');
+    }
+  };
 
   if (!dict) return null;
 
@@ -51,9 +71,23 @@ export const Footer = () => {
               {dict.footer.description}
             </p>
             <div className="flex gap-4">
-              <SocialLink icon={<MessageSquare className="w-5 h-5" />} href="#" />
-              <SocialLink icon={<Share2 className="w-5 h-5" />} href="#" />
-              <SocialLink icon={<ExternalLink className="w-5 h-5" />} href="#" />
+              <SocialLink
+                icon={<MessageSquare className="w-5 h-5" />}
+                href={chatUrl || contactHref}
+                label={locale === 'fa' ? 'تماس یا چت با پشتیبانی' : 'Contact support'}
+                external={Boolean(chatUrl)}
+              />
+              <SocialLink
+                icon={<Share2 className="w-5 h-5" />}
+                label={locale === 'fa' ? 'اشتراک‌گذاری سایت' : 'Share site'}
+                onClick={handleShare}
+              />
+              <SocialLink
+                icon={<ExternalLink className="w-5 h-5" />}
+                href={externalUrl || contactHref}
+                label={locale === 'fa' ? 'باز کردن شبکه اجتماعی' : 'Open social channel'}
+                external={Boolean(externalUrl)}
+              />
             </div>
           </div>
 
@@ -123,11 +157,39 @@ const FooterLink = ({ href, children, icon }: { href: string; children: React.Re
   </li>
 );
 
-const SocialLink = ({ icon, href }: { icon: React.ReactNode; href: string }) => (
-  <a 
-    href={href} 
-    className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-slate-300 hover:bg-white/15 hover:text-white transition-all"
-  >
-    {icon}
-  </a>
-);
+const socialLinkClassName = 'w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-slate-300 hover:bg-white/15 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary-200';
+
+const SocialLink = ({
+  icon,
+  href,
+  label,
+  external = false,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  href?: string;
+  label: string;
+  external?: boolean;
+  onClick?: () => void;
+}) => {
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={socialLinkClassName} aria-label={label} title={label}>
+        {icon}
+      </button>
+    );
+  }
+
+  return (
+    <a
+      href={href || '#'}
+      className={socialLinkClassName}
+      aria-label={label}
+      title={label}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noreferrer' : undefined}
+    >
+      {icon}
+    </a>
+  );
+};

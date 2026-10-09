@@ -4,11 +4,16 @@ import { CreateSubscriptionPlanSchema } from '@/lib/validations';
 import { formatZodError } from '@/lib/errors';
 import { handleError, requireAdmin, successResponse } from '@/server/middleware';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const includeInactive = req.nextUrl.searchParams.get('includeInactive') === 'true';
     const plans = await SubscriptionService.getAllPlans(!includeInactive);
-    return successResponse({ plans });
+    const response = successResponse({ plans });
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    return response;
   } catch (error) {
     return handleError(error);
   }

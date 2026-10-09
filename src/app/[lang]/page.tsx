@@ -161,7 +161,7 @@ export default function Home() {
         }
 
         if (planData.status === 'fulfilled') {
-          setPlans(planData.value.plans || []);
+          setPlans((planData.value.plans || []).filter((plan) => plan.isActive !== false));
         } else {
           setPlans([]);
           errors.push(isEnglish ? 'subscription plans' : 'دریافت پلن‌های اشتراک');

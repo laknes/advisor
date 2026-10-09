@@ -458,13 +458,13 @@ export default function PricingPage() {
     const fetchData = async () => {
       try {
         const [plansRes, subsRes] = await Promise.all([
-          fetch('/api/subscription-plans'),
+          fetch('/api/subscription-plans', { cache: 'no-store' }),
           fetch('/api/subscriptions', { headers: getAuthHeaders() }),
         ]);
         const marketsRes = await fetch('/api/markets');
 
         const [plansData, subsData, marketsData] = await Promise.all([plansRes.json(), subsRes.json(), marketsRes.json()]);
-        setPlans(plansData.data?.plans || []);
+        setPlans((plansData.data?.plans || []).filter((plan: SubscriptionPlan) => plan.isActive !== false));
         setSubscriptions(subsRes.ok ? subsData.data?.subscriptions || [] : []);
         setMarkets(marketsData.data?.markets || []);
       } catch {
